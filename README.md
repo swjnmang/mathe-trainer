@@ -1,1 +1,2 @@
-# marktmatch5
+# matheaufgaben
+Aufgabengenerator für Matheaufgaben an der Wirtschaftsschule
