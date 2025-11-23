@@ -12,6 +12,7 @@
     "title": "Finanzmathematik",
     "description": "Zinsen, Zinseszins und Darlehensberechnungen verstehen.",
     "path": "/finanzmathe/index.html",
+    "reactPath": "/finanzmathe",
     "icon": "fa-solid fa-sack-dollar"
   },
   {

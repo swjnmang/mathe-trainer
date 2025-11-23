@@ -1,10 +1,3 @@
-function startTest() {
-    setQuestions(Array.from({ length: TOTAL_QUESTIONS }, () => randomChoice(questionTypes)()))
-    setUserAnswers([])
-    setCurrent(0)
-    setShowResult(false)
-    // setStarted wird durch useEffect gesetzt
-  }
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import styles from './LFCommon.module.css'

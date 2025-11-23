@@ -47,6 +47,33 @@ import PunktGerade from './pages/lineare_funktionen/PunktGerade'
 import Schnittpunkt from './pages/lineare_funktionen/Schnittpunkt'
 import SpielMuenzen from './pages/lineare_funktionen/SpielMuenzen'
 import TestLF from './pages/lineare_funktionen/Test'
+// Finanzmathe
+import FinanzmatheIndex from './pages/FinanzmatheIndex';
+import ZinsrechnungMenu from './pages/finanzmathe/ZinsrechnungMenu';
+import Zinsrechnung from './pages/finanzmathe/Zinsrechnung';
+import Zinstage from './pages/finanzmathe/Zinstage';
+import Zinseszins from './pages/finanzmathe/Zinseszins';
+import MehrungMinderung from './pages/finanzmathe/MehrungMinderung';
+import Endwert from './pages/finanzmathe/Endwert';
+import Ratendarlehen from './pages/finanzmathe/Ratendarlehen';
+import Annuitaetendarlehen from './pages/finanzmathe/Annuitaetendarlehen';
+import ZinsenTest from './pages/finanzmathe/ZinsenTest';
+// Quadratische Funktionen
+import QuadratischeFunktionenMenu from './pages/quadratische_funktionen/QuadratischeFunktionenMenu';
+import Normalparabel from './pages/quadratische_funktionen/Normalparabel';
+import ScheitelpunktAblesen from './pages/quadratische_funktionen/ScheitelpunktAblesen';
+import Scheitelpunkt from './pages/quadratische_funktionen/Scheitelpunkt';
+import Scheitelform from './pages/quadratische_funktionen/Scheitelform';
+import GraphZeichnen from './pages/quadratische_funktionen/GraphZeichnen';
+import ScheitelformRechnerisch from './pages/quadratische_funktionen/ScheitelformRechnerisch';
+import ScheitelInAllgForm from './pages/quadratische_funktionen/ScheitelInAllgForm';
+import FunktionsgleichungAufstellen from './pages/quadratische_funktionen/FunktionsgleichungAufstellen';
+import NullstellenQF from './pages/quadratische_funktionen/Nullstellen';
+import SchnittpunkteQF from './pages/quadratische_funktionen/Schnittpunkte';
+import Schnittpunkte2QF from './pages/quadratische_funktionen/Schnittpunkte2';
+import SpielNullstellenQF from './pages/quadratische_funktionen/SpielNullstellen';
+import AbschlusstestQF from './pages/quadratische_funktionen/Abschlusstest';
+// ... other imports will be added as files are created
 
 export default function App() {
   return (
@@ -80,7 +107,6 @@ export default function App() {
           <Route path="/rechnen_lernen/wurzeln/wurzeln" element={<WurzelnUebung />} />
           <Route path="/rechnen_lernen/prozentrechnung" element={<Prozentrechnung />} />
           <Route path="/rechnen_lernen/prozentrechnung/prozentrechnung" element={<ProzentrechnungUebung />} />
-          <Route path="/rechnen_lernen/prozentrechnung/bezugskalkulation" element={<Bezugskalkulation />} />
           <Route path="/rechnen_lernen/prozentrechnung/handelskalkvw" element={<Handelskalkvw />} />
           <Route path="/rechnen_lernen/prozentrechnung/handelskalkrw" element={<Handelskalkrw />} />
           <Route path="/rechnen_lernen/prozentrechnung/handelskalkdif" element={<Handelskalkdif />} />
@@ -98,7 +124,35 @@ export default function App() {
           <Route path="/lineare_funktionen/schnittpunkt" element={<Schnittpunkt />} />
           <Route path="/lineare_funktionen/spiel_muenzen" element={<SpielMuenzen />} />
           <Route path="/lineare_funktionen/test" element={<TestLF />} />
-          <Route path="/quadratische_funktionen" element={<QuadratischeIndex />} />
+          
+          <Route path="/finanzmathe" element={<FinanzmatheIndex />} />
+          <Route path="/finanzmathe/zinsrechnung" element={<ZinsrechnungMenu />} />
+          <Route path="/finanzmathe/zinsrechnung/ueben" element={<Zinsrechnung />} />
+          <Route path="/finanzmathe/zinsrechnung/tage" element={<Zinstage />} />
+          <Route path="/finanzmathe/zinseszins" element={<Zinseszins />} />
+          <Route path="/finanzmathe/mehrung_minderung" element={<MehrungMinderung />} />
+          <Route path="/finanzmathe/endwert" element={<Endwert />} />
+          <Route path="/finanzmathe/ratendarlehen" element={<Ratendarlehen />} />
+          <Route path="/finanzmathe/annuitaetendarlehen" element={<Annuitaetendarlehen />} />
+          <Route path="/finanzmathe/zinsen_test" element={<ZinsenTest />} />
+
+          <Route path="/quadratische_funktionen" element={<QuadratischeFunktionenMenu />} />
+          <Route path="/quadratische_funktionen/normalparabel" element={<Normalparabel />} />
+          <Route path="/quadratische_funktionen/scheitelpunkt_ablesen" element={<ScheitelpunktAblesen />} />
+          <Route path="/quadratische_funktionen/scheitelpunkt" element={<Scheitelpunkt />} />
+          <Route path="/quadratische_funktionen/scheitelform" element={<Scheitelform />} />
+          <Route path="/quadratische_funktionen/graph_zeichnen" element={<GraphZeichnen />} />
+          <Route path="/quadratische_funktionen/scheitelform_rechnerisch" element={<ScheitelformRechnerisch />} />
+          <Route path="/quadratische_funktionen/scheitel_in_allg_form" element={<ScheitelInAllgForm />} />
+          <Route path="/quadratische_funktionen/funktionsgleichung_aufstellen" element={<FunktionsgleichungAufstellen />} />
+          <Route path="/quadratische_funktionen/nullstellen" element={<NullstellenQF />} />
+          <Route path="/quadratische_funktionen/schnittpunkte" element={<SchnittpunkteQF />} />
+          <Route path="/quadratische_funktionen/schnittpunkte_gerade" element={<SchnittpunkteQF initialTaskType="line-parabola" />} />
+          <Route path="/quadratische_funktionen/schnittpunkte_parabel" element={<SchnittpunkteQF initialTaskType="parabola-parabola" />} />
+          <Route path="/quadratische_funktionen/schnittpunkte2" element={<Schnittpunkte2QF />} />
+          <Route path="/quadratische_funktionen/spiel_nullstellen" element={<SpielNullstellenQF />} />
+          <Route path="/quadratische_funktionen/abschlusstest" element={<AbschlusstestQF />} />
+          
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

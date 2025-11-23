@@ -41,9 +41,9 @@ export default function Addierensubtrahieren() {
   const [task, setTask] = useState<Task | null>(null);
   const [inputNum, setInputNum] = useState('');
   const [inputDen, setInputDen] = useState('');
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<React.ReactNode | null>(null);
   const [feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | null>(null);
-  const [solution, setSolution] = useState<string | null>(null);
+  const [solution, setSolution] = useState<React.ReactNode | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -91,7 +91,12 @@ export default function Addierensubtrahieren() {
       setCorrectCount(c => c + 1);
       setStreak(s => s + 1);
     } else {
-      setFeedback(`Leider falsch. Die richtige Lösung ist ${res.num}/${res.den}.`);
+      setFeedback(
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <span>Leider falsch. Die richtige Lösung ist:</span>
+          <FractionDisplay num={res.num} den={res.den} />
+        </div>
+      );
       setFeedbackType('incorrect');
       setStreak(0);
     }
@@ -100,8 +105,24 @@ export default function Addierensubtrahieren() {
   function handleShowSolution() {
     if (!task) return;
     const { num, den, steps } = computeSimplifiedResult(task);
-    const html = `1) Gemeinsamer Nenner: ${steps.common}. 2) Angepasst: ${steps.a1}/${steps.common} ${task.operation} ${steps.a2}/${steps.common} = ${steps.num}/${steps.den}. 3) Kürzen mit GGT ${steps.g}: ${num}/${den}.`;
-    setSolution(html);
+    
+    setSolution(
+      <div className="flex flex-col items-center gap-2">
+        <div className="text-sm text-gray-600">1) Gemeinsamer Nenner: {steps.common}</div>
+        <div className="flex items-center flex-wrap justify-center gap-2">
+          <span className="text-sm text-gray-600">2) Angepasst:</span>
+          <FractionDisplay num={steps.a1} den={steps.common} />
+          <span className="text-xl">{task.operation}</span>
+          <FractionDisplay num={steps.a2} den={steps.common} />
+          <span className="text-xl">=</span>
+          <FractionDisplay num={steps.num} den={steps.den} />
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-sm text-gray-600">3) Kürzen mit GGT {steps.g}:</span>
+          <FractionDisplay num={num} den={den} />
+        </div>
+      </div>
+    );
     setFeedback(null);
     setFeedbackType(null);
   }

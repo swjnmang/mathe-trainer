@@ -92,9 +92,9 @@ export default function Kuerzenerweitern() {
   const [task, setTask] = useState<Task | null>(null);
   const [inputNum, setInputNum] = useState('');
   const [inputDen, setInputDen] = useState('');
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<React.ReactNode | null>(null);
   const [feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | null>(null);
-  const [solution, setSolution] = useState<string | null>(null);
+  const [solution, setSolution] = useState<React.ReactNode | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -147,9 +147,21 @@ export default function Kuerzenerweitern() {
         const expectedRatio = task.expectedNumerator / task.expectedDenominator;
         const inputRatio = num / den;
         if (Math.abs(expectedRatio - inputRatio) < 0.0001 && !isSimplified) {
-          setFeedback(`Fast! Der Bruch ${num}/${den} ist wertgleich, aber nicht vollständig gekürzt. Die Lösung ist ${task.expectedNumerator}/${task.expectedDenominator}.`);
+          setFeedback(
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <span>Fast! Der Bruch</span>
+              <FractionDisplay num={num} den={den} />
+              <span>ist wertgleich, aber nicht vollständig gekürzt. Die Lösung ist:</span>
+              <FractionDisplay num={task.expectedNumerator} den={task.expectedDenominator} />
+            </div>
+          );
         } else {
-          setFeedback(`Leider falsch. Die richtige Lösung ist ${task.expectedNumerator}/${task.expectedDenominator}.`);
+          setFeedback(
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <span>Leider falsch. Die richtige Lösung ist:</span>
+              <FractionDisplay num={task.expectedNumerator} den={task.expectedDenominator} />
+            </div>
+          );
         }
         setFeedbackType('incorrect');
       }
@@ -162,7 +174,12 @@ export default function Kuerzenerweitern() {
         setCorrectCount((c) => c + 1);
         setStreak((s) => s + 1);
       } else {
-        setFeedback(`Leider falsch. Die richtige Lösung ist ${task.expectedNumerator}/${task.expectedDenominator}.`);
+        setFeedback(
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <span>Leider falsch. Die richtige Lösung ist:</span>
+            <FractionDisplay num={task.expectedNumerator} den={task.expectedDenominator} />
+          </div>
+        );
         setFeedbackType('incorrect');
         setStreak(0);
       }
@@ -171,13 +188,46 @@ export default function Kuerzenerweitern() {
 
   function handleShowSolution() {
     if (!task) return;
-    let sol = '';
+    
     if (task.type === 'shorten') {
-      sol = `Der Bruch ${task.displayNumerator}/${task.displayDenominator} wird vollständig gekürzt, indem Zähler und Nenner durch ${task.factor} geteilt werden: ${task.displayNumerator} ÷ ${task.factor} = ${task.expectedNumerator}, ${task.displayDenominator} ÷ ${task.factor} = ${task.expectedDenominator}. Ergebnis: ${task.expectedNumerator}/${task.expectedDenominator}`;
+      setSolution(
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center flex-wrap justify-center gap-2">
+            <span>Der Bruch</span>
+            <FractionDisplay num={task.displayNumerator!} den={task.displayDenominator!} />
+            <span>wird vollständig gekürzt, indem Zähler und Nenner durch {task.factor} geteilt werden:</span>
+          </div>
+          <div className="flex items-center flex-wrap justify-center gap-2">
+            <span>{task.displayNumerator} ÷ {task.factor} = {task.expectedNumerator}</span>
+            <span>,</span>
+            <span>{task.displayDenominator} ÷ {task.factor} = {task.expectedDenominator}</span>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <span>Ergebnis:</span>
+            <FractionDisplay num={task.expectedNumerator} den={task.expectedDenominator} />
+          </div>
+        </div>
+      );
     } else {
-      sol = `Der Bruch ${task.baseNumerator}/${task.baseDenominator} wird mit ${task.factor} erweitert: ${task.baseNumerator} × ${task.factor} = ${task.expectedNumerator}, ${task.baseDenominator} × ${task.factor} = ${task.expectedDenominator}. Ergebnis: ${task.expectedNumerator}/${task.expectedDenominator}`;
+      setSolution(
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center flex-wrap justify-center gap-2">
+            <span>Der Bruch</span>
+            <FractionDisplay num={task.baseNumerator!} den={task.baseDenominator!} />
+            <span>wird mit {task.factor} erweitert:</span>
+          </div>
+          <div className="flex items-center flex-wrap justify-center gap-2">
+            <span>{task.baseNumerator} × {task.factor} = {task.expectedNumerator}</span>
+            <span>,</span>
+            <span>{task.baseDenominator} × {task.factor} = {task.expectedDenominator}</span>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <span>Ergebnis:</span>
+            <FractionDisplay num={task.expectedNumerator} den={task.expectedDenominator} />
+          </div>
+        </div>
+      );
     }
-    setSolution(sol);
     setFeedback(null);
     setFeedbackType(null);
   }
