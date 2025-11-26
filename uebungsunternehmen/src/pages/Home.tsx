@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-gradient-to-br from-slate-800 to-slate-700 text-white py-12 px-4 text-center shadow-md relative">
-        <a href="https://wss-digital.github.io/" className="absolute top-4 left-4 text-slate-300 hover:text-white flex items-center gap-2 text-sm font-medium transition-colors">
+        <a href="https://swjnmang.github.io/wss-digital/" className="absolute top-4 left-4 text-slate-300 hover:text-white flex items-center gap-2 text-sm font-medium transition-colors">
           ← Zurück zu wss-digital
         </a>
         <h1 className="text-4xl font-bold mb-2 tracking-tight">
