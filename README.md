@@ -7,7 +7,8 @@ Zentrale Landingpage der Wirtschaftsschule digital mit Links zu mehreren eigenst
 - `index.html` – moderne Landingpage im Repo-Root (lokale Vorschau).
 - `docs/index.html` – identische Landingpage-Kopie für GitHub Pages (Pages-Quelle: `main` → `docs`).
 - `mathe-trainer/` – Vite/Tailwind-App mit interaktiven Matheaufgaben (deployt via Vercel, Root-Dir entsprechend wählen).
-- `digital-bildung/`, `planspiel/`, `module/` – leere Container-Verzeichnisse für kommende Apps; jedes erhält später sein eigenes Build-Setup und Deployment.
+- `planspiel/` – statisches Wirtschaftsplanspiel „Markt-Match 5“ (reine HTML/CSS/JS-Dateien, lokal oder über Pages lauffähig).
+- `digital-bildung/`, `module/` – Reserven für weitere Apps, die später ein eigenes Build-Setup erhalten.
 - `archive_original_site/` – Archiv der ursprünglichen statischen Seiten.
 - `scripts/` – Node-Skripte zum Kopieren oder Archivieren älterer Inhalte.
 
