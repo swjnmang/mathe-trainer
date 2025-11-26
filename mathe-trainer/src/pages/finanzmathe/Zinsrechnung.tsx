@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'katex/dist/katex.min.css';
 import { BlockMath, InlineMath } from 'react-katex';
+import { useNavigate } from 'react-router-dom';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 type TaskType = 'zinsen' | 'kapital' | 'zinssatz' | 'laufzeit';
@@ -78,6 +79,8 @@ const getWordProblem = (type: TaskType, K: number, p: number, t: number, Z: numb
 };
 
 export default function Zinsrechnung() {
+  const navigate = useNavigate();
+  const handleBack = () => navigate(-1);
   const [task, setTask] = useState<Task | null>(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState<React.ReactNode | null>(null);
@@ -224,7 +227,7 @@ export default function Zinsrechnung() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <div className="flex-1 flex flex-col items-center justify-center w-full px-2 py-8 sm:px-8">
         <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-4xl min-h-[400px] flex flex-col items-center p-6 sm:p-12 md:p-16 lg:p-20 xl:p-24">
-          <a href="/finanzmathe/zinsrechnung" className="text-blue-600 hover:underline mb-4 self-start">&larr; Zurück zum Menü</a>
+          <button type="button" onClick={handleBack} className="text-blue-600 hover:underline mb-4 self-start">&larr; Zurück</button>
           <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 text-center">Zinsrechnung (Tageszinsen)</h1>
           
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 w-full max-w-2xl text-center">

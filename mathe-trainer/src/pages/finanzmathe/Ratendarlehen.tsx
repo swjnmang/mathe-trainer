@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Task {
   K0: number;
@@ -22,6 +23,8 @@ const formatNumber = (val: number, decimals: number = 2) => val.toLocaleString('
 
 export default function Ratendarlehen() {
   const [task, setTask] = useState<Task | null>(null);
+  const navigate = useNavigate();
+  const handleBack = () => navigate(-1);
   
   // Inputs
   const [inputs, setInputs] = useState({
@@ -172,7 +175,7 @@ export default function Ratendarlehen() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <div className="flex-1 flex flex-col items-center justify-center w-full px-2 py-8 sm:px-8">
         <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-5xl flex flex-col items-center p-6 sm:p-8">
-          <a href="/finanzmathe" className="text-blue-600 hover:underline mb-4 self-start">&larr; Zurück zur Übersicht</a>
+          <button type="button" onClick={handleBack} className="text-blue-600 hover:underline mb-4 self-start">&larr; Zurück</button>
           <h1 className="text-3xl font-bold text-blue-900 mb-2 text-center">Ratendarlehen: Tilgungsplan</h1>
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 w-full">
