@@ -9,7 +9,7 @@
         :root {
             --primary: #2563eb;       /* Hauptfarbe Blau */
             --primary-dark: #1e40af;  /* Dunkleres Blau für Hover */
-            --bg-color: #f1f5f9;      /* Heller Hintergrund */
+                <a href="https://ws-mathe-trainer.vercel.app/" class="nav-card" data-link-id="mathe-trainer">
             --card-bg: #ffffff;       /* Karten Hintergrund */
             --text-main: #0f172a;     /* Dunkler Text */
             --text-light: #64748b;    /* Leichter Text */
@@ -30,7 +30,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
+                <a href="#" class="nav-card" data-link-id="digitale-bildung">
         /* --- Header --- */
         header {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
@@ -44,7 +44,7 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
+                <a href="planspiel/index.html" class="nav-card" data-link-id="wirtschaftsplanspiel">
         }
 
         .brand-accent {
@@ -57,7 +57,7 @@
             position: absolute;
             left: 0;
             bottom: -0.2rem;
-            width: 100%;
+                <a href="https://wss-digital-uebungsunternehmen.vercel.app/" class="nav-card" data-link-id="uebungsunternehmen" data-app-link="uebungsunternehmen">
             height: 0.2rem;
             background: rgba(37, 99, 235, 0.35);
         }
@@ -379,7 +379,7 @@
             
             <!-- Karte 1 -->
             <!-- Link aktualisiert -->
-            <a href="https://ws-mathe-trainer.vercel.app/" class="nav-card">
+            <a href="https://ws-mathe-trainer.vercel.app/" class="nav-card" data-link-id="mathe-trainer">
                 <div class="icon-wrapper">
                     <!-- Calculator/Math Icon -->
                     <svg viewBox="0 0 24 24">
@@ -400,7 +400,7 @@
             </a>
 
             <!-- Karte 2 -->
-            <a href="#" class="nav-card">
+            <a href="#" class="nav-card" data-link-id="digitale-bildung">
                 <div class="icon-wrapper">
                     <!-- Laptop Icon -->
                     <svg viewBox="0 0 24 24">
@@ -414,7 +414,7 @@
             </a>
 
             <!-- Karte 3 -->
-            <a href="planspiel/index.html" class="nav-card">
+            <a href="planspiel/index.html" class="nav-card" data-link-id="wirtschaftsplanspiel">
                 <div class="icon-wrapper">
                     <!-- Chart/Strategy Icon -->
                     <svg viewBox="0 0 24 24">
@@ -427,7 +427,7 @@
             </a>
 
             <!-- Karte 4 -->
-            <a href="https://wss-digital-uebungsunternehmen.vercel.app/" class="nav-card">
+            <a href="https://wss-digital-uebungsunternehmen.vercel.app/" class="nav-card" data-link-id="uebungsunternehmen">
                 <div class="icon-wrapper">
                     <!-- Briefcase Icon -->
                     <svg viewBox="0 0 24 24">
@@ -487,6 +487,7 @@
         <button class="impressum-toggle" id="impressumToggle" type="button" aria-expanded="false" aria-controls="impressumPanel">Impressum anzeigen</button>
     </footer>
 
+    <script src="shared-links.js" defer></script>
     <script>
         // Handles cookie consent banner persistence and the collapsible Impressum section.
         (function () {
