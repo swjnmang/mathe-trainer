@@ -6,9 +6,9 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <header className="w-full py-8 px-4 md:px-12 flex flex-col items-center bg-white/80 shadow-sm">
-        <h1 className="text-4xl md:text-5xl font-bold mb-2 text-blue-900">Mathe Wirtschaftsschule</h1>
-        <p className="text-lg md:text-xl text-blue-800 mb-1">Deine Plattform für digitale Übungsaufgaben und Lernvideos.</p>
-        <p className="max-w-3xl text-center text-gray-700">Hallo und herzlich willkommen! Auf dieser Seite findest du eine wachsende Sammlung an interaktiven Übungen und Tests für den Mathematikunterricht an der Wirtschaftsschule. Wähle einfach ein Thema aus und starte direkt mit dem Üben. Viel Erfolg!</p>
+        <h1 className="text-4xl md:text-5xl font-bold mb-2 text-blue-900">Mathe-Trainer</h1>
+        <p className="text-lg md:text-xl text-blue-800 mb-1">Interaktiver Aufgaben-Generator für die Wirtschaftsschule.</p>
+        <p className="max-w-3xl text-center text-gray-700">Trainiere lineare und quadratische Funktionen, Finanzmathematik, Trigonometrie, Daten &amp; Zufall und vieles mehr. Jede Rubrik enthält adaptive Aufgabengeneratoren mit Lösungen und Tests, damit du gezielt üben und deinen Fortschritt direkt prüfen kannst.</p>
       </header>
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
