@@ -8,7 +8,14 @@ export interface Supplier {
 export interface Offer {
   id: string;
   supplier: Supplier;
-  price: number;
+  
+  // Calculation components
+  listPrice: number;      // Listenpreis (Netto)
+  discount: number;       // Liefererrabatt in %
+  cashDiscount: number;   // Lieferskonto in %
+  shipping: number;       // Bezugskosten (Versand/Verpackung)
+  finalPrice: number;     // Calculated Bezugspreis (Target for validation)
+
   deliveryTime: number; // in days
   warranty: number; // in years
   qualityScore: number; // 1-10 internal score for generation
@@ -32,6 +39,7 @@ const SUPPLIERS = [
 ];
 
 const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+const randomFloat = (min: number, max: number) => parseFloat((Math.random() * (max - min) + min).toFixed(2));
 
 export const generateComparisonTask = (): ComparisonTask => {
   const products: ProductType[] = ['Drucker', 'Smartphone', 'PC'];
@@ -47,7 +55,7 @@ export const generateComparisonTask = (): ComparisonTask => {
     if (product === 'Smartphone') basePrice = 600;
     if (product === 'PC') basePrice = 1200;
 
-    // Adjust price based on supplier "vibe" (simple heuristic based on name/desc)
+    // Adjust price based on supplier "vibe"
     let priceMod = 1;
     let quality = randomInt(5, 9);
     let env = randomInt(4, 8);
@@ -57,10 +65,25 @@ export const generateComparisonTask = (): ComparisonTask => {
     if (supplier.name.includes('TechGiant')) { priceMod = 1.3; quality = 10; service = 9; }
     if (supplier.name.includes('Eco') || supplier.name.includes('Green')) { priceMod = 1.1; env = 10; }
 
+    // Generate calculation components
+    const listPrice = Math.round(basePrice * priceMod * (randomInt(90, 110) / 100));
+    const discount = randomInt(0, 3) * 5; // 0, 5, 10, 15 %
+    const cashDiscount = randomInt(1, 3); // 1, 2, 3 % (Never 0)
+    const shipping = randomInt(0, 2) === 0 ? 0 : randomFloat(5.90, 29.90);
+
+    // Calculate final Bezugspreis
+    const targetPrice = listPrice * (1 - discount / 100);
+    const cashPrice = targetPrice * (1 - cashDiscount / 100);
+    const finalPrice = parseFloat((cashPrice + shipping).toFixed(2));
+
     return {
       id: `offer-${index}`,
       supplier,
-      price: Math.round(basePrice * priceMod * (randomInt(90, 110) / 100)),
+      listPrice,
+      discount,
+      cashDiscount,
+      shipping,
+      finalPrice,
       deliveryTime: randomInt(1, 14),
       warranty: randomInt(1, 3),
       qualityScore: quality,
