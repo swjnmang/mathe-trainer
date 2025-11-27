@@ -55,7 +55,6 @@ export interface GeometryTaskPageProps {
   description?: string;
   theme?: keyof typeof THEMES;
   badgeLabel?: string;
-  deckSize?: number;
 }
 
 const parseAnswer = (value: string) => {
@@ -66,9 +65,13 @@ const parseAnswer = (value: string) => {
 const formatNumber = (value: number, decimals = 2) =>
   value.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
-function buildNewDeck(generator: GeometryGenerator, deckSize: number) {
-  return Array.from({ length: deckSize }, () => generator());
-}
+const formatSketchValue = (value: number, unit: string) => {
+  const decimals = Number.isInteger(value) ? 0 : Number.isInteger(value * 10) ? 1 : 2;
+  return `${value.toLocaleString('de-DE', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  })} ${unit}`;
+};
 
 export default function GeometryTaskPage({
   title,
@@ -76,66 +79,56 @@ export default function GeometryTaskPage({
   generator,
   description,
   theme = 'coral',
-  badgeLabel = 'Raum & Form',
-  deckSize = 3
+  badgeLabel = 'Raum & Form'
 }: GeometryTaskPageProps) {
   const themeCfg = THEMES[theme] ?? THEMES.coral;
-  const [tasks, setTasks] = useState<GeometryTask[]>(() => buildNewDeck(generator, deckSize));
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<Record<string, 'pending' | 'correct' | 'wrong'>>({});
-  const [showSolution, setShowSolution] = useState<Record<string, boolean>>({});
-  const [showHints, setShowHints] = useState<Record<string, boolean>>({});
+  const [task, setTask] = useState<GeometryTask>(() => generator());
+  const [taskNumber, setTaskNumber] = useState(1);
+  const [answer, setAnswer] = useState('');
+  const [answerState, setAnswerState] = useState<'correct' | 'wrong' | null>(null);
+  const [solutionVisible, setSolutionVisible] = useState(false);
+  const [hintVisible, setHintVisible] = useState(false);
 
-  const replaceTask = (taskId: string) => {
-    setTasks(prev => prev.map(task => (task.id === taskId ? generator() : task)));
-    setAnswers(prev => {
-      const { [taskId]: _, ...rest } = prev;
-      return rest;
-    });
-    setStatus(prev => {
-      const { [taskId]: _, ...rest } = prev;
-      return rest;
-    });
-    setShowSolution(prev => {
-      const { [taskId]: _, ...rest } = prev;
-      return rest;
-    });
-    setShowHints(prev => {
-      const { [taskId]: _, ...rest } = prev;
-      return rest;
-    });
+  const resetTaskUi = () => {
+    setAnswer('');
+    setAnswerState(null);
+    setSolutionVisible(false);
+    setHintVisible(false);
+  };
+
+  const startNewSession = () => {
+    setTask(() => generator());
+    setTaskNumber(1);
+    resetTaskUi();
+  };
+
+  const loadNextTask = () => {
+    setTask(() => generator());
+    setTaskNumber(prev => prev + 1);
+    resetTaskUi();
   };
 
   const checkTask = (task: GeometryTask) => {
-    const entered = parseAnswer(answers[task.id] ?? '');
+    const entered = parseAnswer(answer);
     if (Number.isNaN(entered)) {
-      setStatus(prev => ({ ...prev, [task.id]: 'wrong' }));
+      setAnswerState('wrong');
       return;
     }
     const tolerance = task.tolerance ?? Math.max(0.05, Math.abs(task.result) * 0.02);
     const isCorrect = Math.abs(entered - task.result) <= tolerance;
-    setStatus(prev => ({ ...prev, [task.id]: isCorrect ? 'correct' : 'wrong' }));
+    setAnswerState(isCorrect ? 'correct' : 'wrong');
   };
 
-  const toggleSolution = (taskId: string) => {
-    setShowSolution(prev => ({ ...prev, [taskId]: !prev[taskId] }));
+  const toggleSolution = () => {
+    setSolutionVisible(prev => !prev);
   };
 
-  const toggleHint = (taskId: string) => {
-    setShowHints(prev => ({ ...prev, [taskId]: !prev[taskId] }));
+  const toggleHint = () => {
+    setHintVisible(prev => !prev);
   };
 
-  const handleAnswerChange = (taskId: string, event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setAnswers(prev => ({ ...prev, [taskId]: value }));
-  };
-
-  const resetDeck = () => {
-    setTasks(buildNewDeck(generator, deckSize));
-    setAnswers({});
-    setStatus({});
-    setShowSolution({});
-    setShowHints({});
+  const handleAnswerChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setAnswer(event.target.value);
   };
 
   return (
@@ -158,125 +151,111 @@ export default function GeometryTaskPage({
               ← Themenübersicht
             </Link>
             <button
-              onClick={resetDeck}
+              onClick={startNewSession}
               className={`inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition shadow-sm ${themeCfg.button}`}
             >
-              ↻ Neue Aufgabensammlung
+              ↻ Sitzung zurücksetzen
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {tasks.map(task => {
-            const answerState = status[task.id];
-            const solutionVisible = showSolution[task.id];
-            const hintVisible = showHints[task.id];
-            return (
-              <div
-                key={task.id}
-                className={`relative rounded-3xl bg-white text-slate-900 border ${themeCfg.cardBorder} ${themeCfg.glow} p-6 flex flex-col gap-5`}
-              >
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className={`text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full ${themeCfg.badge}`}>
-                    {badgeLabel}
-                  </span>
-                </div>
+      <main className="max-w-4xl mx-auto px-4 py-10">
+        <div className="flex flex-col gap-4 mb-6">
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Aktive Aufgabe #{taskNumber}</p>
+          <p className="text-sm text-slate-500">
+            Du siehst immer nur eine Aufgabe. Löse sie in Ruhe und lade anschließend die nächste.
+          </p>
+        </div>
 
-                <div>
-                  <p className="text-slate-500 text-sm mb-1">{task.contextTag}</p>
-                  <h2 className="text-2xl font-bold text-slate-900">{task.title}</h2>
-                </div>
+        <div className={`rounded-3xl bg-white text-slate-900 border ${themeCfg.cardBorder} ${themeCfg.glow} p-6 flex flex-col gap-5`}>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className={`text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full ${themeCfg.badge}`}>
+              {badgeLabel}
+            </span>
+            <button onClick={loadNextTask} className="text-sm font-semibold text-slate-400 hover:text-slate-900">
+              ↻ Nächste Aufgabe
+            </button>
+          </div>
 
-                <p className="text-slate-600 leading-relaxed">{task.prompt}</p>
+          <div>
+            <p className="text-slate-500 text-sm mb-1">{task.contextTag}</p>
+            <h2 className="text-2xl font-bold text-slate-900">{task.title}</h2>
+          </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  {task.givens.map(info => (
-                    <div key={info.label} className="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3">
-                      <p className="text-xs uppercase tracking-widest text-slate-500">{info.label}</p>
-                      <p className="text-lg font-semibold text-slate-900">{info.value}</p>
-                    </div>
-                  ))}
-                </div>
+          <p className="text-slate-600 leading-relaxed">{task.prompt}</p>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {task.sketch && <GeometrySketchCard sketch={task.sketch} />}
-                  <FormulaHintCard
-                    formula={task.formula}
-                    tip={task.tip}
-                    isOpen={!!hintVisible}
-                    onToggle={() => toggleHint(task.id)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-widest text-slate-500 font-semibold">
-                    {task.resultLabel} ({task.unit})
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={answers[task.id] ?? ''}
-                      onChange={(event: ChangeEvent<HTMLInputElement>) => handleAnswerChange(task.id, event)}
-                      className={`flex-1 rounded-2xl border px-4 py-3 text-right font-mono text-lg transition focus:outline-none focus:ring-2 focus:ring-slate-900/20 ${
-                        answerState === 'correct'
-                          ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                          : answerState === 'wrong'
-                          ? 'border-rose-400 bg-rose-50 text-rose-700'
-                          : 'border-slate-300 bg-white'
-                      }`}
-                      placeholder="z.B. 42,50"
-                    />
-                    <button
-                      onClick={() => checkTask(task)}
-                      className={`px-4 py-3 rounded-2xl font-semibold ${themeCfg.button}`}
-                    >
-                      Prüfen
-                    </button>
-                  </div>
-                  {answerState === 'correct' && (
-                    <p className="text-sm text-emerald-600 font-semibold">Perfekt! Deine Rechnung passt.</p>
-                  )}
-                  {answerState === 'wrong' && (
-                    <p className="text-sm text-rose-600 font-semibold">
-                      Prüfe nochmal Einheiten und Runde auf {task.decimals} Nachkommastellen.
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => toggleSolution(task.id)}
-                    className="text-sm font-semibold text-slate-600 hover:text-slate-900"
-                  >
-                    {solutionVisible ? 'Lösung ausblenden' : 'Lösung anzeigen'}
-                  </button>
-                  <button
-                    onClick={() => replaceTask(task.id)}
-                    className="text-sm font-semibold text-slate-400 hover:text-slate-900"
-                  >
-                    ↻ Aufgabe wechseln
-                  </button>
-                </div>
-
-                {solutionVisible && (
-                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 space-y-2">
-                    <p className="text-xs uppercase tracking-widest text-slate-500">Rechnung &amp; Lösung</p>
-                    <ul className="text-sm text-slate-700 space-y-1">
-                      {task.steps.map(step => (
-                        <li key={step} className="font-mono">{step}</li>
-                      ))}
-                    </ul>
-                    <div className="text-slate-900 font-bold text-lg">
-                      {task.resultLabel}: {formatNumber(task.result, task.decimals)} {task.unit}
-                    </div>
-                    {task.tip && <p className="text-xs text-slate-500">Hinweis: {task.tip}</p>}
-                  </div>
-                )}
+          <div className="grid grid-cols-2 gap-4">
+            {task.givens.map(info => (
+              <div key={info.label} className="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3">
+                <p className="text-xs uppercase tracking-widest text-slate-500">{info.label}</p>
+                <p className="text-lg font-semibold text-slate-900">{info.value}</p>
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {task.sketch && <GeometrySketchCard sketch={task.sketch} />}
+            <FormulaHintCard formula={task.formula} tip={task.tip} isOpen={hintVisible} onToggle={toggleHint} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-slate-500 font-semibold">
+              {task.resultLabel} ({task.unit})
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={answer}
+                onChange={handleAnswerChange}
+                className={`flex-1 rounded-2xl border px-4 py-3 text-right font-mono text-lg transition focus:outline-none focus:ring-2 focus:ring-slate-900/20 ${
+                  answerState === 'correct'
+                    ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                    : answerState === 'wrong'
+                    ? 'border-rose-400 bg-rose-50 text-rose-700'
+                    : 'border-slate-300 bg-white'
+                }`}
+                placeholder="z.B. 42,50"
+              />
+              <button onClick={() => checkTask(task)} className={`px-4 py-3 rounded-2xl font-semibold ${themeCfg.button}`}>
+                Prüfen
+              </button>
+            </div>
+            {answerState === 'correct' && (
+              <p className="text-sm text-emerald-600 font-semibold">Perfekt! Deine Rechnung passt.</p>
+            )}
+            {answerState === 'wrong' && (
+              <p className="text-sm text-rose-600 font-semibold">
+                Prüfe nochmal Einheiten und Runde auf {task.decimals} Nachkommastellen.
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button onClick={toggleSolution} className="text-sm font-semibold text-slate-600 hover:text-slate-900">
+              {solutionVisible ? 'Lösung ausblenden' : 'Lösung anzeigen'}
+            </button>
+            <button onClick={loadNextTask} className="text-sm font-semibold text-slate-400 hover:text-slate-900">
+              Weiter zur nächsten Aufgabe
+            </button>
+          </div>
+
+          {solutionVisible && (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 space-y-2">
+              <p className="text-xs uppercase tracking-widest text-slate-500">Rechnung &amp; Lösung</p>
+              <ul className="text-sm text-slate-700 space-y-1">
+                {task.steps.map(step => (
+                  <li key={step} className="font-mono">
+                    {step}
+                  </li>
+                ))}
+              </ul>
+              <div className="text-slate-900 font-bold text-lg">
+                {task.resultLabel}: {formatNumber(task.result, task.decimals)} {task.unit}
+              </div>
+              {task.tip && <p className="text-xs text-slate-500">Hinweis: {task.tip}</p>}
+            </div>
+          )}
         </div>
       </main>
     </div>
@@ -291,7 +270,7 @@ function GeometrySketchCard({ sketch }: { sketch?: GeometrySketch }) {
   if (!sketch) return null;
   return (
     <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-      <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">Skizze · nicht maßstabsgetreu</p>
+      <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">Skizze mit Maßen (nicht maßstabsgetreu)</p>
       <div className="bg-slate-50 rounded-xl flex items-center justify-center p-3">
         {renderSketch(sketch)}
       </div>
@@ -327,100 +306,124 @@ function FormulaHintCard({ formula, tip, isOpen, onToggle }: FormulaHintCardProp
 
 function renderSketch(sketch: GeometrySketch) {
   switch (sketch.type) {
-    case 'rectangle':
+    case 'rectangle': {
+      const aLabel = formatSketchValue(sketch.a, sketch.unit);
+      const bLabel = formatSketchValue(sketch.b, sketch.unit);
       return (
         <svg viewBox="0 0 220 140" className="w-full max-w-[220px] h-36" role="img" aria-label="Rechteck">
           <rect x="40" y="40" width="140" height="60" rx="10" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <text x="110" y="30" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${aLabel}`}
           </text>
           <text x="15" y="75" textAnchor="middle" className="fill-slate-600 -rotate-90 origin-center text-xs">
-            b
+            {`b = ${bLabel}`}
           </text>
         </svg>
       );
-    case 'triangle':
+    }
+    case 'triangle': {
+      const baseLabel = formatSketchValue(sketch.base, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
       return (
         <svg viewBox="0 0 220 140" className="w-full max-w-[220px] h-36" role="img" aria-label="Dreieck">
           <polygon points="30,120 190,120 110,30" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <line x1="110" y1="30" x2="110" y2="120" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <text x="110" y="135" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${baseLabel}`}
           </text>
           <text x="120" y="75" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
         </svg>
       );
-    case 'circle':
+    }
+    case 'circle': {
+      const radiusLabel = formatSketchValue(sketch.radius, sketch.unit);
       return (
         <svg viewBox="0 0 220 140" className="w-full max-w-[220px] h-36" role="img" aria-label="Kreis">
           <circle cx="110" cy="70" r="48" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <line x1="110" y1="70" x2="158" y2="70" stroke={accentColor} strokeWidth={2} />
           <circle cx="110" cy="70" r="4" fill={strokeColor} />
           <text x="110" y="120" textAnchor="middle" className="fill-slate-600 text-xs">
-            r
+            {`r = ${radiusLabel}`}
           </text>
         </svg>
       );
-    case 'sphere':
+    }
+    case 'sphere': {
+      const radiusLabel = formatSketchValue(sketch.radius, sketch.unit);
       return (
         <svg viewBox="0 0 220 140" className="w-full max-w-[220px] h-36" role="img" aria-label="Kugel">
           <ellipse cx="110" cy="70" rx="60" ry="40" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <line x1="110" y1="70" x2="170" y2="70" stroke={accentColor} strokeWidth={2} />
           <text x="110" y="120" textAnchor="middle" className="fill-slate-600 text-xs">
-            r
+            {`r = ${radiusLabel}`}
           </text>
         </svg>
       );
-    case 'trapezoid':
+    }
+    case 'trapezoid': {
+      const aLabel = formatSketchValue(sketch.a, sketch.unit);
+      const cLabel = formatSketchValue(sketch.c, sketch.unit);
+      const hLabel = formatSketchValue(sketch.h, sketch.unit);
       return (
         <svg viewBox="0 0 220 140" className="w-full max-w-[220px] h-36" role="img" aria-label="Trapez">
           <polygon points="50,30 170,30 190,110 30,110" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <text x="110" y="20" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${aLabel}`}
           </text>
           <text x="110" y="130" textAnchor="middle" className="fill-slate-600 text-xs">
-            c
+            {`c = ${cLabel}`}
           </text>
           <line x1="60" y1="30" x2="60" y2="110" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <text x="70" y="80" className="fill-slate-600 text-xs">
-            h
+            {`h = ${hLabel}`}
           </text>
         </svg>
       );
-    case 'rightTriangle':
+    }
+    case 'rightTriangle': {
+      const aLabel = formatSketchValue(sketch.a, sketch.unit);
+      const bLabel = formatSketchValue(sketch.b, sketch.unit);
+      const cLabel = sketch.c ? formatSketchValue(sketch.c, sketch.unit) : null;
       return (
         <svg viewBox="0 0 220 140" className="w-full max-w-[220px] h-36" role="img" aria-label="Rechtwinkliges Dreieck">
           <polygon points="30,120 190,120 30,30" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <rect x="30" y="100" width="20" height="20" fill="none" stroke={accentColor} strokeWidth={2} />
           <text x="110" y="135" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${aLabel}`}
           </text>
           <text x="15" y="75" textAnchor="middle" className="fill-slate-600 -rotate-90 origin-center text-xs">
-            b
+            {`b = ${bLabel}`}
           </text>
-          {sketch.c && (
+          {cLabel && (
             <text x="120" y="60" className="fill-slate-600 text-xs">
-              c
+              {`c = ${cLabel}`}
             </text>
           )}
         </svg>
       );
-    case 'cone':
+    }
+    case 'cone': {
+      const radiusLabel = formatSketchValue(sketch.radius, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
       return (
         <svg viewBox="0 0 220 160" className="w-full max-w-[220px] h-40" role="img" aria-label="Kegel">
           <path d="M110 30 L40 130 Q110 150 180 130 Z" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <line x1="110" y1="30" x2="110" y2="132" stroke={accentColor} strokeWidth={2} />
           <text x="110" y="25" textAnchor="middle" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
           <text x="110" y="150" textAnchor="middle" className="fill-slate-600 text-xs">
-            r
+            {`r = ${radiusLabel}`}
           </text>
         </svg>
       );
-    case 'pyramid':
+    }
+    case 'pyramid': {
+      const baseALabel = formatSketchValue(sketch.baseA, sketch.unit);
+      const baseBLabel = formatSketchValue(sketch.baseB, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
       return (
         <svg viewBox="0 0 220 160" className="w-full max-w-[220px] h-40" role="img" aria-label="Pyramide">
           <polygon points="60,40 160,40 190,120 30,120" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
@@ -430,14 +433,17 @@ function renderSketch(sketch: GeometrySketch) {
           <line x1="110" y1="10" x2="30" y2="120" stroke={strokeColor} strokeWidth={2} />
           <line x1="110" y1="10" x2="110" y2="120" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <text x="110" y="150" textAnchor="middle" className="fill-slate-600 text-xs">
-            a, b
+            {`a = ${baseALabel}, b = ${baseBLabel}`}
           </text>
           <text x="120" y="70" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
         </svg>
       );
-    case 'cylinder':
+    }
+    case 'cylinder': {
+      const radiusLabel = formatSketchValue(sketch.radius, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
       return (
         <svg viewBox="0 0 220 160" className="w-full max-w-[220px] h-40" role="img" aria-label="Zylinder">
           <ellipse cx="110" cy="40" rx="60" ry="20" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
@@ -445,31 +451,39 @@ function renderSketch(sketch: GeometrySketch) {
           <rect x="50" y="40" width="120" height="100" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <line x1="110" y1="40" x2="110" y2="140" stroke={accentColor} strokeWidth={2} />
           <text x="110" y="160" textAnchor="middle" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
           <text x="110" y="20" textAnchor="middle" className="fill-slate-600 text-xs">
-            r
+            {`r = ${radiusLabel}`}
           </text>
         </svg>
       );
-    case 'prismRect':
+    }
+    case 'prismRect': {
+      const lengthLabel = formatSketchValue(sketch.length, sketch.unit);
+      const widthLabel = formatSketchValue(sketch.width, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
       return (
         <svg viewBox="0 0 220 160" className="w-full max-w-[220px] h-40" role="img" aria-label="Quader">
           <polygon points="60,40 160,40 190,80 90,80" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <polygon points="60,40 90,80 90,140 60,100" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <polygon points="160,40 190,80 190,140 160,100" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <text x="125" y="35" textAnchor="middle" className="fill-slate-600 text-xs">
-            l
+            {`l = ${lengthLabel}`}
           </text>
           <text x="40" y="80" textAnchor="middle" className="fill-slate-600 -rotate-90 origin-center text-xs">
-            b
+            {`b = ${widthLabel}`}
           </text>
           <text x="150" y="120" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
         </svg>
       );
-    case 'prismTri':
+    }
+    case 'prismTri': {
+      const baseLabel = formatSketchValue(sketch.base, sketch.unit);
+      const heightTriLabel = formatSketchValue(sketch.heightTriangle, sketch.unit);
+      const prismHeightLabel = formatSketchValue(sketch.prismHeight, sketch.unit);
       return (
         <svg viewBox="0 0 220 160" className="w-full max-w-[220px] h-40" role="img" aria-label="Dreiecksprisma">
           <polygon points="40,120 160,120 100,60" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
@@ -478,17 +492,22 @@ function renderSketch(sketch: GeometrySketch) {
           <line x1="160" y1="120" x2="190" y2="90" stroke={strokeColor} strokeWidth={2} />
           <line x1="100" y1="60" x2="130" y2="30" stroke={strokeColor} strokeWidth={2} />
           <text x="100" y="135" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${baseLabel}`}
           </text>
           <text x="110" y="50" className="fill-slate-600 text-xs">
-            h_Δ
+            {`h_Δ = ${heightTriLabel}`}
           </text>
           <text x="170" y="95" className="fill-slate-600 text-xs">
-            H
+            {`H = ${prismHeightLabel}`}
           </text>
         </svg>
       );
-    case 'prismTrap':
+    }
+    case 'prismTrap': {
+      const baseALabel = formatSketchValue(sketch.baseA, sketch.unit);
+      const baseCLabel = formatSketchValue(sketch.baseC, sketch.unit);
+      const heightTrapLabel = formatSketchValue(sketch.heightTrap, sketch.unit);
+      const prismHeightLabel = formatSketchValue(sketch.prismHeight, sketch.unit);
       return (
         <svg viewBox="0 0 220 170" className="w-full max-w-[220px] h-44" role="img" aria-label="Trapezprisma">
           <polygon points="40,120 170,120 190,60 20,60" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
@@ -499,35 +518,28 @@ function renderSketch(sketch: GeometrySketch) {
           <line x1="20" y1="60" x2="50" y2="30" stroke={strokeColor} strokeWidth={2} />
           <line x1="35" y1="60" x2="35" y2="120" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <text x="105" y="135" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${baseALabel}`}
           </text>
           <text x="105" y="50" textAnchor="middle" className="fill-slate-600 text-xs">
-            c
+            {`c = ${baseCLabel}`}
           </text>
           <text x="48" y="95" className="fill-slate-600 text-xs">
-            h_T
+            {`h_T = ${heightTrapLabel}`}
           </text>
           <text x="185" y="105" className="fill-slate-600 text-xs">
-            H
+            {`H = ${prismHeightLabel}`}
           </text>
         </svg>
       );
-    case 'prismPent':
+    }
+    case 'prismPent': {
+      const sideLabel = formatSketchValue(sketch.side, sketch.unit);
+      const apothemLabel = formatSketchValue(sketch.apothem, sketch.unit);
+      const prismHeightLabel = formatSketchValue(sketch.prismHeight, sketch.unit);
       return (
         <svg viewBox="0 0 220 180" className="w-full max-w-[220px] h-44" role="img" aria-label="Fünfeckiges Prisma">
-          <polygon
-            points="110,30 180,70 155,150 65,150 40,70"
-            fill={fillColor}
-            stroke={strokeColor}
-            strokeWidth={2}
-          />
-          <polygon
-            points="140,10 210,50 185,130 95,130 70,50"
-            fill="none"
-            stroke={strokeColor}
-            strokeWidth={2}
-            strokeDasharray="4 4"
-          />
+          <polygon points="110,30 180,70 155,150 65,150 40,70" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
+          <polygon points="140,10 210,50 185,130 95,130 70,50" fill="none" stroke={strokeColor} strokeWidth={2} strokeDasharray="4 4" />
           <line x1="110" y1="30" x2="140" y2="10" stroke={strokeColor} strokeWidth={2} />
           <line x1="180" y1="70" x2="210" y2="50" stroke={strokeColor} strokeWidth={2} />
           <line x1="155" y1="150" x2="185" y2="130" stroke={strokeColor} strokeWidth={2} />
@@ -535,17 +547,21 @@ function renderSketch(sketch: GeometrySketch) {
           <line x1="40" y1="70" x2="70" y2="50" stroke={strokeColor} strokeWidth={2} />
           <line x1="110" y1="30" x2="110" y2="150" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <text x="110" y="165" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${sideLabel}`}
           </text>
           <text x="125" y="95" className="fill-slate-600 text-xs">
-            a_p
+            {`a_p = ${apothemLabel}`}
           </text>
           <text x="190" y="90" className="fill-slate-600 text-xs">
-            H
+            {`H = ${prismHeightLabel}`}
           </text>
         </svg>
       );
-    case 'netPrism':
+    }
+    case 'netPrism': {
+      const lengthLabel = formatSketchValue(sketch.length, sketch.unit);
+      const widthLabel = formatSketchValue(sketch.width, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
       return (
         <svg viewBox="0 0 220 160" className="w-full max-w-[220px] h-40" role="img" aria-label="Netz Quader">
           <rect x="70" y="60" width="80" height="40" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
@@ -554,99 +570,103 @@ function renderSketch(sketch: GeometrySketch) {
           <rect x="70" y="20" width="80" height="40" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <rect x="70" y="100" width="80" height="40" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <text x="110" y="55" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${lengthLabel}`}
           </text>
           <text x="30" y="55" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${lengthLabel}`}
           </text>
           <text x="190" y="55" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${lengthLabel}`}
           </text>
           <text x="110" y="150" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${lengthLabel}`}
           </text>
           <text x="65" y="80" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
           <text x="150" y="80" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
           <text x="110" y="30" textAnchor="middle" className="fill-slate-600 text-xs">
-            b
+            {`b = ${widthLabel}`}
           </text>
         </svg>
       );
-    case 'netCylinder':
+    }
+    case 'netCylinder': {
+      const radiusLabel = formatSketchValue(sketch.radius, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
+      const mantleWidth = formatNumber(2 * Math.PI * sketch.radius, 2);
       return (
         <svg viewBox="0 0 220 160" className="w-full max-w-[220px] h-40" role="img" aria-label="Netz Zylinder">
           <rect x="60" y="50" width="100" height="60" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <circle cx="40" cy="80" r="25" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <circle cx="180" cy="80" r="25" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <text x="110" y="45" textAnchor="middle" className="fill-slate-600 text-xs">
-            Umfang = 2·π·r
+            {`Mantelbreite ≈ ${mantleWidth} ${sketch.unit}`}
           </text>
           <text x="110" y="125" textAnchor="middle" className="fill-slate-600 text-xs">
-            h
+            {`h = ${heightLabel}`}
           </text>
           <text x="40" y="80" textAnchor="middle" className="fill-slate-600 text-xs">
-            r
+            {`r = ${radiusLabel}`}
           </text>
           <text x="180" y="80" textAnchor="middle" className="fill-slate-600 text-xs">
-            r
+            {`r = ${radiusLabel}`}
           </text>
         </svg>
       );
-    case 'compositeL':
+    }
+    case 'compositeL': {
+      const widthLabel = formatSketchValue(sketch.width, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
+      const cutWidthLabel = formatSketchValue(sketch.cutWidth, sketch.unit);
+      const cutHeightLabel = formatSketchValue(sketch.cutHeight, sketch.unit);
       return (
         <svg viewBox="0 0 220 170" className="w-full max-w-[220px] h-44" role="img" aria-label="L-Fläche">
-          <path
-            d="M40 30 H170 V140 H110 V90 H40 Z"
-            fill={fillColor}
-            stroke={strokeColor}
-            strokeWidth={2}
-          />
+          <path d="M40 30 H170 V140 H110 V90 H40 Z" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <line x1="40" y1="30" x2="170" y2="30" stroke={accentColor} strokeWidth={2} />
           <line x1="40" y1="30" x2="40" y2="140" stroke={accentColor} strokeWidth={2} />
           <line x1="110" y1="90" x2="170" y2="90" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <line x1="110" y1="90" x2="110" y2="140" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <text x="105" y="20" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`Breite = ${widthLabel}`}
           </text>
           <text x="25" y="85" textAnchor="middle" className="fill-slate-600 -rotate-90 origin-center text-xs">
-            b
+            {`Höhe = ${heightLabel}`}
           </text>
           <text x="140" y="85" textAnchor="middle" className="fill-slate-600 text-xs">
-            c
+            {`Ausschnitt = ${cutWidthLabel}`}
           </text>
           <text x="95" y="130" textAnchor="middle" className="fill-slate-600 text-xs">
-            d
+            {`Ausschnitthöhe = ${cutHeightLabel}`}
           </text>
         </svg>
       );
-    case 'compositeRectSemi':
+    }
+    case 'compositeRectSemi': {
+      const widthLabel = formatSketchValue(sketch.width, sketch.unit);
+      const heightLabel = formatSketchValue(sketch.height, sketch.unit);
+      const radiusLabel = formatSketchValue(sketch.radius, sketch.unit);
       return (
         <svg viewBox="0 0 220 170" className="w-full max-w-[220px] h-44" role="img" aria-label="Rechteck mit Halbkreis">
           <rect x="40" y="80" width="140" height="60" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
-          <path
-            d="M40 80 A70 70 0 0 1 180 80"
-            fill={fillColor}
-            stroke={strokeColor}
-            strokeWidth={2}
-          />
+          <path d="M40 80 A70 70 0 0 1 180 80" fill={fillColor} stroke={strokeColor} strokeWidth={2} />
           <line x1="40" y1="140" x2="180" y2="140" stroke={accentColor} strokeWidth={2} />
           <line x1="40" y1="80" x2="40" y2="140" stroke={accentColor} strokeWidth={2} />
           <line x1="110" y1="80" x2="110" y2="50" stroke={accentColor} strokeWidth={2} strokeDasharray="4 4" />
           <text x="110" y="155" textAnchor="middle" className="fill-slate-600 text-xs">
-            a
+            {`a = ${widthLabel}`}
           </text>
           <text x="30" y="115" textAnchor="middle" className="fill-slate-600 -rotate-90 origin-center text-xs">
-            b
+            {`b = ${heightLabel}`}
           </text>
           <text x="120" y="60" className="fill-slate-600 text-xs">
-            r
+            {`r = ${radiusLabel}`}
           </text>
         </svg>
       );
+    }
     default:
       return null;
   }
