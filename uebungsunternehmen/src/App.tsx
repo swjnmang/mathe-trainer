@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Buchungssaetze from './pages/Buchungssaetze';
 import Kalkulation from './pages/Kalkulation';
 import Angebotsvergleich from './pages/Angebotsvergleich';
+import Geschaeftsbriefe from './pages/Geschaeftsbriefe';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/buchungssaetze" element={<Buchungssaetze />} />
         <Route path="/kalkulation" element={<Kalkulation />} />
         <Route path="/angebotsvergleich" element={<Angebotsvergleich />} />
+        <Route path="/geschaeftsbriefe" element={<Geschaeftsbriefe />} />
       </Routes>
     </Router>
   );
