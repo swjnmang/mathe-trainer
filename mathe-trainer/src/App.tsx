@@ -60,6 +60,7 @@ import Endwert from './pages/finanzmathe/Endwert';
 import Ratendarlehen from './pages/finanzmathe/Ratendarlehen';
 import Annuitaetendarlehen from './pages/finanzmathe/Annuitaetendarlehen';
 import ZinsenTest from './pages/finanzmathe/ZinsenTest';
+import GemischteFinanzaufgaben from './pages/finanzmathe/GemischteFinanzaufgaben';
 // Quadratische Funktionen
 import QuadratischeFunktionenMenu from './pages/quadratische_funktionen/QuadratischeFunktionenMenu';
 import Normalparabel from './pages/quadratische_funktionen/Normalparabel';
@@ -174,6 +175,7 @@ export default function App() {
           <Route path="/finanzmathe/endwert" element={<Endwert />} />
           <Route path="/finanzmathe/ratendarlehen" element={<Ratendarlehen />} />
           <Route path="/finanzmathe/annuitaetendarlehen" element={<Annuitaetendarlehen />} />
+          <Route path="/finanzmathe/gemischte-aufgaben" element={<GemischteFinanzaufgaben />} />
           <Route path="/finanzmathe/zinsen_test" element={<ZinsenTest />} />
 
           <Route path="/quadratische_funktionen" element={<QuadratischeFunktionenMenu />} />

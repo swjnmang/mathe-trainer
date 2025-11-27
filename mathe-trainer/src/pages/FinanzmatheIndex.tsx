@@ -37,6 +37,11 @@ export default function FinanzmatheIndex() {
             <h2 className="text-xl font-bold text-blue-800 mb-2">Annuitätendarlehen</h2>
             <p className="text-gray-600">Tilgungspläne für Annuitätendarlehen erstellen.</p>
           </Link>
+
+          <Link to="/finanzmathe/gemischte-aufgaben" className="block p-6 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition border border-indigo-200">
+            <h2 className="text-xl font-bold text-indigo-900 mb-2">Gemischte Übungsaufgaben</h2>
+            <p className="text-gray-600">Querschnitt mit Zinsen, Zinseszins, Sparplänen und Darlehen.</p>
+          </Link>
         </div>
 
         <div className="mt-8 text-center">
