@@ -479,7 +479,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputVertex.xs} 
-                        onChange={(e) => setInputVertex({...inputVertex, xs: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputVertex({...inputVertex, xs: event.target.value})}
                         className="border p-2 rounded w-20 text-center" 
                         placeholder="x"
                     />
@@ -487,7 +487,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputVertex.ys} 
-                        onChange={(e) => setInputVertex({...inputVertex, ys: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputVertex({...inputVertex, ys: event.target.value})}
                         className="border p-2 rounded w-20 text-center" 
                         placeholder="y"
                     />
@@ -503,7 +503,7 @@ const Abschlusstest: React.FC = () => {
                             <input 
                                 type="text" 
                                 value={inputNullstellen.n1} 
-                                onChange={(e) => setInputNullstellen({...inputNullstellen, n1: e.target.value})}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputNullstellen({...inputNullstellen, n1: event.target.value})}
                                 disabled={inputNullstellen.isNone}
                                 className="border p-2 rounded w-20 text-center" 
                             />
@@ -513,7 +513,7 @@ const Abschlusstest: React.FC = () => {
                             <input 
                                 type="text" 
                                 value={inputNullstellen.n2} 
-                                onChange={(e) => setInputNullstellen({...inputNullstellen, n2: e.target.value})}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputNullstellen({...inputNullstellen, n2: event.target.value})}
                                 disabled={inputNullstellen.isNone}
                                 className="border p-2 rounded w-20 text-center" 
                             />
@@ -523,7 +523,7 @@ const Abschlusstest: React.FC = () => {
                         <input 
                             type="checkbox" 
                             checked={inputNullstellen.isNone} 
-                            onChange={(e) => setInputNullstellen({...inputNullstellen, isNone: e.target.checked})}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputNullstellen({...inputNullstellen, isNone: event.target.checked})}
                             className="w-5 h-5"
                         />
                         <span>Keine Nullstelle</span>
@@ -537,7 +537,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputGeneral.a} 
-                        onChange={(e) => setInputGeneral({...inputGeneral, a: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputGeneral({...inputGeneral, a: event.target.value})}
                         className="border p-2 rounded w-16 text-center" 
                         placeholder="a"
                     />
@@ -545,7 +545,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputGeneral.b} 
-                        onChange={(e) => setInputGeneral({...inputGeneral, b: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputGeneral({...inputGeneral, b: event.target.value})}
                         className="border p-2 rounded w-16 text-center" 
                         placeholder="b"
                     />
@@ -553,7 +553,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputGeneral.c} 
-                        onChange={(e) => setInputGeneral({...inputGeneral, c: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputGeneral({...inputGeneral, c: event.target.value})}
                         className="border p-2 rounded w-16 text-center" 
                         placeholder="c"
                     />
@@ -566,7 +566,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputVertexForm.a} 
-                        onChange={(e) => setInputVertexForm({...inputVertexForm, a: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputVertexForm({...inputVertexForm, a: event.target.value})}
                         className="border p-2 rounded w-16 text-center" 
                         placeholder="a"
                     />
@@ -574,7 +574,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputVertexForm.xs} 
-                        onChange={(e) => setInputVertexForm({...inputVertexForm, xs: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputVertexForm({...inputVertexForm, xs: event.target.value})}
                         className="border p-2 rounded w-16 text-center" 
                         placeholder="xs"
                     />
@@ -582,7 +582,7 @@ const Abschlusstest: React.FC = () => {
                     <input 
                         type="text" 
                         value={inputVertexForm.ys} 
-                        onChange={(e) => setInputVertexForm({...inputVertexForm, ys: e.target.value})}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setInputVertexForm({...inputVertexForm, ys: event.target.value})}
                         className="border p-2 rounded w-16 text-center" 
                         placeholder="ys"
                     />
@@ -766,7 +766,7 @@ const Abschlusstest: React.FC = () => {
                         <GeoGebraApplet 
                             id="ggb-test"
                             filename=""
-                            onLoad={setGgbApplet}
+                            onAppletReady={setGgbApplet}
                         />
                     </div>
                 )}

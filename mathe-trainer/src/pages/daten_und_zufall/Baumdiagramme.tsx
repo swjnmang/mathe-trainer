@@ -107,7 +107,7 @@ const Baumdiagramme: React.FC = () => {
               <input 
                 id="antwort" 
                 value={userAntwort} 
-                onChange={(e) => setUserAntwort(e.target.value)} 
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserAntwort(event.target.value)} 
                 className="w-32 text-center p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 placeholder="z.B. 3/16"
               />

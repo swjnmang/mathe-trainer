@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const ScheitelInAllgForm = () => {
@@ -83,7 +83,7 @@ const ScheitelInAllgForm = () => {
                                 type="number" 
                                 id="a-input" 
                                 value={userA}
-                                onChange={(e) => setUserA(e.target.value)}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserA(event.target.value)}
                                 className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
@@ -93,7 +93,7 @@ const ScheitelInAllgForm = () => {
                                 type="number" 
                                 id="b-input" 
                                 value={userB}
-                                onChange={(e) => setUserB(e.target.value)}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserB(event.target.value)}
                                 className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
@@ -103,7 +103,7 @@ const ScheitelInAllgForm = () => {
                                 type="number" 
                                 id="c-input" 
                                 value={userC}
-                                onChange={(e) => setUserC(e.target.value)}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserC(event.target.value)}
                                 className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>

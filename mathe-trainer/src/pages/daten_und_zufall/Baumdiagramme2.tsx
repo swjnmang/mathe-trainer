@@ -168,7 +168,7 @@ const Baumdiagramme2: React.FC = () => {
     const level2X = width * 0.75;
     const startY = height / 2;
 
-    const elements: JSX.Element[] = [];
+    const elements: React.ReactElement[] = [];
 
     // Start Node
     elements.push(
@@ -257,7 +257,7 @@ const Baumdiagramme2: React.FC = () => {
               type="text" 
               className={`w-8 h-6 text-center text-sm border rounded ${inputState}`}
               value={userInputs[id]?.num || ''}
-              onChange={(e) => handleInputChange(id, 'num', e.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleInputChange(id, 'num', event.target.value)}
               placeholder="?"
             />
             <div className="w-full h-px bg-gray-800 my-1"></div>
@@ -265,7 +265,7 @@ const Baumdiagramme2: React.FC = () => {
               type="text" 
               className={`w-8 h-6 text-center text-sm border rounded ${inputState}`}
               value={userInputs[id]?.den || ''}
-              onChange={(e) => handleInputChange(id, 'den', e.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleInputChange(id, 'den', event.target.value)}
               placeholder="?"
             />
           </div>

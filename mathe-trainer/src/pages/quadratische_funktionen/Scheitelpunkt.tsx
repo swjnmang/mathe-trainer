@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Scheitelpunkt = () => {
@@ -178,19 +178,19 @@ const Scheitelpunkt = () => {
                         <input
                             type="text"
                             value={userX}
-                            onChange={(e) => setUserX(e.target.value)}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserX(event.target.value)}
                             placeholder="x"
                             className="w-24 p-3 border rounded text-center text-xl"
-                            onKeyDown={(e) => e.key === 'Enter' && checkAnswer()}
+                            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => event.key === 'Enter' && checkAnswer()}
                         />
                         <span className="text-2xl">|</span>
                         <input
                             type="text"
                             value={userY}
-                            onChange={(e) => setUserY(e.target.value)}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserY(event.target.value)}
                             placeholder="y"
                             className="w-24 p-3 border rounded text-center text-xl"
-                            onKeyDown={(e) => e.key === 'Enter' && checkAnswer()}
+                            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => event.key === 'Enter' && checkAnswer()}
                         />
                         <span className="text-2xl">)</span>
                     </div>

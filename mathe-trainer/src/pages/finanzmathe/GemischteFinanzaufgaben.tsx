@@ -4,23 +4,24 @@ import { InlineMath } from 'react-katex';
 import { useNavigate } from 'react-router-dom';
 
 const TASK_COUNT = 10;
+const POINTS_PER_CORRECT = 10;
 
 type TaskType =
   | 'simple_interest'
   | 'zinseszins'
   | 'kapitalmehrung'
+  | 'kapitalminderung'
   | 'renten_endwert'
-  | 'annuitaet'
   | 'ratendarlehen_plan'
   | 'annuitaet_plan';
 
-type FilterType = TaskType | 'mixed';
+type FilterType = TaskType | 'mixed' | 'renten_bundled';
 
 type SimpleInterestVariant = 'Z' | 'K' | 'p' | 't';
 type ZinseszinsVariant = 'Kn' | 'K0' | 'p' | 'n';
 type KapitalmehrungVariant = 'Kn' | 'K0' | 'r' | 'n';
 type RentenVariant = 'Kn' | 'r' | 'p' | 'n';
-type AnnuitaetVariant = 'A' | 'K0' | 'p' | 'n';
+type KapitalminderungVariant = 'Kn' | 'K0' | 'r' | 'n';
 
 interface TaskInput {
   id: string;
@@ -52,29 +53,17 @@ const taskTypes: TaskType[] = [
   'simple_interest',
   'zinseszins',
   'kapitalmehrung',
+  'kapitalminderung',
   'renten_endwert',
-  'annuitaet',
   'ratendarlehen_plan',
   'annuitaet_plan',
 ];
-
-const taskLabels: Record<TaskType, string> = {
-  simple_interest: 'Zinsrechnung',
-  zinseszins: 'Zinseszins',
-  kapitalmehrung: 'Kapitalmehrung',
-  renten_endwert: 'Rentenrechnung',
-  annuitaet: 'Annuität',
-  ratendarlehen_plan: 'Ratentilgung',
-  annuitaet_plan: 'Annuitätentilgung',
-};
 
 const taskFilterButtons: { id: FilterType; label: string }[] = [
   { id: 'mixed', label: 'Alle gemischt' },
   { id: 'simple_interest', label: 'Zinsrechnung' },
   { id: 'zinseszins', label: 'Zinseszins' },
-  { id: 'kapitalmehrung', label: 'Kapitalmehrung' },
-  { id: 'renten_endwert', label: 'Rentenrechnung' },
-  { id: 'annuitaet', label: 'Annuität' },
+  { id: 'renten_bundled', label: 'Rentenrechnung' },
   { id: 'ratendarlehen_plan', label: 'Ratentilgung' },
   { id: 'annuitaet_plan', label: 'Annuitätentilgung' },
 ];
@@ -87,6 +76,85 @@ const randomFloat = (min: number, max: number, decimals = 2) => {
 const randomChoice = <T,>(arr: readonly T[]): T => arr[randomInt(0, arr.length - 1)];
 
 const latex = String.raw;
+
+const renderSolutionIntro = (areaLabel: string, baseFormula: string) => (
+  <div className="space-y-0.5 text-sm text-slate-600">
+    <p className="font-semibold">Bereich: {areaLabel}</p>
+    <p>
+      Grundformel: <InlineMath math={baseFormula} />
+    </p>
+  </div>
+);
+
+interface InterestDateRange {
+  startLabel: string;
+  endLabel: string;
+  days: number;
+}
+
+const formatDateLabel = (date: Date) =>
+  date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+
+const randomInterestDateRange = (): InterestDateRange => {
+  const year = 2025;
+  const span = randomInt(30, 250);
+  const startDay = randomInt(1, 360 - span);
+  const startDate = new Date(year, 0, 1);
+  startDate.setDate(startDate.getDate() + startDay);
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + span);
+  return {
+    startLabel: formatDateLabel(startDate),
+    endLabel: formatDateLabel(endDate),
+    days: span,
+  };
+};
+
+const simpleInterestContexts = [
+  'Die Schülerfirma SolarJuice legt einen Teil ihrer Smoothie-Einnahmen kurzfristig bei der Schülerbank an.',
+  'Der Nachhaltigkeitsclub verwaltet Sponsorengelder für ein Urban-Gardening-Projekt.',
+  'Eine Abschlussklasse erhält eine Reisekasse und möchte das Geld bis zur Fahrt verzinst parken.',
+] as const;
+
+const zinseszinsContexts = [
+  'Lilly lässt ihr Preisgeld mit jährlicher Verzinsung ruhen – ohne Entnahmen.',
+  'Der Schulsanitätsdienst spart Spenden für neue Ausrüstung und lässt das Kapital wachsen.',
+  'Ein eSports-Schulteam legt seine Gewinne auf einem Festgeldkonto an.',
+] as const;
+
+const kapitalmehrungContexts = [
+  'Die Nachhaltigkeits-AG startet mit einem Grundstock und zahlt am Jahresende zusätzliche Beträge ein.',
+  'Der Makerspace spart für einen Lasercutter und füttert das Konto jede Saison mit Projektbeiträgen.',
+  'Eine Schülerfirma investiert ihre Monatsgewinne in einen Innovationsfonds.',
+] as const;
+
+const kapitalminderungContexts = [
+  'Der Förderverein entnimmt jedes Jahr Geld aus dem Rücklagenkonto, um eine soziale Initiative zu finanzieren.',
+  'Ein Schulorchester zahlt sich jährlich Reisezuschüsse aus seiner Startkasse aus.',
+  'Die Umwelt-AG reduziert ihren Klimafonds, indem sie jedes Jahr Projektgelder entnimmt.',
+] as const;
+
+const rentenContexts = [
+  'Ein Schulteam spart nachschüssig für eine Abschlussreise und zahlt am Ende jedes Jahres denselben Betrag ein.',
+  'Der Theaterkurs plant Kulissen und legt jedes Jahr Honorar-Reste zur Seite.',
+  'Der Chor sammelt für eine Konzerttournee und überweist regelmäßig Vereinsbeiträge.',
+] as const;
+
+const ratendarlehenContexts = [
+  'Für den neuen Kreativraum nimmt die Schule ein Ratendarlehen auf.',
+  'Familie Müller stemmt den Kauf eines Energiesparhauses über ein Ratendarlehen.',
+  'Der Sportkurs beschafft Fitnessgeräte und zahlt sie über ein klassisches Ratendarlehen zurück.',
+] as const;
+
+const annuitaetPlanContexts = [
+  'Eine Stadt finanziert eine LED-Flutlichtanlage über ein Annuitätendarlehen.',
+  'Der Landkreis ersetzt Tablets und bündelt die Finanzierung über konstante Raten.',
+  'Ein Start-up aus der Schülerfirma baut seinen Maschinenpark per Annuitätendarlehen aus.',
+] as const;
+
+const rentenBundleTypes: TaskType[] = ['kapitalmehrung', 'kapitalminderung', 'renten_endwert'];
+
+const createInitialStats = () => ({ correct: 0, total: 0, streak: 0, points: 0 });
 
 const formatCurrency = (val: number) =>
   val.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -122,15 +190,29 @@ const buildInputRecord = (task: Task) =>
 const createSimpleInterestTask = (): Task => {
   const K = randomInt(30, 150) * 100;
   const p = randomFloat(1.2, 7.5, 2);
-  const t = randomInt(30, 340);
-  const Z = (K * p * t) / (100 * 360);
+  let t = randomInt(30, 340);
   const variant = randomChoice<SimpleInterestVariant>(['Z', 'K', 'p', 't']);
+
+  const useDateRange = variant !== 't' && Math.random() < 0.5;
+  const dateRange = useDateRange ? randomInterestDateRange() : null;
+  if (dateRange) {
+    t = dateRange.days;
+  }
+  const Z = (K * p * t) / (100 * 360);
+
+  const durationInfo = useDateRange ? (
+    <p>
+      Zeitraum: <strong>{dateRange!.startLabel} bis {dateRange!.endLabel}</strong> (bankübliches 360-Tage-Jahr).
+    </p>
+  ) : (
+    <p>
+      Dauer: <strong>{t} Tage</strong>.
+    </p>
+  );
 
   const baseStory = (
     <div className="space-y-2">
-      <p>
-        Die Schülerfirma <strong>SolarJuice</strong> legt einen Betrag mit einfachem Jahreszins an.
-      </p>
+      <p>{randomChoice(simpleInterestContexts)}</p>
       <p>Alle Angaben beziehen sich auf dieselbe Geldanlage.</p>
     </div>
   );
@@ -145,9 +227,9 @@ const createSimpleInterestTask = (): Task => {
         <div className="space-y-2">
           {baseStory}
           <p>
-            Einlage: <strong>{formatCurrency(K)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Dauer:{' '}
-            <strong>{t} Tage</strong>.
+            Einlage: <strong>{formatCurrency(K)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>.
           </p>
+          {durationInfo}
           <p className="text-blue-900 font-semibold">Welche Zinsen fallen an?</p>
         </div>
       );
@@ -171,9 +253,9 @@ const createSimpleInterestTask = (): Task => {
         <div className="space-y-2">
           {baseStory}
           <p>
-            Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Dauer: <strong>{t} Tage</strong>, Zinsen:{' '}
-            <strong>{formatCurrency(Z)} €</strong>.
+            Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Zinsen: <strong>{formatCurrency(Z)} €</strong>.
           </p>
+          {durationInfo}
           <p className="text-blue-900 font-semibold">Welches Startkapital wurde angelegt?</p>
         </div>
       );
@@ -197,9 +279,9 @@ const createSimpleInterestTask = (): Task => {
         <div className="space-y-2">
           {baseStory}
           <p>
-            Startkapital: <strong>{formatCurrency(K)} €</strong>, Dauer: <strong>{t} Tage</strong>, Zinsen:{' '}
-            <strong>{formatCurrency(Z)} €</strong>.
+            Startkapital: <strong>{formatCurrency(K)} €</strong>, Zinsen: <strong>{formatCurrency(Z)} €</strong>.
           </p>
+          {durationInfo}
           <p className="text-blue-900 font-semibold">Wie hoch war der Zinssatz?</p>
         </div>
       );
@@ -264,11 +346,7 @@ const createZinseszinsTask = (): Task => {
   const Kn = K0 * qn;
   const variant = randomChoice<ZinseszinsVariant>(['Kn', 'K0', 'p', 'n']);
 
-  const story = (
-    <p>
-      <strong>Lilly</strong> lässt ihr Preisgeld mit jährlicher Verzinsung ruhen – ohne Entnahmen.
-    </p>
-  );
+  const story = <p>{randomChoice(zinseszinsContexts)}</p>;
 
   let question: React.ReactNode = null;
   let inputs: TaskInput[] = [];
@@ -402,11 +480,10 @@ const createKapitalmehrungTask = (): Task => {
   const Kn = K0 * qn + (r * (qn - 1)) / qMinus1;
   const variant = randomChoice<KapitalmehrungVariant>(['Kn', 'K0', 'r', 'n']);
 
-  const story = (
-    <p>
-      Die Nachhaltigkeits-AG startet mit einem Grundstock und zahlt am Jahresende zusätzliche Beträge ein.
-    </p>
-  );
+  const story = <p>{randomChoice(kapitalmehrungContexts)}</p>;
+  const areaLabel = 'nachschüssige Kapitalmehrung';
+  const baseFormula = latex`K_n = K_0 \cdot q^n + r \cdot \frac{q^n - 1}{q - 1}`;
+  const solutionIntro = renderSolutionIntro(areaLabel, baseFormula);
 
   let question: React.ReactNode = null;
   let inputs: TaskInput[] = [];
@@ -421,17 +498,22 @@ const createKapitalmehrungTask = (): Task => {
             Start: <strong>{formatCurrency(K0)} €</strong>, Rate: <strong>{formatCurrency(r)} €</strong>, Zinssatz:{' '}
             <strong>{formatNumber(p, 2)} %</strong>, Laufzeit: <strong>{n} Jahre</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Am Jahresende (nachschüssig) wird nach den Zinsen jeweils {formatCurrency(r)} € auf ein Startpolster von{' '}
+            {formatCurrency(K0)} € gelegt – typische Kapitalmehrung.
+          </p>
           <p className="text-blue-900 font-semibold">Wie hoch ist der Endwert?</p>
         </div>
       );
       inputs = [createInputField('Kn', 'Endwert', '€', 'z.B. 42.500,00', Kn, Math.max(Kn * 0.002, 2))];
       solution = (
         <div className="space-y-1">
+          {solutionIntro}
           <p>
-            <InlineMath math={latex`K_n = K_0 \cdot q^n + r \cdot \frac{q^n - 1}{q - 1}`} />
+            <InlineMath math={latex`q = 1 + \frac{${mathNumber(p)}}{100} = ${mathNumber(q, 4)}`} />
           </p>
           <p>
-            <InlineMath math={latex`q = 1 + \frac{${mathNumber(p)}}{100} = ${mathNumber(q, 4)},\; q^n = ${mathNumber(qn, 4)}`} />
+            <InlineMath math={latex`q^n = ${mathNumber(q, 4)}^{${n}} = ${mathNumber(qn, 4)}`} />
           </p>
           <p>
             <InlineMath math={latex`K_n = ${mathNumber(K0)} \cdot ${mathNumber(qn, 4)} + ${mathNumber(r)} \cdot \frac{${mathNumber(qn, 4)} - 1}{${mathNumber(q, 4)} - 1} = ${mathNumber(Kn, 4)}`} />
@@ -447,12 +529,17 @@ const createKapitalmehrungTask = (): Task => {
             Endwert: <strong>{formatCurrency(Kn)} €</strong>, Rate: <strong>{formatCurrency(r)} €</strong>, Zinssatz:{' '}
             <strong>{formatNumber(p, 2)} %</strong>, Laufzeit: <strong>{n} Jahre</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Die nachschüssigen Jahresraten von {formatCurrency(r)} € wachsen mit; gesucht ist das anfängliche Guthaben, das
+            zusammen mit diesen Einzahlungen den Endwert erreicht.
+          </p>
           <p className="text-blue-900 font-semibold">Welcher Startbetrag war nötig?</p>
         </div>
       );
       inputs = [createInputField('K0', 'Startkapital', '€', 'z.B. 28.000,00', K0, Math.max(K0 * 0.002, 2))];
       solution = (
         <div className="space-y-1">
+          {solutionIntro}
           <p>
             <InlineMath math={latex`K_0 = \frac{K_n - r \cdot \frac{q^n - 1}{q - 1}}{q^n}`} />
           </p>
@@ -474,12 +561,17 @@ const createKapitalmehrungTask = (): Task => {
             Start: <strong>{formatCurrency(K0)} €</strong>, Endwert: <strong>{formatCurrency(Kn)} €</strong>, Zinssatz:{' '}
             <strong>{formatNumber(p, 2)} %</strong>, Laufzeit: <strong>{n} Jahre</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Kapitalmehrung mit nachschüssigen Raten: Das Anfangskonto soll zusammen mit gleich hohen Jahreszahlungen den
+            Endwert erreichen.
+          </p>
           <p className="text-blue-900 font-semibold">Wie hoch ist die nachschüssige Rate?</p>
         </div>
       );
       inputs = [createInputField('r', 'Jahresrate', '€', 'z.B. 3.200,00', rate, Math.max(rate * 0.002, 1.5))];
       solution = (
         <div className="space-y-1">
+          {solutionIntro}
           <p>
             <InlineMath math={latex`r = \left(K_n - K_0 \cdot q^n\right) \cdot \frac{q - 1}{q^n - 1}`} />
           </p>
@@ -501,6 +593,9 @@ const createKapitalmehrungTask = (): Task => {
             Start: <strong>{formatCurrency(K0)} €</strong>, Rate: <strong>{formatCurrency(r)} €</strong>, Zinssatz:{' '}
             <strong>{formatNumber(p, 2)} %</strong>, Endwert: <strong>{formatCurrency(Kn)} €</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Nachschüssige Kapitalmehrung: Auf das Startguthaben folgen jedes Jahresende identische Einzahlungen.
+          </p>
           <p className="text-blue-900 font-semibold">Wie viele Jahre dauerte der Plan?</p>
         </div>
       );
@@ -508,6 +603,7 @@ const createKapitalmehrungTask = (): Task => {
       const isoQN = (Kn * qMinus1 + r) / (K0 * qMinus1 + r);
       solution = (
         <div className="space-y-1">
+          {solutionIntro}
           <p>
             <InlineMath math={latex`q^n = \frac{K_n (q - 1) + r}{K_0 (q - 1) + r}`} />
           </p>
@@ -532,6 +628,163 @@ const createKapitalmehrungTask = (): Task => {
   };
 };
 
+const createKapitalminderungTask = (): Task => {
+  let K0 = randomInt(30, 70) * 1000;
+  const r = randomInt(15, 50) * 100;
+  const n = randomInt(3, 8);
+  const p = randomFloat(1.4, 4.5, 2);
+  const q = 1 + p / 100;
+  const qn = Math.pow(q, n);
+  const qMinus1 = q - 1;
+  // ensure withdrawals don't exceed growth
+  if (K0 * qMinus1 <= r) {
+    K0 = Math.max(K0, Math.ceil((r + 500) / qMinus1));
+  }
+  const Kn = K0 * qn - (r * (qn - 1)) / qMinus1;
+  const variant = randomChoice<KapitalminderungVariant>(['Kn', 'K0', 'r', 'n']);
+
+  const story = <p>{randomChoice(kapitalminderungContexts)}</p>;
+  const areaLabel = 'nachschüssige Kapitalminderung';
+  const baseFormula = latex`K_n = K_0 \cdot q^n - r \cdot \frac{q^n - 1}{q - 1}`;
+  const solutionIntro = renderSolutionIntro(areaLabel, baseFormula);
+
+  let question: React.ReactNode = null;
+  let inputs: TaskInput[] = [];
+  let solution: React.ReactNode = null;
+
+  switch (variant) {
+    case 'Kn':
+      question = (
+        <div className="space-y-2">
+          {story}
+          <p>
+            Startkapital: <strong>{formatCurrency(K0)} €</strong>, jährliche Entnahme:{' '}
+            <strong>{formatCurrency(r)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Laufzeit:{' '}
+            <strong>{n} Jahre</strong>.
+          </p>
+          <p className="text-sm text-slate-600">
+            Das Kapital wird verzinst, erst danach wird am Jahresende eine feste Summe entnommen – nachschüssige
+            Kapitalminderung.
+          </p>
+          <p className="text-blue-900 font-semibold">Wie hoch ist die Restkasse nach allen Entnahmen?</p>
+        </div>
+      );
+      inputs = [createInputField('Kn', 'Restkapital', '€', 'z.B. 14.800,00', Kn, Math.max(Kn * 0.002, 1.5))];
+      solution = (
+        <div className="space-y-1">
+          {solutionIntro}
+          <p>
+            <InlineMath math={latex`K_n = ${mathNumber(K0)} \, ${mathNumber(q, 4)}^{${n}} - ${mathNumber(r)} \cdot \frac{${mathNumber(qn, 4)} - 1}{${mathNumber(q, 4)} - 1} = ${mathNumber(Kn, 4)}`} />
+          </p>
+        </div>
+      );
+      break;
+    case 'K0': {
+      const startCapital = (Kn + (r * (qn - 1)) / qMinus1) / qn;
+      question = (
+        <div className="space-y-2">
+          {story}
+          <p>
+            Restkapital: <strong>{formatCurrency(Kn)} €</strong>, Entnahme: <strong>{formatCurrency(r)} €</strong>, Zinssatz:{' '}
+            <strong>{formatNumber(p, 2)} %</strong>, Laufzeit: <strong>{n} Jahre</strong>.
+          </p>
+          <p className="text-sm text-slate-600">
+            Es wird nachschüssig entnommen. Wie groß musste der Anfangsbestand sein, damit nach den festen Entnahmen noch
+            {formatCurrency(Kn)} € übrig bleiben?
+          </p>
+          <p className="text-blue-900 font-semibold">Wie groß war das ursprüngliche Kapital?</p>
+        </div>
+      );
+      inputs = [createInputField('K0', 'Startkapital', '€', 'z.B. 35.000,00', startCapital, Math.max(startCapital * 0.002, 2))];
+      solution = (
+        <div className="space-y-1">
+          {solutionIntro}
+          <p>
+            <InlineMath math={latex`K_0 = \frac{K_n + r \cdot \frac{q^n - 1}{q - 1}}{q^n}`} />
+          </p>
+          <p>
+            <InlineMath math={latex`K_0 = \frac{${mathNumber(Kn)} + ${mathNumber(r)} \cdot \frac{${mathNumber(qn, 4)} - 1}{${mathNumber(q, 4)} - 1}}{${mathNumber(qn, 4)}} = ${mathNumber(startCapital, 4)}`} />
+          </p>
+        </div>
+      );
+      break;
+    }
+    case 'r': {
+      const rate = (K0 * qn - Kn) * qMinus1 / (qn - 1);
+      question = (
+        <div className="space-y-2">
+          {story}
+          <p>
+            Startkapital: <strong>{formatCurrency(K0)} €</strong>, Restkapital: <strong>{formatCurrency(Kn)} €</strong>, Zinssatz:{' '}
+            <strong>{formatNumber(p, 2)} %</strong>, Laufzeit: <strong>{n} Jahre</strong>.
+          </p>
+          <p className="text-sm text-slate-600">
+            Nachschüssige Entnahmen: Nach jeder Verzinsung stehen konstante Zuschüsse zur Verfügung – wie hoch dürfen sie
+            sein?
+          </p>
+          <p className="text-blue-900 font-semibold">Wie groß darf die jährliche Entnahme sein?</p>
+        </div>
+      );
+      inputs = [createInputField('r', 'Entnahme', '€', 'z.B. 4.500,00', rate, Math.max(rate * 0.002, 1.5))];
+      solution = (
+        <div className="space-y-1">
+          {solutionIntro}
+          <p>
+            <InlineMath math={latex`r = (K_0 q^n - K_n) \cdot \frac{q - 1}{q^n - 1}`} />
+          </p>
+          <p>
+            <InlineMath math={latex`r = (${mathNumber(K0)} \cdot ${mathNumber(qn, 4)} - ${mathNumber(Kn)}) \cdot \frac{${mathNumber(q, 4)} - 1}{${mathNumber(qn, 4)} - 1} = ${mathNumber(rate, 4)}`} />
+          </p>
+        </div>
+      );
+      break;
+    }
+    case 'n': {
+      const numerator = (qMinus1 * Kn) - r;
+      const denominator = (qMinus1 * K0) - r;
+      const qnIso = numerator / denominator;
+      question = (
+        <div className="space-y-2">
+          {story}
+          <p>
+            Startkapital: <strong>{formatCurrency(K0)} €</strong>, Entnahme: <strong>{formatCurrency(r)} €</strong>, Zinssatz:{' '}
+            <strong>{formatNumber(p, 2)} %</strong>, Restkapital: <strong>{formatCurrency(Kn)} €</strong>.
+          </p>
+          <p className="text-sm text-slate-600">
+            Das Kapital wird nachschüssig vermindert: fixe Entnahmen nach jeder Verzinsung.
+          </p>
+          <p className="text-blue-900 font-semibold">Wie viele Jahre reichen die Entnahmen?</p>
+        </div>
+      );
+      inputs = [createInputField('n', 'Jahre', 'Jahre', 'z.B. 5', n, 0.05, 0)];
+      solution = (
+        <div className="space-y-1">
+          {solutionIntro}
+          <p>
+            <InlineMath math={latex`q^n = \frac{K_n (q - 1) - r}{K_0 (q - 1) - r}`} />
+          </p>
+          <p>
+            <InlineMath math={latex`q^n = \frac{${mathNumber(Kn)} \cdot (${mathNumber(q, 4)} - 1) - ${mathNumber(r)}}{${mathNumber(K0)} \cdot (${mathNumber(q, 4)} - 1) - ${mathNumber(r)}} = ${mathNumber(qnIso, 4)}`} />
+          </p>
+          <p>
+            <InlineMath math={latex`n = \frac{\ln(q^n)}{\ln(q)} = \frac{\ln(${mathNumber(qnIso, 4)})}{\ln(${mathNumber(q, 4)})} = ${n}`} />
+          </p>
+        </div>
+      );
+      break;
+    }
+    default:
+      break;
+  }
+
+  return {
+    type: 'kapitalminderung',
+    question,
+    solution,
+    inputs,
+  };
+};
+
 const createRentenEndwertTask = (): Task => {
   const r = randomInt(400, 1400);
   const n = randomInt(4, 10);
@@ -541,11 +794,10 @@ const createRentenEndwertTask = (): Task => {
   const Kn = (r * (qn - 1)) / (q - 1);
   const variant = randomChoice<RentenVariant>(['Kn', 'r', 'p', 'n']);
 
-  const story = (
-    <p>
-      Ein Schulteam spart nachschüssig für eine Abschlussreise und zahlt am Ende jedes Jahres denselben Betrag ein.
-    </p>
-  );
+  const story = <p>{randomChoice(rentenContexts)}</p>;
+  const areaLabel = 'nachschüssige Rentensparrate';
+  const baseFormula = latex`K_n = r \cdot \frac{q^n - 1}{q - 1}`;
+  const solutionIntro = renderSolutionIntro(areaLabel, baseFormula);
 
   let question: React.ReactNode = null;
   let inputs: TaskInput[] = [];
@@ -560,15 +812,16 @@ const createRentenEndwertTask = (): Task => {
             Rate: <strong>{formatCurrency(r)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Laufzeit:{' '}
             <strong>{n} Jahre</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Es gibt kein Startkapital – die Sparrate wird nach den Zinsen am Jahresende eingezahlt.
+          </p>
           <p className="text-blue-900 font-semibold">Wie groß ist der Endwert?</p>
         </div>
       );
       inputs = [createInputField('Kn', 'Endwert', '€', 'z.B. 18.700,00', Kn, Math.max(Kn * 0.002, 1.5))];
       solution = (
         <div className="space-y-1">
-          <p>
-            <InlineMath math={latex`K_n = r \cdot \frac{q^n - 1}{q - 1}`} />
-          </p>
+          {solutionIntro}
           <p>
             <InlineMath math={latex`q = 1 + \frac{${mathNumber(p)}}{100} = ${mathNumber(q, 4)}`} />
           </p>
@@ -587,15 +840,16 @@ const createRentenEndwertTask = (): Task => {
             Endwert: <strong>{formatCurrency(Kn)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Laufzeit:{' '}
             <strong>{n} Jahre</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Gesucht ist die nachschüssige Jahresrate ohne Startkapital.
+          </p>
           <p className="text-blue-900 font-semibold">Wie hoch muss die Jahresrate sein?</p>
         </div>
       );
       inputs = [createInputField('r', 'Jahresrate', '€', 'z.B. 1.150,00', rate, Math.max(rate * 0.002, 1))];
       solution = (
         <div className="space-y-1">
-          <p>
-            <InlineMath math={latex`r = K_n \cdot \frac{q - 1}{q^n - 1}`} />
-          </p>
+          {solutionIntro}
           <p>
             <InlineMath math={latex`q = 1 + \frac{${mathNumber(p)}}{100} = ${mathNumber(q, 4)},\; q^n = ${mathNumber(qn, 4)}`} />
           </p>
@@ -614,12 +868,16 @@ const createRentenEndwertTask = (): Task => {
             Rate: <strong>{formatCurrency(r)} €</strong>, Endwert: <strong>{formatCurrency(Kn)} €</strong>, Laufzeit:{' '}
             <strong>{n} Jahre</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Nachschüssige Rente ohne Startkapital: Der Zinssatz bestimmt das Wachstum.
+          </p>
           <p className="text-blue-900 font-semibold">Welcher Zinssatz steckt dahinter?</p>
         </div>
       );
       inputs = [createInputField('p', 'Zinssatz', '%', 'z.B. 3,2', p, 0.05, 2)];
       solution = (
         <div className="space-y-2">
+          {solutionIntro}
           <p>
             <InlineMath math={latex`\frac{K_n}{r} = \frac{q^n - 1}{q - 1}`} />
           </p>
@@ -641,12 +899,16 @@ const createRentenEndwertTask = (): Task => {
             Rate: <strong>{formatCurrency(r)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Endwert:{' '}
             <strong>{formatCurrency(Kn)} €</strong>.
           </p>
+          <p className="text-sm text-slate-600">
+            Alle Einzahlungen erfolgen nachschüssig bei leerem Startkonto.
+          </p>
           <p className="text-blue-900 font-semibold">Wie lange muss gespart werden?</p>
         </div>
       );
       inputs = [createInputField('n', 'Jahre', 'Jahre', 'z.B. 6', n, 0.05, 0)];
       solution = (
         <div className="space-y-1">
+          {solutionIntro}
           <p>
             <InlineMath math={latex`q^n = 1 + \frac{K_n (q - 1)}{r}`} />
           </p>
@@ -671,146 +933,6 @@ const createRentenEndwertTask = (): Task => {
   };
 };
 
-const createAnnuitaetTask = (): Task => {
-  const K0 = randomInt(70, 200) * 1000;
-  const n = randomInt(8, 18);
-  const p = randomFloat(1.3, 4.0, 2);
-  const q = 1 + p / 100;
-  const qn = Math.pow(q, n);
-  const A = (K0 * qn * (q - 1)) / (qn - 1);
-  const variant = randomChoice<AnnuitaetVariant>(['A', 'K0', 'p', 'n']);
-
-  const story = (
-    <p>
-      Ein Sportverein finanziert seine Halle mit einem Annuitätendarlehen und zahlt jedes Jahr dieselbe Rate.
-    </p>
-  );
-
-  let question: React.ReactNode = null;
-  let inputs: TaskInput[] = [];
-  let solution: React.ReactNode = null;
-
-  switch (variant) {
-    case 'A':
-      question = (
-        <div className="space-y-2">
-          {story}
-          <p>
-            Darlehen: <strong>{formatCurrency(K0)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Laufzeit:{' '}
-            <strong>{n} Jahre</strong>.
-          </p>
-          <p className="text-blue-900 font-semibold">Wie hoch ist die konstante Annuität?</p>
-        </div>
-      );
-      inputs = [createInputField('A', 'Annuität', '€', 'z.B. 15.800,00', A, Math.max(A * 0.002, 2))];
-      solution = (
-        <div className="space-y-1">
-          <p>
-            <InlineMath math={latex`A = K_0 \cdot \frac{q^n (q - 1)}{q^n - 1}`} />
-          </p>
-          <p>
-            <InlineMath math={latex`q = 1 + \frac{${mathNumber(p)}}{100} = ${mathNumber(q, 4)}`} />
-          </p>
-          <p>
-            <InlineMath math={latex`A = ${mathNumber(K0)} \cdot \frac{${mathNumber(qn, 4)} \cdot (${mathNumber(q, 4)} - 1)}{${mathNumber(qn, 4)} - 1} = ${mathNumber(A, 4)}`} />
-          </p>
-        </div>
-      );
-      break;
-    case 'K0': {
-      const loan = (A * (qn - 1)) / (qn * (q - 1));
-      question = (
-        <div className="space-y-2">
-          {story}
-          <p>
-            Annuität: <strong>{formatCurrency(A)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Laufzeit:{' '}
-            <strong>{n} Jahre</strong>.
-          </p>
-          <p className="text-blue-900 font-semibold">Welches Darlehen steckt dahinter?</p>
-        </div>
-      );
-      inputs = [createInputField('K0', 'Darlehen', '€', 'z.B. 180.000,00', loan, Math.max(loan * 0.002, 2))];
-      solution = (
-        <div className="space-y-1">
-          <p>
-            <InlineMath math={latex`K_0 = A \cdot \frac{q^n - 1}{q^n (q - 1)}`} />
-          </p>
-          <p>
-            <InlineMath math={latex`q = 1 + \frac{${mathNumber(p)}}{100} = ${mathNumber(q, 4)},\; q^n = ${mathNumber(qn, 4)}`} />
-          </p>
-          <p>
-            <InlineMath math={latex`K_0 = ${mathNumber(A)} \cdot \frac{${mathNumber(qn, 4)} - 1}{${mathNumber(qn, 4)} \cdot (${mathNumber(q, 4)} - 1)} = ${mathNumber(loan, 4)}`} />
-          </p>
-        </div>
-      );
-      break;
-    }
-    case 'p':
-      question = (
-        <div className="space-y-2">
-          {story}
-          <p>
-            Darlehen: <strong>{formatCurrency(K0)} €</strong>, Annuität: <strong>{formatCurrency(A)} €</strong>, Laufzeit:{' '}
-            <strong>{n} Jahre</strong>.
-          </p>
-          <p className="text-blue-900 font-semibold">Wie groß ist der Zinssatz?</p>
-        </div>
-      );
-      inputs = [createInputField('p', 'Zinssatz', '%', 'z.B. 2,9', p, 0.05, 2)];
-      solution = (
-        <div className="space-y-2">
-          <p>
-            <InlineMath math={latex`A = K_0 \cdot \frac{q^n (q - 1)}{q^n - 1}`} />
-          </p>
-          <p>
-            Die Gleichung wird nach <InlineMath math={latex`q`} /> aufgelöst (numerisch).
-          </p>
-          <p>
-            Für die gegebenen Werte ergibt sich <InlineMath math={latex`q \approx ${mathNumber(q, 4)}`} />, also{' '}
-            <InlineMath math={latex`p = (q - 1) \cdot 100 = ${formatNumber(p, 2)}\,\%`} />.
-          </p>
-        </div>
-      );
-      break;
-    case 'n':
-      question = (
-        <div className="space-y-2">
-          {story}
-          <p>
-            Darlehen: <strong>{formatCurrency(K0)} €</strong>, Zinssatz: <strong>{formatNumber(p, 2)} %</strong>, Annuität:{' '}
-            <strong>{formatCurrency(A)} €</strong>.
-          </p>
-          <p className="text-blue-900 font-semibold">Nach wie vielen Jahren ist das Darlehen erledigt?</p>
-        </div>
-      );
-      inputs = [createInputField('n', 'Jahre', 'Jahre', 'z.B. 14', n, 0.05, 0)];
-      const qnFromData = A / (A - K0 * (q - 1));
-      solution = (
-        <div className="space-y-1">
-          <p>
-            <InlineMath math={latex`q^n = \frac{A}{A - K_0 (q - 1)}`} />
-          </p>
-          <p>
-            <InlineMath math={latex`q^n = \frac{${mathNumber(A)}}{${mathNumber(A)} - ${mathNumber(K0)} \cdot (${mathNumber(q, 4)} - 1)} = ${mathNumber(qnFromData, 4)}`} />
-          </p>
-          <p>
-            <InlineMath math={latex`n = \frac{\ln(q^n)}{\ln(q)} = \frac{\ln(${mathNumber(qnFromData, 4)})}{\ln(${mathNumber(q, 4)})} = ${n}`} />
-          </p>
-        </div>
-      );
-      break;
-    default:
-      break;
-  }
-
-  return {
-    type: 'annuitaet',
-    question,
-    solution,
-    inputs,
-  };
-};
-
 interface PlanRow {
   year: number;
   restStart: number;
@@ -823,7 +945,7 @@ const PLAN_COLUMNS = [
   { key: 'debt', label: 'Schuld (Anfang)' },
   { key: 'interest', label: 'Zinsen' },
   { key: 'tilgung', label: 'Tilgung' },
-  { key: 'annuity', label: 'Annuität (Rate)' },
+  { key: 'annuity', label: 'Annuität' },
 ] as const;
 
 type PlanColumnKey = (typeof PLAN_COLUMNS)[number]['key'];
@@ -928,11 +1050,11 @@ const buildPlanInputs = (prefix: string, rows: PlanRow[]) =>
 
 const createRatendarlehenPlanTask = (): Task => {
   const loan = randomInt(50, 140) * 1000;
-  const years = randomInt(4, 8);
+  const years = randomInt(5, 8);
   const rate = randomFloat(1.5, 4.0, 1);
   const tilgung = loan / years;
 
-  const extraYear = Math.min(years, randomInt(3, years));
+  const extraYear = randomInt(5, years);
   const targetYears = Array.from(new Set([1, 2, extraYear])).sort((a, b) => a - b);
 
   const buildRow = (year: number): PlanRow => {
@@ -944,14 +1066,14 @@ const createRatendarlehenPlanTask = (): Task => {
 
   const rows = targetYears.map(buildRow);
 
+  const contextLine = randomChoice(ratendarlehenContexts);
+
   const question = (
     <div className="space-y-3">
+      <p>{contextLine}</p>
       <p>
-        Für den neuen Kreativraum nimmt die Schule ein Ratendarlehen über <strong>{formatCurrency(loan)} €</strong> auf.
-      </p>
-      <p>
-        Laufzeit: <strong>{years} Jahre</strong>, Zinssatz konstant <strong>{formatNumber(rate, 1)} %</strong>. Die Tilgung
-        ist jedes Jahr gleich.
+        Darlehenshöhe: <strong>{formatCurrency(loan)} €</strong>, Laufzeit: <strong>{years} Jahre</strong>, Zinssatz:{' '}
+        <strong>{formatNumber(rate, 1)} %</strong>. Die Tilgung ist jedes Jahr gleich.
       </p>
       <p className="text-blue-900 font-semibold">
         Ergänze die Werte für Jahr 1, Jahr 2 sowie Jahr {targetYears[targetYears.length - 1]} (Schuld, Zins, Tilgung,
@@ -986,7 +1108,7 @@ const createAnnuitaetPlanTask = (): Task => {
   const tilgungFirst = (loan * (q - 1)) / (qn - 1);
   const annuity = tilgungFirst * qn;
 
-  const extraYear = Math.min(years, randomInt(3, years));
+  const extraYear = randomInt(5, years);
   const targetYears = Array.from(new Set([1, 2, extraYear])).sort((a, b) => a - b);
 
   const rows: PlanRow[] = [];
@@ -1004,10 +1126,7 @@ const createAnnuitaetPlanTask = (): Task => {
 
   const question = (
     <div className="space-y-3">
-      <p>
-        Eine Stadt finanziert eine LED-Flutlichtanlage mit <strong>{formatCurrency(loan)} €</strong> über ein
-        Annuitätendarlehen.
-      </p>
+      <p>{randomChoice(annuitaetPlanContexts)}</p>
       <p>
         Zinssatz: <strong>{formatNumber(rate, 2)} %</strong>, Laufzeit <strong>{years} Jahre</strong>. Die Annuität bleibt
         konstant.
@@ -1040,16 +1159,22 @@ const generators: Record<TaskType, () => Task> = {
   simple_interest: createSimpleInterestTask,
   zinseszins: createZinseszinsTask,
   kapitalmehrung: createKapitalmehrungTask,
+  kapitalminderung: createKapitalminderungTask,
   renten_endwert: createRentenEndwertTask,
-  annuitaet: createAnnuitaetTask,
   ratendarlehen_plan: createRatendarlehenPlanTask,
   annuitaet_plan: createAnnuitaetPlanTask,
 };
 
 const randomTaskType = (): TaskType => randomChoice<TaskType>(taskTypes);
 
+const resolveTaskTypeForFilter = (filter: FilterType): TaskType => {
+  if (filter === 'mixed') return randomTaskType();
+  if (filter === 'renten_bundled') return randomChoice(rentenBundleTypes);
+  return filter;
+};
+
 const createTaskForFilter = (filter: FilterType) => {
-  const type = filter === 'mixed' ? randomTaskType() : filter;
+  const type = resolveTaskTypeForFilter(filter);
   return generators[type]();
 };
 
@@ -1063,47 +1188,45 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 const createCards = (filter: FilterType): TaskCard[] => {
+  const buildCard = (task: Task, index: number): TaskCard => ({
+    id: index + 1,
+    task,
+    userAnswers: buildInputRecord(task),
+    feedback: null,
+    feedbackType: null,
+    solutionVisible: false,
+  });
+
   if (filter === 'mixed') {
     const baseTypes: TaskType[] = [...taskTypes];
     while (baseTypes.length < TASK_COUNT) {
       baseTypes.push(randomTaskType());
     }
     const selection = shuffleArray(baseTypes).slice(0, TASK_COUNT);
-    return selection.map((type, index) => {
-      const task = generators[type]();
-      return {
-        id: index + 1,
-        task,
-        userAnswers: buildInputRecord(task),
-        feedback: null,
-        feedbackType: null,
-        solutionVisible: false,
-      };
-    });
+    return selection.map((type, index) => buildCard(generators[type](), index));
   }
 
-  return Array.from({ length: TASK_COUNT }, (_, index) => {
-    const task = createTaskForFilter(filter);
-    return {
-      id: index + 1,
-      task,
-      userAnswers: buildInputRecord(task),
-      feedback: null,
-      feedbackType: null,
-      solutionVisible: false,
-    };
-  });
+  if (filter === 'renten_bundled') {
+    const rentenTypes: TaskType[] = [...rentenBundleTypes];
+    while (rentenTypes.length < TASK_COUNT) {
+      rentenTypes.push(randomChoice(rentenBundleTypes));
+    }
+    const selection = shuffleArray(rentenTypes).slice(0, TASK_COUNT);
+    return selection.map((type, index) => buildCard(generators[type](), index));
+  }
+
+  return Array.from({ length: TASK_COUNT }, (_, index) => buildCard(createTaskForFilter(filter), index));
 };
 
 export default function GemischteFinanzaufgaben() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterType>('mixed');
   const [cards, setCards] = useState<TaskCard[]>(() => createCards('mixed'));
-  const [stats, setStats] = useState({ correct: 0, total: 0, streak: 0 });
+  const [stats, setStats] = useState(() => createInitialStats());
 
   useEffect(() => {
     setCards(createCards(filter));
-    setStats({ correct: 0, total: 0, streak: 0 });
+    setStats(createInitialStats());
   }, [filter]);
 
   const handleBack = () => navigate(-1);
@@ -1127,7 +1250,7 @@ export default function GemischteFinanzaufgaben() {
 
   const regenerateAll = () => {
     setCards(createCards(filter));
-    setStats({ correct: 0, total: 0, streak: 0 });
+    setStats(createInitialStats());
   };
 
   const handleInputChange = (cardId: number, inputId: string, value: string) => {
@@ -1172,7 +1295,7 @@ export default function GemischteFinanzaufgaben() {
         return {
           ...card,
           feedback: isCorrect ? (
-            'Stark! Alle Werte stimmen.'
+            `Stark! Alle Werte stimmen. (+${POINTS_PER_CORRECT} Punkte)`
           ) : (
             <div>
               Nicht ganz. Richtige Werte:
@@ -1196,6 +1319,7 @@ export default function GemischteFinanzaufgaben() {
         correct: prev.correct + (attempt === 'correct' ? 1 : 0),
         total: prev.total + 1,
         streak: attempt === 'correct' ? prev.streak + 1 : 0,
+        points: prev.points + (attempt === 'correct' ? POINTS_PER_CORRECT : 0),
       }));
     }
   };
@@ -1264,7 +1388,6 @@ export default function GemischteFinanzaufgaben() {
                     <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 border border-blue-200">
                       Aufgabe {card.id}
                     </span>
-                    <span className="text-slate-500">{taskLabels[card.task.type]}</span>
                   </div>
                   <button
                     onClick={() => regenerateCard(card.id)}
@@ -1360,7 +1483,7 @@ export default function GemischteFinanzaufgaben() {
                   );
                 })()}
 
-                <div className="flex flex-wrap gap-3 mb-3">
+                <div className="flex flex-wrap gap-3 mb-3 justify-center text-center">
                   <button
                     onClick={() => checkAnswer(card.id)}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl shadow"
@@ -1397,7 +1520,11 @@ export default function GemischteFinanzaufgaben() {
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-4 text-center mt-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mt-8">
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+              <div className="text-3xl font-bold text-emerald-600">{stats.points}</div>
+              <p className="text-sm text-slate-600">Punkte</p>
+            </div>
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
               <div className="text-3xl font-bold text-blue-800">{stats.correct}</div>
               <p className="text-sm text-slate-600">richtig</p>
@@ -1416,3 +1543,4 @@ export default function GemischteFinanzaufgaben() {
     </div>
   );
 }
+

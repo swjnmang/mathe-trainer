@@ -114,7 +114,7 @@ const GraphZeichnen = () => {
                             <GeoGebraApplet 
                                 id="graph-zeichnen-applet"
                                 onAppletReady={handleAppletReady}
-                                showToolbar={false}
+                                showToolBar={false}
                                 showAlgebraInput={false}
                                 showMenuBar={false}
                             />

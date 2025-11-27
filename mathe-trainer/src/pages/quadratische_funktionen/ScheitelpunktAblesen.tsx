@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const ScheitelpunktAblesen = () => {
@@ -7,7 +7,7 @@ const ScheitelpunktAblesen = () => {
     const [equation, setEquation] = useState<string>('');
     const [correctXs, setCorrectXs] = useState<number>(0);
     const [correctYs, setCorrectYs] = useState<number>(0);
-    const [solutionSteps, setSolutionSteps] = useState<JSX.Element | null>(null);
+    const [solutionSteps, setSolutionSteps] = useState<React.ReactNode>(null);
     
     const [userXs, setUserXs] = useState<string>('');
     const [userYs, setUserYs] = useState<string>('');
@@ -38,7 +38,7 @@ const ScheitelpunktAblesen = () => {
         let newCorrectXs = 0;
         let newCorrectYs = 0;
         let newEquation = '';
-        let newSolutionSteps: JSX.Element | null = null;
+        let newSolutionSteps: React.ReactNode = null;
 
         if (newType === 'general_form') {
             switch (level) {
@@ -203,7 +203,7 @@ const ScheitelpunktAblesen = () => {
                         <input
                             type="text"
                             value={userXs}
-                            onChange={(e) => setUserXs(e.target.value)}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserXs(event.target.value)}
                             placeholder="xs"
                             className="w-20 p-2 border rounded text-center"
                         />
@@ -211,7 +211,7 @@ const ScheitelpunktAblesen = () => {
                         <input
                             type="text"
                             value={userYs}
-                            onChange={(e) => setUserYs(e.target.value)}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserYs(event.target.value)}
                             placeholder="ys"
                             className="w-20 p-2 border rounded text-center"
                         />

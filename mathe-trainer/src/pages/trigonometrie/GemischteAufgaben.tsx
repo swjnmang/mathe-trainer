@@ -343,7 +343,9 @@ const GemischteAufgaben: React.FC = () => {
                         <select
                             id="concept-filter"
                             value={conceptFilter}
-                            onChange={event => setConceptFilter(event.target.value as 'Alle' | ConceptTag)}
+                            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                                setConceptFilter(event.target.value as 'Alle' | ConceptTag)
+                            }
                             className="border border-gray-300 rounded-lg px-3 py-2 w-full md:w-64"
                         >
                             {conceptFilters.map(option => (

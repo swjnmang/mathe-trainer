@@ -32,7 +32,7 @@ const SpielNullstellen = () => {
     const ghostBucketRef = useRef<Bucket>({ x: 0, width: 1.2 });
     const ballsRef = useRef<Ball[]>([]);
     const trailPointsRef = useRef<{x: number, y: number}[]>([]);
-    const animationFrameRef = useRef<number>();
+    const animationFrameRef = useRef<number | null>(null);
 
     const gridRangeX = 10;
     const canvasWidth = 1000;

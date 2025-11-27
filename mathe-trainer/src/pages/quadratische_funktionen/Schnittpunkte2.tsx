@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
 import 'katex/dist/katex.min.css';
@@ -237,7 +237,7 @@ const Schnittpunkte2 = () => {
                             <input 
                                 type="number" 
                                 value={userCount}
-                                onChange={(e) => setUserCount(e.target.value)}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserCount(event.target.value)}
                                 placeholder="Anzahl"
                                 className="w-32 p-3 border border-gray-300 rounded-lg text-center text-lg focus:ring-2 focus:ring-teal-500"
                             />
@@ -249,7 +249,7 @@ const Schnittpunkte2 = () => {
                                 <input 
                                     type="text" 
                                     value={userP1.x}
-                                    onChange={(e) => setUserP1({...userP1, x: e.target.value})}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserP1({...userP1, x: event.target.value})}
                                     placeholder="x"
                                     className="w-20 p-2 border border-gray-300 rounded text-center"
                                 />
@@ -257,7 +257,7 @@ const Schnittpunkte2 = () => {
                                 <input 
                                     type="text" 
                                     value={userP1.y}
-                                    onChange={(e) => setUserP1({...userP1, y: e.target.value})}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserP1({...userP1, y: event.target.value})}
                                     placeholder="y"
                                     className="w-20 p-2 border border-gray-300 rounded text-center"
                                 />
@@ -268,7 +268,7 @@ const Schnittpunkte2 = () => {
                                 <input 
                                     type="text" 
                                     value={userP2.x}
-                                    onChange={(e) => setUserP2({...userP2, x: e.target.value})}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserP2({...userP2, x: event.target.value})}
                                     placeholder="x"
                                     className="w-20 p-2 border border-gray-300 rounded text-center"
                                 />
@@ -276,7 +276,7 @@ const Schnittpunkte2 = () => {
                                 <input 
                                     type="text" 
                                     value={userP2.y}
-                                    onChange={(e) => setUserP2({...userP2, y: e.target.value})}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserP2({...userP2, y: event.target.value})}
                                     placeholder="y"
                                     className="w-20 p-2 border border-gray-300 rounded text-center"
                                 />

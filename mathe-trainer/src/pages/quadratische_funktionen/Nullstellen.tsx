@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
 import 'katex/dist/katex.min.css';
@@ -276,7 +276,7 @@ const Nullstellen = () => {
                         </label>
                         <select 
                             value={userCount}
-                            onChange={(e) => setUserCount(e.target.value)}
+                            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setUserCount(event.target.value)}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                         >
                             <option value="2">Zwei Nullstellen</option>
@@ -294,7 +294,7 @@ const Nullstellen = () => {
                                 <input 
                                     type="text" 
                                     value={userX1}
-                                    onChange={(e) => setUserX1(e.target.value)}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserX1(event.target.value)}
                                     placeholder="z.B. -2.5"
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                                 />
@@ -307,7 +307,7 @@ const Nullstellen = () => {
                                     <input 
                                         type="text" 
                                         value={userX2}
-                                        onChange={(e) => setUserX2(e.target.value)}
+                                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserX2(event.target.value)}
                                         placeholder="z.B. 3"
                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                                     />

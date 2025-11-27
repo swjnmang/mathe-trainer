@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { InlineMath } from 'react-katex';
+import 'katex/dist/katex.min.css';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
 
 const Scheitelform = () => {
@@ -7,7 +9,7 @@ const Scheitelform = () => {
     const [correctA, setCorrectA] = useState<number>(0);
     const [correctXs, setCorrectXs] = useState<number>(0);
     const [correctYs, setCorrectYs] = useState<number>(0);
-    const [solutionSteps, setSolutionSteps] = useState<JSX.Element | null>(null);
+    const [solutionSteps, setSolutionSteps] = useState<React.ReactNode>(null);
     
     const [userA, setUserA] = useState<string>('');
     const [userXs, setUserXs] = useState<string>('');
@@ -172,14 +174,15 @@ const Scheitelform = () => {
                         <GeoGebraApplet 
                             id="scheitelform-applet"
                             onAppletReady={handleAppletReady}
-                            showToolbar={false}
+                            showToolBar={false}
                             showAlgebraInput={false}
                             showMenuBar={false}
                         />
                     </div>
 
                     <p className="text-lg mb-4 text-center">
-                        Ergänze alle fehlende Werte, um die Funktionsgleichung in Scheitelform ($y = a(x-x_s)²+y_s$) darzustellen. <br/>
+                        Ergänze alle fehlende Werte, um die Funktionsgleichung in Scheitelform (
+                        <InlineMath math={String.raw`y = a(x - x_s)^2 + y_s`} />) darzustellen. <br/>
                         Der Formfaktor ist <strong>a = {correctA}</strong>.
                     </p>
 
@@ -188,7 +191,7 @@ const Scheitelform = () => {
                         <input
                             type="text"
                             value={userA}
-                            onChange={(e) => setUserA(e.target.value)}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserA(event.target.value)}
                             placeholder="a"
                             className="w-16 p-2 border rounded text-center"
                         />
@@ -196,16 +199,16 @@ const Scheitelform = () => {
                         <input
                             type="text"
                             value={userXs}
-                            onChange={(e) => setUserXs(e.target.value)}
-                            placeholder=""
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserXs(event.target.value)}
+                            placeholder="±x_s"
                             className="w-16 p-2 border rounded text-center"
                         />
-                        <span>)² </span>
+                        <span>)² + </span>
                         <input
                             type="text"
                             value={userYs}
-                            onChange={(e) => setUserYs(e.target.value)}
-                            placeholder=""
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserYs(event.target.value)}
+                            placeholder="y_s"
                             className="w-16 p-2 border rounded text-center"
                         />
                     </div>

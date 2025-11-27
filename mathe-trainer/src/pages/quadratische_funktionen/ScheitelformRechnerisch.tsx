@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
 
 const ScheitelformRechnerisch = () => {
     const [taskData, setTaskData] = useState<{S: {x: number, y: number}, P: {x: number, y: number}} | null>(null);
     const [correctValues, setCorrectValues] = useState<{a: number, xs: number, ys: number} | null>(null);
-    const [solutionSteps, setSolutionSteps] = useState<JSX.Element | null>(null);
+    const [solutionSteps, setSolutionSteps] = useState<React.ReactNode>(null);
     
     const [userA, setUserA] = useState<string>('');
     const [userXs, setUserXs] = useState<string>('');
@@ -134,7 +134,7 @@ const ScheitelformRechnerisch = () => {
                     <GeoGebraApplet 
                         id="scheitelform-rechnerisch-applet"
                         onAppletReady={handleAppletReady}
-                        showToolbar={false}
+                        showToolBar={false}
                         showAlgebraInput={false}
                         showMenuBar={false}
                     />
@@ -157,7 +157,7 @@ const ScheitelformRechnerisch = () => {
                     <input
                         type="text"
                         value={userA}
-                        onChange={(e) => setUserA(e.target.value)}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserA(event.target.value)}
                         placeholder="a"
                         className="w-16 p-2 border rounded text-center"
                     />
@@ -165,7 +165,7 @@ const ScheitelformRechnerisch = () => {
                     <input
                         type="text"
                         value={userXs}
-                        onChange={(e) => setUserXs(e.target.value)}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserXs(event.target.value)}
                         placeholder="±xs"
                         className="w-16 p-2 border rounded text-center"
                     />
@@ -173,7 +173,7 @@ const ScheitelformRechnerisch = () => {
                     <input
                         type="text"
                         value={userYs}
-                        onChange={(e) => setUserYs(e.target.value)}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserYs(event.target.value)}
                         placeholder="±ys"
                         className="w-16 p-2 border rounded text-center"
                     />

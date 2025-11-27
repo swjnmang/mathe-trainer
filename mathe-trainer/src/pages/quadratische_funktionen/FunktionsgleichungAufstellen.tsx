@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const FunktionsgleichungAufstellen = () => {
     const [taskType, setTaskType] = useState<'vertex' | 'points_and_factor'>('vertex');
     const [taskData, setTaskData] = useState<any>(null);
     const [currentSolution, setCurrentSolution] = useState<{a: number, b: number, c: number} | null>(null);
-    const [solutionText, setSolutionText] = useState<JSX.Element | null>(null);
+    const [solutionText, setSolutionText] = useState<React.ReactNode>(null);
     
     const [userA, setUserA] = useState<string>('');
     const [userB, setUserB] = useState<string>('');
@@ -287,7 +287,7 @@ const FunktionsgleichungAufstellen = () => {
                                 type="number" 
                                 step="0.01"
                                 value={userA}
-                                onChange={(e) => setUserA(e.target.value)}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserA(event.target.value)}
                                 className="w-full p-2 border rounded"
                             />
                         </div>
@@ -297,7 +297,7 @@ const FunktionsgleichungAufstellen = () => {
                                 type="number" 
                                 step="0.01"
                                 value={userB}
-                                onChange={(e) => setUserB(e.target.value)}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserB(event.target.value)}
                                 className="w-full p-2 border rounded"
                             />
                         </div>
@@ -307,7 +307,7 @@ const FunktionsgleichungAufstellen = () => {
                                 type="number" 
                                 step="0.01"
                                 value={userC}
-                                onChange={(e) => setUserC(e.target.value)}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserC(event.target.value)}
                                 className="w-full p-2 border rounded"
                             />
                         </div>
