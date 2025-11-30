@@ -4,6 +4,7 @@ import Buchungssaetze from './pages/Buchungssaetze';
 import Kalkulation from './pages/Kalkulation';
 import Angebotsvergleich from './pages/Angebotsvergleich';
 import Geschaeftsbriefe from './pages/Geschaeftsbriefe';
+import Anschriftenfeld from './pages/Anschriftenfeld';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/kalkulation" element={<Kalkulation />} />
         <Route path="/angebotsvergleich" element={<Angebotsvergleich />} />
         <Route path="/geschaeftsbriefe" element={<Geschaeftsbriefe />} />
+        <Route path="/anschriftenfeld" element={<Anschriftenfeld />} />
       </Routes>
     </Router>
   );

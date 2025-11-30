@@ -48,15 +48,23 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link to="/geschaeftsbriefe" className="bg-white rounded-2xl p-10 text-center text-slate-900 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col items-center h-full border border-slate-100">
+          <div className="bg-white rounded-2xl p-10 text-center text-slate-900 shadow-sm flex flex-col items-center h-full border border-slate-100">
             <div className="text-5xl mb-6 text-blue-500">
               ✉️
             </div>
             <h2 className="text-2xl font-semibold mb-3 text-slate-800">DIN-Briefe</h2>
-            <p className="text-slate-500 leading-relaxed">
-              Trainiere das korrekte Erstellen von Geschäftsbriefen nach DIN 5008.
+            <p className="text-slate-500 leading-relaxed mb-6">
+              Trainiere das korrekte Erstellen von Geschäftsbriefen und Anschriften.
             </p>
-          </Link>
+            <div className="flex flex-col gap-3 w-full mt-auto">
+              <Link to="/geschaeftsbriefe" className="block w-full py-3 px-4 rounded-xl bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition-colors">
+                Geschäftsbriefe erstellen
+              </Link>
+              <Link to="/anschriftenfeld" className="block w-full py-3 px-4 rounded-xl bg-slate-50 text-slate-700 font-semibold hover:bg-slate-100 transition-colors">
+                Anschriftenfeld üben
+              </Link>
+            </div>
+          </div>
 
         </div>
       </main>

@@ -9,15 +9,10 @@ interface LetterFields {
   recipientLines: string[];
   recipientAdditions: string[];
   recipientType: 'business' | 'private';
-  date: string;
   subject: string;
   salutation: string;
-  bodyIntro: string;
-  bodyMain: string;
-  bodyClosing: string;
-  greeting: string;
-  signature: string;
-  closingCompany: string;
+  letterText: string;
+  closing: string;
   attachments: string;
   infoBlock: InfoBlockFields;
 }
@@ -94,12 +89,6 @@ const infoBlockFieldMeta: Array<{ key: keyof InfoBlockFields; label: string }> =
   { key: 'fax', label: 'Fax' },
   { key: 'mail', label: 'E-Mail' },
   { key: 'infoDate', label: 'Datum' }
-];
-
-const bodyFieldMeta: Array<{ key: 'bodyIntro' | 'bodyMain' | 'bodyClosing'; label: string; helper: string }> = [
-  { key: 'bodyIntro', label: 'Einstieg', helper: 'Worum geht es?' },
-  { key: 'bodyMain', label: 'Hauptteil', helper: 'Details + Forderung' },
-  { key: 'bodyClosing', label: 'Abschluss', helper: 'Ausblick oder Bitte' }
 ];
 
 export default function Geschaeftsbriefe() {
@@ -187,7 +176,7 @@ export default function Geschaeftsbriefe() {
     }
   };
 
-  const combinedBody = [fields.bodyIntro, fields.bodyMain, fields.bodyClosing].filter(Boolean).join('\n\n');
+  const combinedBody = fields.letterText;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -238,7 +227,7 @@ export default function Geschaeftsbriefe() {
 
         <SpacingCoach />
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        <section className="space-y-6">
           <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-lg font-bold mb-6">Briefbausteine ausfüllen</h2>
             <div className="space-y-8">
@@ -285,15 +274,10 @@ function createTemplate(currentAssignment: LetterAssignment): LetterFields {
     recipientAdditions: [''],
     recipientLines: createRecipientLineTemplate(currentAssignment.recipientPieces.length),
     recipientType: currentAssignment.recipientType,
-    date: '',
     subject: '',
     salutation: '',
-    bodyIntro: currentAssignment.bodyDraft,
-    bodyMain: '',
-    bodyClosing: '',
-    greeting: '',
-    closingCompany: currentAssignment.company,
-    signature: '',
+    letterText: currentAssignment.bodyDraft,
+    closing: currentAssignment.company,
     attachments: '',
     infoBlock: {
       reference: '',
@@ -342,20 +326,45 @@ function AssignmentSelector({
 
 function validateFields(fields: LetterFields): ValidationItem[] {
   const subjectHasWord = /betreff/i.test(fields.subject);
-  const dateValid = /^\d{2}\.\d{2}\.\d{4}$/.test(fields.date.trim());
-  const greetingText = fields.greeting.trim().toLowerCase();
-  const usesModernGreeting = /freundliche grüße/.test(greetingText);
-  const usesClassicGreeting = /mit freundlichen grüßen/.test(greetingText);
-  const hasAnyGreeting = greetingText.length > 0;
   const salutationValid = /^\s*Sehr\s+/.test(fields.salutation) && /,$/.test(fields.salutation.trim());
   const attachmentsOk = !fields.attachments || /^Anlage/i.test(fields.attachments.trim());
-  const closingCompanyValid = fields.closingCompany.trim().length >= 3;
-  const signatureHasIA = /i\.?\s*a\.?/i.test(fields.signature);
-  const signatureHasName = /[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]+\s+[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]+/.test(fields.signature);
-  const signatureMultiline = /\n/.test(fields.signature.trim());
-  const closingSpacing = /\n\s*\n/.test(fields.signature);
   const additionFilled = fields.recipientAdditions.filter(Boolean).length >= 1;
   const recipientAreaFilled = fields.recipientLines.filter(Boolean).length >= 4;
+
+  // Parse closing
+  const closingLines = fields.closing.split('\n');
+  const companyName = closingLines[0]?.trim() || '';
+  
+  // Find greeting line (looking for "Grüße")
+  const greetingLineIndex = closingLines.findIndex(line => /Grüße/i.test(line));
+  const greetingText = greetingLineIndex !== -1 ? closingLines[greetingLineIndex].trim() : '';
+  
+  // Find signature line (looking for "i. A.")
+  const signatureLineIndex = closingLines.findIndex(line => /i\.?\s*a\.?/i.test(line));
+  const signatureText = signatureLineIndex !== -1 ? closingLines[signatureLineIndex].trim() : '';
+
+  // Validations
+  const closingCompanyValid = companyName.length >= 3;
+  
+  const usesModernGreeting = /freundliche grüße/i.test(greetingText);
+  const usesClassicGreeting = /mit freundlichen grüßen/i.test(greetingText);
+  
+  const signatureHasIA = /i\.?\s*a\.?/i.test(signatureText);
+  const signatureHasName = /[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]+\s+[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]+/.test(signatureText);
+  
+  // Spacing checks
+  let spacingCompanyGreetingOk = false;
+  if (greetingLineIndex > 0) {
+     const linesBetween = closingLines.slice(1, greetingLineIndex);
+     spacingCompanyGreetingOk = linesBetween.some(l => l.trim() === '') && linesBetween.length >= 1;
+  }
+
+  let spacingGreetingSignatureOk = false;
+  if (greetingLineIndex !== -1 && signatureLineIndex !== -1 && signatureLineIndex > greetingLineIndex) {
+      const linesBetween = closingLines.slice(greetingLineIndex + 1, signatureLineIndex);
+      const emptyLines = linesBetween.filter(l => l.trim() === '').length;
+      spacingGreetingSignatureOk = emptyLines >= 3;
+  }
 
   return [
     {
@@ -373,12 +382,6 @@ function validateFields(fields: LetterFields): ValidationItem[] {
       message: recipientAreaFilled ? 'Adresse wirkt vollständig.' : 'Nutze bis zu 9 Zeilen für Firma/Person, Straße/Postfach und PLZ Ort.'
     },
     {
-      id: 'date',
-      label: 'Datum im Format TT.MM.JJJJ',
-      status: dateValid ? 'ok' : 'warn',
-      message: dateValid ? 'Datum korrekt.' : 'Nutze z. B. 27.11.2025.'
-    },
-    {
       id: 'subject',
       label: 'Betreff ohne Wort „Betreff“',
       status: !subjectHasWord && fields.subject.trim().length > 5 ? 'ok' : 'warn',
@@ -391,36 +394,34 @@ function validateFields(fields: LetterFields): ValidationItem[] {
       message: salutationValid ? 'Anrede passt.' : 'Beginne mit „Sehr …“ und schließe mit Komma.'
     },
     {
-      id: 'greeting',
-      label: 'Grußformel modern',
-      status: usesModernGreeting ? 'ok' : 'warn',
-      message: usesModernGreeting
-        ? '„Freundliche Grüße“ ist die aktuelle Empfehlung.'
-        : usesClassicGreeting
-          ? '„Mit freundlichen Grüßen“ ist korrekt, aber setze gern auf „Freundliche Grüße“.'
-          : hasAnyGreeting
-            ? 'Nutze eine Grußformel wie „Freundliche Grüße“.'
-            : 'Trage eine Grußformel ein (z. B. „Freundliche Grüße“).'
+      id: 'closingCompany',
+      label: 'Firmenname (1. Zeile)',
+      status: closingCompanyValid ? 'ok' : 'warn',
+      message: closingCompanyValid ? 'Firmenname vorhanden.' : 'Beginne den Briefschluss mit dem Firmennamen.'
     },
     {
-      id: 'closingCompany',
-      label: 'Firmenname im Briefschluss',
-      status: closingCompanyValid ? 'ok' : 'warn',
-      message: closingCompanyValid ? 'Firmenname steht über der Grußformel.' : 'Trage deine Firma oberhalb der Grußformel ein.'
+      id: 'greeting',
+      label: 'Grußformel (mit Leerzeile davor)',
+      status: usesModernGreeting && spacingCompanyGreetingOk ? 'ok' : 'warn',
+      message: !spacingCompanyGreetingOk 
+        ? 'Lasse eine Leerzeile nach dem Firmennamen.' 
+        : usesModernGreeting 
+          ? 'Grußformel passt.' 
+          : 'Nutze „Freundliche Grüße“.'
     },
     {
       id: 'signature',
-      label: 'i. A. + Vor- und Nachname',
-      status: signatureHasIA && signatureHasName && signatureMultiline ? 'ok' : 'warn',
-      message: signatureHasIA && signatureHasName && signatureMultiline
-        ? 'Name und Funktionszeile vorhanden.'
-        : 'Nutze „i. A.“ plus Vor- & Nachname in eigener Zeile.'
+      label: 'Unterschrift (i. A. + Name)',
+      status: signatureHasIA && signatureHasName ? 'ok' : 'warn',
+      message: signatureHasIA && signatureHasName
+        ? 'Signatur korrekt.'
+        : 'Nutze „i. A.“ gefolgt von Vor- und Nachnamen.'
     },
     {
       id: 'closingSpacing',
-      label: 'Leerzeile zwischen Gruß & Signatur',
-      status: closingSpacing ? 'ok' : 'warn',
-      message: closingSpacing ? 'Mindestens eine Leerzeile eingeplant.' : 'Füge eine Leerzeile zwischen Grußformel und i. A. ein.'
+      label: '3 Leerzeilen für Unterschrift',
+      status: spacingGreetingSignatureOk ? 'ok' : 'warn',
+      message: spacingGreetingSignatureOk ? 'Platz für Unterschrift vorhanden.' : 'Lasse 3 Leerzeilen zwischen Gruß und Name.'
     },
     {
       id: 'attachments',
@@ -546,21 +547,12 @@ function LetterPreview({
             </div>
           </div>
         </div>
-        <div className="text-right text-slate-600 text-sm mt-6">
-          <input
-            type="text"
-            value={fields.date}
-            onChange={event => onFieldChange('date', event.target.value)}
-            placeholder="TT.MM.JJJJ"
-            className="w-full border border-transparent bg-transparent px-3 py-1 font-mono text-right text-sm text-slate-700 focus:border-blue-400 focus:bg-white focus:outline-none rounded-xl"
-          />
-        </div>
         <div className="mt-4">
           <input
             type="text"
             value={fields.subject}
             onChange={event => onFieldChange('subject', event.target.value)}
-            placeholder="Thema des Schreibens"
+            placeholder="Betreff"
             className="w-full border border-transparent bg-transparent px-3 py-2 text-base font-semibold uppercase tracking-wide text-slate-900 focus:border-blue-400 focus:bg-white focus:outline-none rounded-2xl"
           />
         </div>
@@ -569,52 +561,30 @@ function LetterPreview({
             type="text"
             value={fields.salutation}
             onChange={event => onFieldChange('salutation', event.target.value)}
-            placeholder="Sehr geehrte Damen und Herren,"
+            placeholder="Grußzeile/Anrede"
             className="w-full border border-transparent bg-transparent px-3 py-1 text-base text-slate-900 focus:border-blue-400 focus:bg-white focus:outline-none rounded-2xl"
           />
         </div>
         <div className="space-y-4 text-slate-700 mt-4">
-          {bodyFieldMeta.map(field => (
-            <label key={field.key} className="block space-y-1">
-              <span className="text-[11px] uppercase tracking-widest text-slate-400">{field.label}</span>
-              <textarea
-                value={fields[field.key]}
-                onChange={event => onFieldChange(field.key, event.target.value)}
-                rows={field.key === 'bodyMain' ? 4 : 3}
-                placeholder={field.helper}
-                className="w-full border border-transparent bg-transparent px-3 py-2 text-sm leading-relaxed text-slate-800 rounded-2xl resize-none focus:border-blue-400 focus:bg-white focus:outline-none"
-              />
-            </label>
-          ))}
+          <label className="block space-y-1">
+            <span className="text-[11px] uppercase tracking-widest text-slate-400">Brieftext</span>
+            <textarea
+              value={fields.letterText}
+              onChange={event => onFieldChange('letterText', event.target.value)}
+              rows={12}
+              placeholder="Hier den Brieftext eingeben..."
+              className="w-full border border-transparent bg-transparent px-3 py-2 text-sm leading-relaxed text-slate-800 rounded-2xl resize-none focus:border-blue-400 focus:bg-white focus:outline-none"
+            />
+          </label>
         </div>
         <div className="mt-6 space-y-3">
           <label className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold block">
-            Firmenname / Absenderorganisation
-            <input
-              type="text"
-              value={fields.closingCompany}
-              onChange={event => onFieldChange('closingCompany', event.target.value)}
-              placeholder="Unternehmen GmbH"
-              className="mt-1 w-full border border-transparent bg-transparent px-3 py-2 text-sm font-semibold text-slate-800 rounded-2xl focus:border-blue-400 focus:bg-white focus:outline-none"
-            />
-          </label>
-          <label className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold block">
-            Grußformel
-            <input
-              type="text"
-              value={fields.greeting}
-              onChange={event => onFieldChange('greeting', event.target.value)}
-              placeholder="Freundliche Grüße"
-              className="mt-1 w-full border border-transparent bg-transparent px-3 py-2 text-sm text-slate-800 rounded-2xl focus:border-blue-400 focus:bg-white focus:outline-none"
-            />
-          </label>
-          <label className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold block">
-            i. A. + Vor- und Nachname
+            Briefschluss (Firma, Gruß, Unterschrift)
             <textarea
-              value={fields.signature}
-              onChange={event => onFieldChange('signature', event.target.value)}
-              rows={3}
-              placeholder={'i. A. Max Beispiel\nVertrieb'}
+              value={fields.closing}
+              onChange={event => onFieldChange('closing', event.target.value)}
+              rows={8}
+              placeholder={'Musterfirma GmbH\n\nFreundliche Grüße\n\n\n\ni. A. Thomas Müller'}
               className="mt-1 w-full border border-transparent bg-transparent px-3 py-2 text-sm font-mono whitespace-pre-wrap text-slate-800 rounded-2xl resize-none focus:border-blue-400 focus:bg-white focus:outline-none"
             />
           </label>
