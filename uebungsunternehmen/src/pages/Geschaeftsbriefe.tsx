@@ -347,7 +347,6 @@ function validateFields(fields: LetterFields): ValidationItem[] {
   const closingCompanyValid = companyName.length >= 3;
   
   const usesModernGreeting = /freundliche grüße/i.test(greetingText);
-  const usesClassicGreeting = /mit freundlichen grüßen/i.test(greetingText);
   
   const signatureHasIA = /i\.?\s*a\.?/i.test(signatureText);
   const signatureHasName = /[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]+\s+[A-ZÄÖÜ][A-Za-zÄÖÜäöüß]+/.test(signatureText);
