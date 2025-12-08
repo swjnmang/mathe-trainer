@@ -66,6 +66,7 @@ export default function Zinseszins() {
         n = randomInt(2, 15);
         const q = 1 + p / 100;
         Kn = K0 * Math.pow(q, n);
+        Kn = Math.round(Kn * 100) / 100; // Round to 2 decimals
         
         question = (
           <div>
@@ -81,6 +82,7 @@ export default function Zinseszins() {
         n = randomInt(2, 15);
         const q = 1 + p / 100;
         K0 = targetKn / Math.pow(q, n);
+        K0 = Math.round(K0 * 100) / 100; // Round to 2 decimals
         Kn = targetKn; // Use the target as Kn
         
         question = (
@@ -95,9 +97,16 @@ export default function Zinseszins() {
         K0 = randomInt(500, 15000);
         n = randomInt(2, 12);
         const targetP = randomFloat(0.5, 7.5, 2);
-        const q = 1 + targetP / 100;
-        Kn = K0 * Math.pow(q, n);
-        p = targetP;
+        const q_target = 1 + targetP / 100;
+        let rawKn = K0 * Math.pow(q_target, n);
+        Kn = Math.round(rawKn * 100) / 100; // Round Kn to 2 decimals
+        
+        // Recalculate p based on rounded Kn
+        // Kn = K0 * (1 + p/100)^n
+        // (Kn/K0)^(1/n) = 1 + p/100
+        // p = ((Kn/K0)^(1/n) - 1) * 100
+        p = (Math.pow(Kn / K0, 1 / n) - 1) * 100;
+        p = Math.round(p * 100) / 100; // Round p to 2 decimals
 
         question = (
           <div>
@@ -112,13 +121,18 @@ export default function Zinseszins() {
         p = randomInt(1, 10);
         const q = 1 + p / 100;
         const targetN = randomInt(2, 20);
-        Kn = K0 * Math.pow(q, targetN);
-        n = targetN;
+        let rawKn = K0 * Math.pow(q, targetN);
+        Kn = Math.round(rawKn * 100) / 100; // Round Kn to 2 decimals
+        
+        // Recalculate n based on rounded Kn
+        // n = log(Kn/K0) / log(q)
+        n = Math.log(Kn / K0) / Math.log(q);
+        n = Math.round(n * 100) / 100; // Round n to 2 decimals
 
         question = (
           <div>
             <p className="mb-2">Ein junger Sparer legt <strong>{formatCurrency(K0)} €</strong> auf einem Konto an, das mit <strong>{formatNumber(p)} % p.a.</strong> verzinst wird. Er möchte wissen, wann sein Guthaben auf <strong>{formatCurrency(Kn)} €</strong> angewachsen sein wird.</p>
-            <p className="font-semibold text-blue-800">Nach wie vielen Jahren <InlineMath math="n" /> (ganze Zahl) erreicht der Sparer sein Ziel?</p>
+            <p className="font-semibold text-blue-800">Nach wie vielen Jahren <InlineMath math="n" /> erreicht der Sparer sein Ziel?</p>
           </div>
         );
         break;
@@ -147,7 +161,7 @@ export default function Zinseszins() {
       case 'k_end': correctValue = task.Kn; unit = '€'; break;
       case 'k_start': correctValue = task.K0; unit = '€'; break;
       case 'p': correctValue = task.p; unit = '% p.a.'; tolerance = 0.05; break;
-      case 'n': correctValue = task.n; unit = 'Jahre'; tolerance = 0.1; break;
+      case 'n': correctValue = task.n; unit = 'Jahre'; tolerance = 0.05; break;
     }
 
     const diff = Math.abs(input - correctValue);

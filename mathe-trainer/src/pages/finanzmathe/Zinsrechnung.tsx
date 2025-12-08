@@ -105,14 +105,32 @@ export default function Zinsrechnung() {
     const type = types[randomInt(0, 3)];
     
     // Use a balanced difficulty logic (formerly 'medium')
-    const K = randomInt(50, 500) * 100; // 5000 ... 50000
-    const p = randomFloat(1.5, 7.5, 1);
-    const t = randomInt(15, 270);
+    let K = randomInt(50, 500) * 100; // 5000 ... 50000
+    let p = randomFloat(1.5, 7.5, 1);
+    let t = randomInt(15, 270);
 
     // Calculate Z based on K, p, t
     // Z = (K * p * t) / (100 * 360)
-    const Z = (K * p * t) / (100 * 360);
+    let rawZ = (K * p * t) / (100 * 360);
     
+    // Round Z to 2 decimal places (Euro amount)
+    const Z = Math.round(rawZ * 100) / 100;
+
+    // Recalculate the missing value to ensure consistency with the rounded Z
+    if (type === 'kapital') {
+      // K = (Z * 100 * 360) / (p * t)
+      K = (Z * 36000) / (p * t);
+      K = Math.round(K * 100) / 100; // Round to 2 decimals
+    } else if (type === 'zinssatz') {
+      // p = (Z * 100 * 360) / (K * t)
+      p = (Z * 36000) / (K * t);
+      p = Math.round(p * 100) / 100; // Round to 2 decimals
+    } else if (type === 'laufzeit') {
+      // t = (Z * 100 * 360) / (K * p)
+      t = (Z * 36000) / (K * p);
+      t = Math.round(t * 100) / 100; // Round to 2 decimals
+    }
+
     const text = getWordProblem(type, K, p, t, Z);
 
     setTask({ type, K, p, t, Z, missing: type, text });
@@ -139,13 +157,13 @@ export default function Zinsrechnung() {
       case 'laufzeit': correctValue = task.t; unit = 'Tage'; break;
     }
 
-    // Allow small tolerance
-    const tolerance = task.type === 'kapital' ? 0.1 : 0.05;
+    // Allow small tolerance for rounding differences
+    const tolerance = 0.02;
     const diff = Math.abs(input - correctValue);
     
     setTotalCount(c => c + 1);
 
-    if (diff <= tolerance || (task.type === 'laufzeit' && Math.abs(Math.round(input) - Math.round(correctValue)) <= 1)) {
+    if (diff <= tolerance) {
       setFeedback('Richtig!');
       setFeedbackType('correct');
       setCorrectCount(c => c + 1);
@@ -168,7 +186,7 @@ export default function Zinsrechnung() {
     
     const K_str = formatCurrency(task.K);
     const p_str = formatNumber(task.p);
-    const t_str = Math.round(task.t).toString();
+    const t_str = formatNumber(task.t);
     const Z_str = formatCurrency(task.Z);
 
     switch (task.type) {
