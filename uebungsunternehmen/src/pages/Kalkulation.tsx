@@ -1,8 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
 import { generateTask, type CalcTask, SCHEMA_ROWS, type CalculationSchema, type CalculationDirection, getCalculationExplanation } from '../data/calculationTasks';
 
+type Mode = 'practice' | 'exam-intro' | 'exam' | 'exam-result';
+
+interface ExamResult {
+  taskId: string;
+  schema: CalculationSchema;
+  direction: CalculationDirection;
+  totalFields: number;
+  correctFields: number;
+  errors: number;
+}
+
+interface ExamState {
+  studentName: string;
+  tasks: CalcTask[];
+  currentIndex: number;
+  results: ExamResult[];
+}
+
 export default function Kalkulation() {
+  const [mode, setMode] = useState<Mode>('practice');
+  
+  // Practice State
   const [task, setTask] = useState<CalcTask | null>(null);
   const [userInputs, setUserInputs] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<Record<string, boolean>>({}); // true = correct, false = wrong
@@ -11,25 +33,38 @@ export default function Kalkulation() {
   const [schema, setSchema] = useState<CalculationSchema>('Bezugskalkulation');
   const [direction, setDirection] = useState<CalculationDirection>('Vorwärts');
 
+  // Exam State
+  const [examState, setExamState] = useState<ExamState>({
+    studentName: '',
+    tasks: [],
+    currentIndex: 0,
+    results: []
+  });
+
   useEffect(() => {
-    newTask();
-  }, [schema, direction]);
+    if (mode === 'practice') {
+      newTask();
+    }
+  }, [schema, direction, mode]);
 
   const newTask = () => {
     const t = generateTask(schema, direction);
     setTask(t);
-    
+    resetInputs(t, direction, schema);
+  };
+
+  const resetInputs = (t: CalcTask, dir: CalculationDirection, sch: CalculationSchema) => {
     // Pre-fill given values based on direction
     const initialInputs: Record<string, string> = {};
     
     // Bezugskosten is typically given in both directions
     initialInputs['bezugskosten'] = t.values.bezugskosten.toFixed(2).replace('.', ',');
     
-    if (direction === 'Vorwärts') {
+    if (dir === 'Vorwärts') {
       initialInputs['lep'] = t.values.lep.toFixed(2).replace('.', ',');
     } else {
       // Rückwärts
-      if (schema === 'Bezugskalkulation') {
+      if (sch === 'Bezugskalkulation') {
         initialInputs['bp'] = t.values.bp.toFixed(2).replace('.', ',');
       } else {
         initialInputs['brutto'] = t.values.brutto.toFixed(2).replace('.', ',');
@@ -40,6 +75,200 @@ export default function Kalkulation() {
     setFeedback({});
     setExpandedExplanations({});
     setShowSolution(false);
+  };
+
+  const startExam = () => {
+    if (!examState.studentName.trim()) {
+      alert('Bitte gib deinen Namen ein.');
+      return;
+    }
+
+    const tasks: CalcTask[] = [];
+    
+    // 1. Bezugskalkulation (Random Direction)
+    const bezugsDir: CalculationDirection = Math.random() > 0.5 ? 'Vorwärts' : 'Rückwärts';
+    tasks.push(generateTask('Bezugskalkulation', bezugsDir));
+
+    // 2. & 3. Handelskalkulation (Max 1 Forward)
+    // Options: [Back, Back], [Back, Forw], [Forw, Back]
+    const combinations: CalculationDirection[][] = [
+      ['Rückwärts', 'Rückwärts'],
+      ['Rückwärts', 'Vorwärts'],
+      ['Vorwärts', 'Rückwärts']
+    ];
+    const selectedCombo = combinations[Math.floor(Math.random() * combinations.length)];
+    
+    tasks.push(generateTask('Handelskalkulation', selectedCombo[0]));
+    tasks.push(generateTask('Handelskalkulation', selectedCombo[1]));
+
+    setExamState(prev => ({
+      ...prev,
+      tasks,
+      currentIndex: 0,
+      results: []
+    }));
+    
+    setTask(tasks[0]);
+    resetInputs(tasks[0], tasks[0].direction, tasks[0].schema);
+    setMode('exam');
+  };
+
+  const handleExamSubmit = () => {
+    if (!task) return;
+
+    // Calculate Score
+    let correct = 0;
+    let total = 0;
+    let errors = 0;
+
+    const relevantRows = SCHEMA_ROWS.filter(row => {
+      if (task.schema === 'Bezugskalkulation') {
+        const index = SCHEMA_ROWS.findIndex(r => r.key === 'bp');
+        const rowIndex = SCHEMA_ROWS.findIndex(r => r.key === row.key);
+        return rowIndex <= index;
+      }
+      return true;
+    });
+
+    relevantRows.forEach(row => {
+      // Skip read-only fields for scoring
+      const isReadOnly = 
+        row.key === 'bezugskosten' ||
+        (task.direction === 'Vorwärts' && row.key === 'lep') ||
+        (task.direction === 'Rückwärts' && (
+          (task.schema === 'Bezugskalkulation' && row.key === 'bp') ||
+          (task.schema === 'Handelskalkulation' && row.key === 'brutto')
+        ));
+      
+      if (isReadOnly) return;
+
+      total++;
+      const userValStr = userInputs[row.key];
+      if (!userValStr) {
+        errors++;
+        return;
+      }
+
+      const normalizedStr = userValStr.replace(/\./g, '').replace(',', '.');
+      const userVal = parseFloat(normalizedStr);
+      const correctVal = task.values[row.key];
+
+      if (Math.abs(userVal - correctVal) <= 0.05) {
+        correct++;
+      } else {
+        errors++;
+      }
+    });
+
+    const result: ExamResult = {
+      taskId: task.id,
+      schema: task.schema,
+      direction: task.direction,
+      totalFields: total,
+      correctFields: correct,
+      errors: errors
+    };
+
+    const newResults = [...examState.results, result];
+
+    if (examState.currentIndex < 2) {
+      // Next Task
+      const nextIndex = examState.currentIndex + 1;
+      const nextTask = examState.tasks[nextIndex];
+      
+      setExamState(prev => ({
+        ...prev,
+        results: newResults,
+        currentIndex: nextIndex
+      }));
+      
+      setTask(nextTask);
+      resetInputs(nextTask, nextTask.direction, nextTask.schema);
+      // Scroll to top
+      window.scrollTo(0, 0);
+    } else {
+      // Finish
+      setExamState(prev => ({
+        ...prev,
+        results: newResults
+      }));
+      setMode('exam-result');
+    }
+  };
+
+  const generateCertificate = () => {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    
+    // Background
+    doc.setFillColor(240, 249, 255);
+    doc.rect(0, 0, 297, 210, 'F');
+    
+    // Border
+    doc.setDrawColor(37, 99, 235);
+    doc.setLineWidth(2);
+    doc.rect(10, 10, 277, 190);
+
+    // Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(32);
+    doc.setTextColor(30, 58, 138);
+    doc.text('Zertifikat', 148.5, 40, { align: 'center' });
+    
+    doc.setFontSize(18);
+    doc.setTextColor(71, 85, 105);
+    doc.text('Kalkulation im Groß- und Außenhandel', 148.5, 55, { align: 'center' });
+
+    // Content
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Hiermit wird bestätigt, dass`, 148.5, 80, { align: 'center' });
+    
+    doc.setFontSize(24);
+    doc.setTextColor(37, 99, 235);
+    doc.text(examState.studentName, 148.5, 95, { align: 'center' });
+
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`die Prüfung zur Kalkulation erfolgreich absolviert hat.`, 148.5, 110, { align: 'center' });
+
+    // Results Table
+    let y = 130;
+    const totalErrors = examState.results.reduce((acc, r) => acc + r.errors, 0);
+    const totalCorrect = examState.results.reduce((acc, r) => acc + r.correctFields, 0);
+    const totalFields = examState.results.reduce((acc, r) => acc + r.totalFields, 0);
+    const percentage = Math.round((totalCorrect / totalFields) * 100);
+
+    doc.setFontSize(12);
+    doc.text('Ergebnisse im Detail:', 40, y);
+    y += 10;
+
+    examState.results.forEach((res, idx) => {
+      const label = `${idx + 1}. ${res.schema} (${res.direction})`;
+      const score = `${res.correctFields} von ${res.totalFields} richtig (${res.errors} Fehler)`;
+      doc.text(label, 40, y);
+      doc.text(score, 180, y);
+      y += 8;
+    });
+
+    y += 10;
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(40, y, 257, y);
+    y += 10;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Gesamtergebnis: ${percentage}% korrekt`, 40, y);
+    doc.text(`${totalErrors} Fehler gesamt`, 180, y);
+
+    // Footer
+    const date = new Date().toLocaleDateString('de-DE');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Ausgestellt am ${date}`, 148.5, 180, { align: 'center' });
+    doc.text('Übungsunternehmen Digital', 148.5, 185, { align: 'center' });
+
+    doc.save('Zertifikat_Kalkulation.pdf');
   };
 
   const handleInputChange = (key: string, value: string) => {
@@ -66,7 +295,7 @@ export default function Kalkulation() {
     
     SCHEMA_ROWS.forEach(row => {
       // Skip rows not in current schema
-      if (schema === 'Bezugskalkulation' && row.key === 'hkz') return; // Stop after BP
+      if (task.schema === 'Bezugskalkulation' && row.key === 'hkz') return; // Stop after BP
       // Actually we need to filter the rows properly in the render loop too.
       
       const userValStr = userInputs[row.key];
@@ -91,7 +320,8 @@ export default function Kalkulation() {
 
   // Filter rows based on schema
   const visibleRows = SCHEMA_ROWS.filter(row => {
-    if (schema === 'Bezugskalkulation') {
+    if (!task) return false;
+    if (task.schema === 'Bezugskalkulation') {
       // Show up to 'bp'
       const index = SCHEMA_ROWS.findIndex(r => r.key === 'bp');
       const rowIndex = SCHEMA_ROWS.findIndex(r => r.key === row.key);
@@ -100,144 +330,254 @@ export default function Kalkulation() {
     return true;
   });
 
-  if (!task) return <div>Laden...</div>;
+  if (!task && mode === 'practice') return <div>Laden...</div>;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className="bg-white shadow-sm p-4 flex items-center sticky top-0 z-10">
-        <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
-          ← Zurück
-        </Link>
-        <h1 className="text-xl font-bold ml-4 text-slate-800">Kalkulation üben</h1>
+      <header className="bg-white shadow-sm p-4 flex items-center sticky top-0 z-10 justify-between">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
+            ← Zurück
+          </Link>
+          <h1 className="text-xl font-bold text-slate-800">
+            {mode === 'practice' ? 'Kalkulation üben' : 'Kalkulation Prüfung'}
+          </h1>
+        </div>
+        {mode === 'practice' && (
+          <button 
+            onClick={() => setMode('exam-intro')}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm"
+          >
+            Zum Prüfungsmodus
+          </button>
+        )}
+        {mode !== 'practice' && mode !== 'exam-result' && (
+          <button 
+            onClick={() => setMode('practice')}
+            className="text-slate-500 hover:text-slate-700 text-sm"
+          >
+            Abbrechen
+          </button>
+        )}
       </header>
 
       <main className="p-2 md:p-8 max-w-5xl mx-auto w-full">
         
-        {/* Controls */}
-        <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm mb-4 md:mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="flex gap-2 md:gap-4 w-full sm:w-auto">
-            <select 
-              value={schema} 
-              onChange={(e) => setSchema(e.target.value as CalculationSchema)}
-              className="p-2 border rounded shadow-sm text-sm flex-1 sm:flex-none"
+        {mode === 'exam-intro' && (
+          <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md text-center">
+            <h2 className="text-2xl font-bold mb-4 text-slate-800">Prüfungsmodus</h2>
+            <p className="text-slate-600 mb-6">
+              Du erhältst 3 zufällige Aufgaben (1x Bezugskalkulation, 2x Handelskalkulation).
+              Am Ende erhältst du ein Zertifikat mit deiner Auswertung.
+            </p>
+            <input
+              type="text"
+              placeholder="Dein Name für das Zertifikat"
+              value={examState.studentName}
+              onChange={(e) => setExamState(prev => ({ ...prev, studentName: e.target.value }))}
+              className="w-full p-3 border rounded-lg mb-6 text-center text-lg"
+            />
+            <button
+              onClick={startExam}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold text-lg shadow-lg transition-transform active:scale-95"
             >
-              <option value="Bezugskalkulation">Bezugskalkulation</option>
-              <option value="Handelskalkulation">Handelskalkulation</option>
-            </select>
-            
-            <select 
-              value={direction} 
-              onChange={(e) => setDirection(e.target.value as CalculationDirection)}
-              className="p-2 border rounded shadow-sm text-sm flex-1 sm:flex-none"
-            >
-              <option value="Vorwärts">Vorwärts</option>
-              <option value="Rückwärts">Rückwärts</option>
-            </select>
+              Prüfung starten
+            </button>
           </div>
+        )}
 
-          <button 
-            onClick={newTask}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm transition-colors flex items-center gap-2 text-sm w-full sm:w-auto justify-center"
-          >
-            <span>↻</span> Neue Aufgabe
-          </button>
-        </div>
-
-        {/* Task Description */}
-        <div className="bg-blue-50 border border-blue-100 p-4 md:p-6 rounded-xl mb-4 md:mb-8 text-slate-800 leading-relaxed shadow-sm text-sm md:text-base">
-          {task.description}
-        </div>
-
-        {/* Calculation Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200 text-xs md:text-base">
-          <div className="grid grid-cols-[1fr_90px_32px] sm:grid-cols-[1fr_120px_50px] md:grid-cols-[1fr_180px_80px] bg-slate-100 border-b border-slate-200 font-bold text-slate-700">
-            <div className="p-1 md:p-3">Posten</div>
-            <div className="p-1 md:p-3 text-right md:text-left">Betrag (€)</div>
-            <div className="p-1 md:p-3 text-center">Status</div>
-          </div>
-
-          {visibleRows.map((row, idx) => {
-            const isReadOnly = 
-              row.key === 'bezugskosten' ||
-              (direction === 'Vorwärts' && row.key === 'lep') ||
-              (direction === 'Rückwärts' && (
-                (schema === 'Bezugskalkulation' && row.key === 'bp') ||
-                (schema === 'Handelskalkulation' && row.key === 'brutto')
-              ));
+        {mode === 'exam-result' && (
+          <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md text-center">
+            <h2 className="text-3xl font-bold mb-6 text-slate-800">Prüfung abgeschlossen!</h2>
             
-            // Determine percentage label
-            let label = row.label;
-            if (row.percentageKey) {
-              label = `${row.operator} ${row.label} (${task.percentages[row.percentageKey]}%)`;
-            } else if (row.operator) {
-              label = `${row.operator} ${row.label}`;
-            }
-
-            return (
-              <div key={row.key} className={`grid grid-cols-[1fr_90px_32px] sm:grid-cols-[1fr_120px_50px] md:grid-cols-[1fr_180px_80px] border-b border-slate-100 items-center hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
-                <div className="p-1 pl-2 md:p-2 md:pl-4 text-slate-700 font-medium truncate" title={label}>
-                  {label}
-                </div>
-                <div className="p-0.5 md:p-1">
-                  <input 
-                    type="text" 
-                    value={showSolution ? task.values[row.key].toFixed(2).replace('.', ',') : (userInputs[row.key] || '')}
-                    onChange={(e) => handleInputChange(row.key, e.target.value)}
-                    disabled={isReadOnly || showSolution}
-                    className={`w-full p-0.5 md:p-1.5 border rounded text-right font-mono text-xs md:text-base ${
-                      isReadOnly ? 'bg-slate-100 text-slate-500' : 'bg-white focus:ring-2 focus:ring-blue-500 outline-none border-slate-300'
-                    } ${
-                      feedback[row.key] === true ? 'border-green-500 bg-green-50' : 
-                      feedback[row.key] === false ? 'border-red-500 bg-red-50' : ''
-                    }`}
-                    placeholder="0,00"
-                  />
-                </div>
-                <div className="p-0.5 md:p-2 flex flex-col items-center justify-center relative">
-                  <div className="flex items-center gap-0.5 md:gap-2 text-base md:text-xl">
-                    {feedback[row.key] === true && <span className="text-green-500">✓</span>}
-                    {feedback[row.key] === false && (
-                      <>
-                        <span className="text-red-500">✗</span>
-                        <button 
-                          onClick={() => setExpandedExplanations(prev => ({...prev, [row.key]: !prev[row.key]}))}
-                          className="text-[10px] md:text-xs bg-blue-100 text-blue-700 px-1 py-0.5 md:px-2 md:py-1 rounded hover:bg-blue-200 font-bold"
-                          title="Erklärung anzeigen"
-                        >
-                          ?
-                        </button>
-                      </>
-                    )}
+            <div className="grid gap-4 mb-8">
+              {examState.results.map((res, idx) => (
+                <div key={idx} className="bg-slate-50 p-4 rounded-lg flex justify-between items-center border border-slate-200">
+                  <div className="text-left">
+                    <div className="font-bold text-slate-700">Aufgabe {idx + 1}</div>
+                    <div className="text-sm text-slate-500">{res.schema}, {res.direction}</div>
                   </div>
-                  {expandedExplanations[row.key] && feedback[row.key] === false && (
-                    <div className="absolute right-full top-0 mr-2 z-20 w-40 md:w-64 text-[10px] md:text-xs text-slate-600 bg-white p-2 rounded-lg border border-blue-200 shadow-xl">
-                      <div className="font-bold text-blue-800 mb-1">Lösungsweg:</div>
-                      {getCalculationExplanation(row.key, direction, task)}
-                      <div className="absolute right-[-6px] top-3 w-3 h-3 bg-white border-t border-r border-blue-200 rotate-45"></div>
+                  <div className="text-right">
+                    <div className={`font-bold ${res.errors === 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                      {res.errors === 0 ? 'Perfekt!' : `${res.errors} Fehler`}
                     </div>
-                  )}
+                    <div className="text-xs text-slate-400">
+                      {res.correctFields} / {res.totalFields} Felder korrekt
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              ))}
+            </div>
 
-        {/* Action Buttons */}
-        <div className="mt-8 flex gap-4">
-          <button 
-            onClick={checkSolution}
-            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition-colors flex-1 md:flex-none"
-          >
-            ✓ Überprüfen
-          </button>
-          
-          <button 
-            onClick={() => setShowSolution(!showSolution)}
-            className="bg-orange-400 hover:bg-orange-500 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition-colors flex-1 md:flex-none"
-          >
-            ℹ Musterlösung {showSolution ? 'ausblenden' : 'anzeigen'}
-          </button>
-        </div>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={generateCertificate}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg flex items-center gap-2"
+              >
+                <span>📄</span> Zertifikat herunterladen
+              </button>
+              <button
+                onClick={() => setMode('practice')}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-8 py-3 rounded-lg font-bold"
+              >
+                Zurück zum Üben
+              </button>
+            </div>
+          </div>
+        )}
+
+        {(mode === 'practice' || mode === 'exam') && task && (
+          <>
+            {/* Controls (Only in Practice) */}
+            {mode === 'practice' && (
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm mb-4 md:mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div className="flex gap-2 md:gap-4 w-full sm:w-auto">
+                  <select 
+                    value={schema} 
+                    onChange={(e) => setSchema(e.target.value as CalculationSchema)}
+                    className="p-2 border rounded shadow-sm text-sm flex-1 sm:flex-none"
+                  >
+                    <option value="Bezugskalkulation">Bezugskalkulation</option>
+                    <option value="Handelskalkulation">Handelskalkulation</option>
+                  </select>
+                  
+                  <select 
+                    value={direction} 
+                    onChange={(e) => setDirection(e.target.value as CalculationDirection)}
+                    className="p-2 border rounded shadow-sm text-sm flex-1 sm:flex-none"
+                  >
+                    <option value="Vorwärts">Vorwärts</option>
+                    <option value="Rückwärts">Rückwärts</option>
+                  </select>
+                </div>
+
+                <button 
+                  onClick={newTask}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm transition-colors flex items-center gap-2 text-sm w-full sm:w-auto justify-center"
+                >
+                  <span>↻</span> Neue Aufgabe
+                </button>
+              </div>
+            )}
+
+            {/* Exam Progress */}
+            {mode === 'exam' && (
+              <div className="mb-6 flex justify-between items-center bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                <span className="font-bold text-indigo-900">Prüfung: Aufgabe {examState.currentIndex + 1} von 3</span>
+                <span className="text-sm text-indigo-700">{task.schema} ({task.direction})</span>
+              </div>
+            )}
+
+            {/* Task Description */}
+            <div className="bg-blue-50 border border-blue-100 p-4 md:p-6 rounded-xl mb-4 md:mb-8 text-slate-800 leading-relaxed shadow-sm text-sm md:text-base">
+              {task.description}
+            </div>
+
+            {/* Calculation Table */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200 text-xs md:text-base">
+              <div className="grid grid-cols-[1fr_90px_32px] sm:grid-cols-[1fr_120px_50px] md:grid-cols-[1fr_180px_80px] bg-slate-100 border-b border-slate-200 font-bold text-slate-700">
+                <div className="p-1 md:p-3">Posten</div>
+                <div className="p-1 md:p-3 text-right md:text-left">Betrag (€)</div>
+                <div className="p-1 md:p-3 text-center">Status</div>
+              </div>
+
+              {visibleRows.map((row, idx) => {
+                const isReadOnly = 
+                  row.key === 'bezugskosten' ||
+                  (task.direction === 'Vorwärts' && row.key === 'lep') ||
+                  (task.direction === 'Rückwärts' && (
+                    (task.schema === 'Bezugskalkulation' && row.key === 'bp') ||
+                    (task.schema === 'Handelskalkulation' && row.key === 'brutto')
+                  ));
+                
+                // Determine percentage label
+                let label = row.label;
+                if (row.percentageKey) {
+                  label = `${row.operator} ${row.label} (${task.percentages[row.percentageKey]}%)`;
+                } else if (row.operator) {
+                  label = `${row.operator} ${row.label}`;
+                }
+
+                return (
+                  <div key={row.key} className={`grid grid-cols-[1fr_90px_32px] sm:grid-cols-[1fr_120px_50px] md:grid-cols-[1fr_180px_80px] border-b border-slate-100 items-center hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                    <div className="p-1 pl-2 md:p-2 md:pl-4 text-slate-700 font-medium truncate" title={label}>
+                      {label}
+                    </div>
+                    <div className="p-0.5 md:p-1">
+                      <input 
+                        type="text" 
+                        value={showSolution ? task.values[row.key].toFixed(2).replace('.', ',') : (userInputs[row.key] || '')}
+                        onChange={(e) => handleInputChange(row.key, e.target.value)}
+                        disabled={isReadOnly || showSolution}
+                        className={`w-full p-0.5 md:p-1.5 border rounded text-right font-mono text-xs md:text-base ${
+                          isReadOnly ? 'bg-slate-100 text-slate-500' : 'bg-white focus:ring-2 focus:ring-blue-500 outline-none border-slate-300'
+                        } ${
+                          feedback[row.key] === true ? 'border-green-500 bg-green-50' : 
+                          feedback[row.key] === false ? 'border-red-500 bg-red-50' : ''
+                        }`}
+                        placeholder="0,00"
+                      />
+                    </div>
+                    <div className="p-0.5 md:p-2 flex flex-col items-center justify-center relative">
+                      <div className="flex items-center gap-0.5 md:gap-2 text-base md:text-xl">
+                        {feedback[row.key] === true && <span className="text-green-500">✓</span>}
+                        {feedback[row.key] === false && (
+                          <>
+                            <span className="text-red-500">✗</span>
+                            {mode === 'practice' && (
+                              <button 
+                                onClick={() => setExpandedExplanations(prev => ({...prev, [row.key]: !prev[row.key]}))}
+                                className="text-[10px] md:text-xs bg-blue-100 text-blue-700 px-1 py-0.5 md:px-2 md:py-1 rounded hover:bg-blue-200 font-bold"
+                                title="Erklärung anzeigen"
+                              >
+                                ?
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {mode === 'practice' && expandedExplanations[row.key] && feedback[row.key] === false && (
+                        <div className="absolute right-full top-0 mr-2 z-20 w-40 md:w-64 text-[10px] md:text-xs text-slate-600 bg-white p-2 rounded-lg border border-blue-200 shadow-xl">
+                          <div className="font-bold text-blue-800 mb-1">Lösungsweg:</div>
+                          {getCalculationExplanation(row.key, task.direction, task)}
+                          <div className="absolute right-[-6px] top-3 w-3 h-3 bg-white border-t border-r border-blue-200 rotate-45"></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-8 flex gap-4">
+              {mode === 'practice' ? (
+                <>
+                  <button 
+                    onClick={checkSolution}
+                    className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition-colors flex-1 md:flex-none"
+                  >
+                    ✓ Überprüfen
+                  </button>
+                  
+                  <button 
+                    onClick={() => setShowSolution(!showSolution)}
+                    className="bg-orange-400 hover:bg-orange-500 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition-colors flex-1 md:flex-none"
+                  >
+                    ℹ Musterlösung {showSolution ? 'ausblenden' : 'anzeigen'}
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={handleExamSubmit}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg w-full md:w-auto ml-auto"
+                >
+                  {examState.currentIndex < 2 ? 'Nächste Aufgabe →' : 'Prüfung beenden ✓'}
+                </button>
+              )}
+            </div>
+          </>
+        )}
 
       </main>
     </div>
