@@ -16,6 +16,7 @@ interface ExamResult {
 
 interface ExamState {
   studentName: string;
+  taskCount: number;
   tasks: CalcTask[];
   currentIndex: number;
   results: ExamResult[];
@@ -36,6 +37,7 @@ export default function Kalkulation() {
   // Exam State
   const [examState, setExamState] = useState<ExamState>({
     studentName: '',
+    taskCount: 3,
     tasks: [],
     currentIndex: 0,
     results: []
@@ -84,22 +86,21 @@ export default function Kalkulation() {
     }
 
     const tasks: CalcTask[] = [];
-    
-    // 1. Bezugskalkulation (Random Direction)
-    const bezugsDir: CalculationDirection = Math.random() > 0.5 ? 'Vorwärts' : 'Rückwärts';
-    tasks.push(generateTask('Bezugskalkulation', bezugsDir));
+    const count = Math.max(1, Math.min(20, examState.taskCount)); // Limit between 1 and 20
 
-    // 2. & 3. Handelskalkulation (Max 1 Forward)
-    // Options: [Back, Back], [Back, Forw], [Forw, Back]
-    const combinations: CalculationDirection[][] = [
-      ['Rückwärts', 'Rückwärts'],
-      ['Rückwärts', 'Vorwärts'],
-      ['Vorwärts', 'Rückwärts']
-    ];
-    const selectedCombo = combinations[Math.floor(Math.random() * combinations.length)];
-    
-    tasks.push(generateTask('Handelskalkulation', selectedCombo[0]));
-    tasks.push(generateTask('Handelskalkulation', selectedCombo[1]));
+    for (let i = 0; i < count; i++) {
+      // Randomly decide type: 33% Purchase, 67% Sales
+      const isPurchase = Math.random() < 0.33;
+      
+      if (isPurchase) {
+        const dir = Math.random() > 0.5 ? 'Vorwärts' : 'Rückwärts';
+        tasks.push(generateTask('Bezugskalkulation', dir));
+      } else {
+        // Sales: 30% Forward, 70% Backward (to keep it harder/realistic)
+        const dir = Math.random() < 0.3 ? 'Vorwärts' : 'Rückwärts';
+        tasks.push(generateTask('Handelskalkulation', dir));
+      }
+    }
 
     setExamState(prev => ({
       ...prev,
@@ -113,10 +114,36 @@ export default function Kalkulation() {
     setMode('exam');
   };
 
-  const handleExamSubmit = () => {
+  const handleExamCheck = () => {
+    if (!task) return;
+    
+    const newFeedback: Record<string, boolean> = {};
+    
+    SCHEMA_ROWS.forEach(row => {
+      // Skip rows not in current schema
+      if (task.schema === 'Bezugskalkulation' && row.key === 'hkz') return; 
+      
+      const userValStr = userInputs[row.key];
+      if (!userValStr) return;
+
+      const normalizedStr = userValStr.replace(/\./g, '').replace(',', '.');
+      const userVal = parseFloat(normalizedStr);
+      const correctVal = task.values[row.key];
+      
+      if (Math.abs(userVal - correctVal) <= 0.05) {
+        newFeedback[row.key] = true;
+      } else {
+        newFeedback[row.key] = false;
+      }
+    });
+
+    setFeedback(newFeedback);
+  };
+
+  const handleExamNext = () => {
     if (!task) return;
 
-    // Calculate Score
+    // Calculate Score based on current inputs
     let correct = 0;
     let total = 0;
     let errors = 0;
@@ -131,7 +158,6 @@ export default function Kalkulation() {
     });
 
     relevantRows.forEach(row => {
-      // Skip read-only fields for scoring
       const isReadOnly = 
         row.key === 'bezugskosten' ||
         (task.direction === 'Vorwärts' && row.key === 'lep') ||
@@ -171,7 +197,7 @@ export default function Kalkulation() {
 
     const newResults = [...examState.results, result];
 
-    if (examState.currentIndex < 2) {
+    if (examState.currentIndex < examState.tasks.length - 1) {
       // Next Task
       const nextIndex = examState.currentIndex + 1;
       const nextTask = examState.tasks[nextIndex];
@@ -184,7 +210,6 @@ export default function Kalkulation() {
       
       setTask(nextTask);
       resetInputs(nextTask, nextTask.direction, nextTask.schema);
-      // Scroll to top
       window.scrollTo(0, 0);
     } else {
       // Finish
@@ -367,16 +392,33 @@ export default function Kalkulation() {
           <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md text-center">
             <h2 className="text-2xl font-bold mb-4 text-slate-800">Prüfungsmodus</h2>
             <p className="text-slate-600 mb-6">
-              Du erhältst 3 zufällige Aufgaben (1x Bezugskalkulation, 2x Handelskalkulation).
+              Wähle die Anzahl der Aufgaben und gib deinen Namen ein.
               Am Ende erhältst du ein Zertifikat mit deiner Auswertung.
             </p>
-            <input
-              type="text"
-              placeholder="Dein Name für das Zertifikat"
-              value={examState.studentName}
-              onChange={(e) => setExamState(prev => ({ ...prev, studentName: e.target.value }))}
-              className="w-full p-3 border rounded-lg mb-6 text-center text-lg"
-            />
+            
+            <div className="mb-4 text-left">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Anzahl der Aufgaben (1-20)</label>
+              <input
+                type="number"
+                min="1"
+                max="20"
+                value={examState.taskCount}
+                onChange={(e) => setExamState(prev => ({ ...prev, taskCount: parseInt(e.target.value) || 3 }))}
+                className="w-full p-3 border rounded-lg text-center text-lg"
+              />
+            </div>
+
+            <div className="mb-6 text-left">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Dein Name</label>
+              <input
+                type="text"
+                placeholder="Max Mustermann"
+                value={examState.studentName}
+                onChange={(e) => setExamState(prev => ({ ...prev, studentName: e.target.value }))}
+                className="w-full p-3 border rounded-lg text-center text-lg"
+              />
+            </div>
+
             <button
               onClick={startExam}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold text-lg shadow-lg transition-transform active:scale-95"
@@ -463,7 +505,7 @@ export default function Kalkulation() {
             {/* Exam Progress */}
             {mode === 'exam' && (
               <div className="mb-6 flex justify-between items-center bg-indigo-50 p-4 rounded-lg border border-indigo-100">
-                <span className="font-bold text-indigo-900">Prüfung: Aufgabe {examState.currentIndex + 1} von 3</span>
+                <span className="font-bold text-indigo-900">Prüfung: Aufgabe {examState.currentIndex + 1} von {examState.tasks.length}</span>
                 <span className="text-sm text-indigo-700">{task.schema} ({task.direction})</span>
               </div>
             )}
@@ -568,12 +610,20 @@ export default function Kalkulation() {
                   </button>
                 </>
               ) : (
-                <button 
-                  onClick={handleExamSubmit}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg w-full md:w-auto ml-auto"
-                >
-                  {examState.currentIndex < 2 ? 'Nächste Aufgabe →' : 'Prüfung beenden ✓'}
-                </button>
+                <div className="flex gap-4 w-full">
+                  <button 
+                    onClick={handleExamCheck}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition-colors flex-1"
+                  >
+                    🔍 Eingaben prüfen
+                  </button>
+                  <button 
+                    onClick={handleExamNext}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg flex-1"
+                  >
+                    {examState.currentIndex < examState.tasks.length - 1 ? 'Nächste Aufgabe →' : 'Prüfung beenden ✓'}
+                  </button>
+                </div>
               )}
             </div>
           </>
