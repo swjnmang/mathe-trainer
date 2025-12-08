@@ -64,13 +64,16 @@ export default function Kalkulation() {
     
     if (dir === 'Vorwärts') {
       initialInputs['lep'] = t.values.lep.toFixed(2).replace('.', ',');
-    } else {
+    } else if (dir === 'Rückwärts') {
       // Rückwärts
       if (sch === 'Bezugskalkulation') {
         initialInputs['bp'] = t.values.bp.toFixed(2).replace('.', ',');
       } else {
         initialInputs['brutto'] = t.values.brutto.toFixed(2).replace('.', ',');
       }
+    } else if (dir === 'Differenz') {
+      initialInputs['lep'] = t.values.lep.toFixed(2).replace('.', ',');
+      initialInputs['brutto'] = t.values.brutto.toFixed(2).replace('.', ',');
     }
 
     setUserInputs(initialInputs);
@@ -96,8 +99,12 @@ export default function Kalkulation() {
         const dir = Math.random() > 0.5 ? 'Vorwärts' : 'Rückwärts';
         tasks.push(generateTask('Bezugskalkulation', dir));
       } else {
-        // Sales: 30% Forward, 70% Backward (to keep it harder/realistic)
-        const dir = Math.random() < 0.3 ? 'Vorwärts' : 'Rückwärts';
+        // Sales: Mix of Forward, Backward, and Difference
+        const rand = Math.random();
+        let dir: CalculationDirection = 'Vorwärts';
+        if (rand > 0.33 && rand <= 0.66) dir = 'Rückwärts';
+        if (rand > 0.66) dir = 'Differenz';
+        
         tasks.push(generateTask('Handelskalkulation', dir));
       }
     }
@@ -136,6 +143,22 @@ export default function Kalkulation() {
         newFeedback[row.key] = false;
       }
     });
+
+    // Add check for gewinn_p if Differenz
+    if (task.direction === 'Differenz') {
+      const userValStr = userInputs['gewinn_p'];
+      if (userValStr) {
+        const normalizedStr = userValStr.replace(/\./g, '').replace(',', '.');
+        const userVal = parseFloat(normalizedStr);
+        const correctVal = task.percentages['gewinn_p'];
+        
+        if (Math.abs(userVal - correctVal) <= 0.05) {
+          newFeedback['gewinn_p'] = true;
+        } else {
+          newFeedback['gewinn_p'] = false;
+        }
+      }
+    }
 
     setFeedback(newFeedback);
   };
@@ -185,6 +208,25 @@ export default function Kalkulation() {
         errors++;
       }
     });
+
+    // Add check for gewinn_p if Differenz
+    if (task.direction === 'Differenz') {
+      total++;
+      const userValStr = userInputs['gewinn_p'];
+      if (!userValStr) {
+        errors++;
+      } else {
+        const normalizedStr = userValStr.replace(/\./g, '').replace(',', '.');
+        const userVal = parseFloat(normalizedStr);
+        const correctVal = task.percentages['gewinn_p'];
+
+        if (Math.abs(userVal - correctVal) <= 0.05) {
+          correct++;
+        } else {
+          errors++;
+        }
+      }
+    }
 
     const result: ExamResult = {
       taskId: task.id,
@@ -313,6 +355,18 @@ export default function Kalkulation() {
     }
   };
 
+  const getVideoUrl = (s: CalculationSchema, d: CalculationDirection) => {
+    if (s === 'Bezugskalkulation') {
+      if (d === 'Vorwärts') return 'https://www.youtube.com/watch?v=URqXjPs8Il0&list=PLI8kX0XEfSujoVzZ8Ke9MOCvqsul2vA9X&index=2';
+      if (d === 'Rückwärts') return 'https://www.youtube.com/watch?v=aDeM613ptCc&list=PLI8kX0XEfSujoVzZ8Ke9MOCvqsul2vA9X&index=2';
+    } else if (s === 'Handelskalkulation') {
+      if (d === 'Vorwärts') return 'https://www.youtube.com/watch?v=uQnPU3-D4G4&list=PLI8kX0XEfSujoVzZ8Ke9MOCvqsul2vA9X&index=3&';
+      if (d === 'Rückwärts') return 'https://www.youtube.com/watch?v=zraF7yKjdnE&list=PLI8kX0XEfSujoVzZ8Ke9MOCvqsul2vA9X&index=4&';
+      if (d === 'Differenz') return 'https://youtu.be/A05uMq5OWOk?si=4V3lvLYtWTSVHhuo';
+    }
+    return null;
+  };
+
   const checkSolution = () => {
     if (!task) return;
     
@@ -339,6 +393,22 @@ export default function Kalkulation() {
         newFeedback[row.key] = false;
       }
     });
+
+    // Add check for gewinn_p if Differenz
+    if (task.direction === 'Differenz') {
+      const userValStr = userInputs['gewinn_p'];
+      if (userValStr) {
+        const normalizedStr = userValStr.replace(/\./g, '').replace(',', '.');
+        const userVal = parseFloat(normalizedStr);
+        const correctVal = task.percentages['gewinn_p'];
+        
+        if (Math.abs(userVal - correctVal) <= 0.05) {
+          newFeedback['gewinn_p'] = true;
+        } else {
+          newFeedback['gewinn_p'] = false;
+        }
+      }
+    }
 
     setFeedback(newFeedback);
   };
@@ -476,7 +546,13 @@ export default function Kalkulation() {
                 <div className="flex gap-2 md:gap-4 w-full sm:w-auto">
                   <select 
                     value={schema} 
-                    onChange={(e) => setSchema(e.target.value as CalculationSchema)}
+                    onChange={(e) => {
+                      const newSchema = e.target.value as CalculationSchema;
+                      setSchema(newSchema);
+                      if (newSchema === 'Bezugskalkulation' && direction === 'Differenz') {
+                        setDirection('Vorwärts');
+                      }
+                    }}
                     className="p-2 border rounded shadow-sm text-sm flex-1 sm:flex-none"
                   >
                     <option value="Bezugskalkulation">Bezugskalkulation</option>
@@ -490,6 +566,9 @@ export default function Kalkulation() {
                   >
                     <option value="Vorwärts">Vorwärts</option>
                     <option value="Rückwärts">Rückwärts</option>
+                    {schema === 'Handelskalkulation' && (
+                      <option value="Differenz">Differenz</option>
+                    )}
                   </select>
                 </div>
 
@@ -530,12 +609,19 @@ export default function Kalkulation() {
                   (task.direction === 'Rückwärts' && (
                     (task.schema === 'Bezugskalkulation' && row.key === 'bp') ||
                     (task.schema === 'Handelskalkulation' && row.key === 'brutto')
-                  ));
+                  )) ||
+                  (task.direction === 'Differenz' && (row.key === 'lep' || row.key === 'brutto'));
                 
                 // Determine percentage label
                 let label = row.label;
+                const isDifferenceProfit = task.direction === 'Differenz' && row.key === 'gewinn';
+
                 if (row.percentageKey) {
-                  label = `${row.operator} ${row.label} (${task.percentages[row.percentageKey]}%)`;
+                  if (isDifferenceProfit) {
+                    label = `${row.operator} ${row.label}`;
+                  } else {
+                    label = `${row.operator} ${row.label} (${task.percentages[row.percentageKey]}%)`;
+                  }
                 } else if (row.operator) {
                   label = `${row.operator} ${row.label}`;
                 }
@@ -544,6 +630,21 @@ export default function Kalkulation() {
                   <div key={row.key} className={`grid grid-cols-[1fr_90px_32px] sm:grid-cols-[1fr_120px_50px] md:grid-cols-[1fr_180px_80px] border-b border-slate-100 items-center hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
                     <div className="p-1 pl-2 md:p-2 md:pl-4 text-slate-700 font-medium truncate" title={label}>
                       {label}
+                      {isDifferenceProfit && (
+                        <span className="ml-2">
+                          <input
+                            type="text"
+                            value={showSolution ? task.percentages['gewinn_p'].toString().replace('.', ',') : (userInputs['gewinn_p'] || '')}
+                            onChange={(e) => handleInputChange('gewinn_p', e.target.value)}
+                            disabled={showSolution}
+                            className={`w-12 md:w-16 p-0.5 md:p-1 border rounded text-right font-mono text-xs md:text-base inline-block ${
+                              feedback['gewinn_p'] === true ? 'border-green-500 bg-green-50' : 
+                              feedback['gewinn_p'] === false ? 'border-red-500 bg-red-50' : 'bg-white border-slate-300'
+                            }`}
+                            placeholder="0"
+                          /> %
+                        </span>
+                      )}
                     </div>
                     <div className="p-0.5 md:p-1">
                       <input 
@@ -608,6 +709,17 @@ export default function Kalkulation() {
                   >
                     ℹ Musterlösung {showSolution ? 'ausblenden' : 'anzeigen'}
                   </button>
+
+                  {getVideoUrl(schema, direction) && (
+                    <a 
+                      href={getVideoUrl(schema, direction)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition-colors flex-1 md:flex-none flex items-center justify-center gap-2"
+                    >
+                      <span>▶</span> Lernvideo
+                    </a>
+                  )}
                 </>
               ) : (
                 <div className="flex gap-4 w-full">

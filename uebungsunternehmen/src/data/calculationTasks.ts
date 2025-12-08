@@ -1,5 +1,5 @@
 export type CalculationSchema = 'Bezugskalkulation' | 'Handelskalkulation';
-export type CalculationDirection = 'Vorwärts' | 'Rückwärts';
+export type CalculationDirection = 'Vorwärts' | 'Rückwärts' | 'Differenz';
 
 export interface CalculationRow {
   label: string;
@@ -155,6 +155,79 @@ export const generateTask = (schema: CalculationSchema, direction: CalculationDi
       values.l_skonto = new_l_skonto;
       values.bep = new_bep;
     }
+  } else if (direction === 'Differenz') {
+    // Differenzkalkulation: LEP and Brutto are given. Calculate everything in between.
+    // 1. Forward from LEP to SK
+    // 2. Backward from Brutto to BVP
+    // 3. Calculate Gewinn and Gewinn %
+
+    // We keep the generated LEP and calculate forward to SK
+    // But we need a Brutto that is somewhat realistic (higher than SK)
+    // Let's generate a random profit margin between -5% and 30% to make it interesting (maybe loss?)
+    // User requirement: "Gewinn in € und Prozent gesucht". Usually implies profit.
+    // Let's ensure profit.
+    
+    // Recalculate forward part to be sure
+    const d_l_rabatt = round2(lep * (percentages.l_rabatt_p / 100));
+    const d_zep = round2(lep - d_l_rabatt);
+    const d_l_skonto = round2(d_zep * (percentages.l_skonto_p / 100));
+    const d_bep = round2(d_zep - d_l_skonto);
+    const d_bp = round2(d_bep + bezugskosten);
+    const d_hkz = round2(d_bp * (percentages.hkz_p / 100));
+    const d_sk = round2(d_bp + d_hkz);
+
+    // Now generate a target Brutto. 
+    // Let's say target profit is between 5% and 25%
+    const target_profit_p = randomInt(5, 25) + (randomInt(0, 99) / 100);
+    const target_bvp = d_sk * (1 + target_profit_p / 100);
+    
+    // Calculate up to Brutto from this target BVP to get a "nice" Brutto?
+    // Or just pick a random Brutto > SK * 1.2?
+    // Let's do the full forward calc with the random profit to get a Brutto, then round that Brutto to 2 decimals,
+    // and then recalculate backward to get the EXACT BVP and Profit.
+    
+    const d_zvp_temp = target_bvp / (1 - (percentages.k_skonto_p / 100));
+    const d_nvp_temp = d_zvp_temp / (1 - (percentages.k_rabatt_p / 100));
+    const d_brutto_temp = d_nvp_temp * (1 + percentages.ust_p / 100);
+    
+    // Fix Brutto
+    const d_brutto = round2(d_brutto_temp);
+
+    // Now Backward from fixed Brutto
+    const d_nvp = round2(d_brutto / (1 + percentages.ust_p / 100));
+    const d_ust = round2(d_brutto - d_nvp);
+    
+    const d_k_rabatt = round2(d_nvp * (percentages.k_rabatt_p / 100));
+    const d_zvp = round2(d_nvp - d_k_rabatt);
+    
+    const d_k_skonto = round2(d_zvp * (percentages.k_skonto_p / 100));
+    const d_bvp = round2(d_zvp - d_k_skonto);
+
+    // Now we have SK (from forward) and BVP (from backward)
+    // Calculate Profit
+    const d_gewinn = round2(d_bvp - d_sk);
+    const d_gewinn_p = round2((d_gewinn / d_sk) * 100);
+
+    // Update values
+    values.lep = lep;
+    values.l_rabatt = d_l_rabatt;
+    values.zep = d_zep;
+    values.l_skonto = d_l_skonto;
+    values.bep = d_bep;
+    values.bp = d_bp;
+    values.hkz = d_hkz;
+    values.sk = d_sk;
+    
+    values.brutto = d_brutto;
+    values.ust = d_ust;
+    values.nvp = d_nvp;
+    values.k_rabatt = d_k_rabatt;
+    values.zvp = d_zvp;
+    values.k_skonto = d_k_skonto;
+    values.bvp = d_bvp;
+    
+    values.gewinn = d_gewinn;
+    percentages.gewinn_p = d_gewinn_p; // Update the percentage in the object
   }
 
   let description = '';
@@ -180,13 +253,19 @@ export const generateTask = (schema: CalculationSchema, direction: CalculationDi
         `Handlungskostenzuschlag: ${percentages.hkz_p}%, Gewinnzuschlag: ${percentages.gewinn_p}%, ` +
         `Kundenskonto: ${percentages.k_skonto_p}%, Kundenrabatt: ${percentages.k_rabatt_p}%, ` +
         `Umsatzsteuer: ${percentages.ust_p}%.`;
-    } else {
-      description = `Berechnen Sie die Handelskalkulation (Rückwärts) ausgehend vom Bruttoverkaufspreis: ${brutto.toFixed(2)}€. ` +
+    } else if (direction === 'Rückwärts') {
+      description = `Berechnen Sie die Handelskalkulation (Rückwärts) ausgehend vom Bruttoverkaufspreis: ${values.brutto.toFixed(2)}€. ` +
         `Gegeben sind: Umsatzsteuer: ${percentages.ust_p}%, Kundenrabatt: ${percentages.k_rabatt_p}%, ` +
         `Kundenskonto: ${percentages.k_skonto_p}%, Gewinnzuschlag: ${percentages.gewinn_p}%, ` +
         `Handlungskostenzuschlag: ${percentages.hkz_p}%, Bezugskosten: ${bezugskosten.toFixed(2)}€, ` +
         `Liefererskonto: ${percentages.l_skonto_p}%, Liefererrabatt: ${percentages.l_rabatt_p}%. ` +
         `Ermitteln Sie den Listeneinkaufspreis.`;
+    } else {
+      description = `Differenzkalkulation: Gegeben sind der Listeneinkaufspreis (${values.lep.toFixed(2)}€) und der Bruttoverkaufspreis (${values.brutto.toFixed(2)}€). ` +
+        `Ermitteln Sie den Gewinn in Euro und Prozent. ` +
+        `Kalkulationsdaten: Liefererrabatt ${percentages.l_rabatt_p}%, Liefererskonto ${percentages.l_skonto_p}%, ` +
+        `Bezugskosten ${bezugskosten.toFixed(2)}€, Handlungskostenzuschlag ${percentages.hkz_p}%, ` +
+        `Kundenskonto ${percentages.k_skonto_p}%, Kundenrabatt ${percentages.k_rabatt_p}%, Umsatzsteuer ${percentages.ust_p}%.`;
     }
   }
 
@@ -230,8 +309,7 @@ export const getCalculationExplanation = (
       case 'brutto': return `Nettoverkaufspreis (${f(v.nvp)}) + Umsatzsteuer (${f(v.ust)})`;
       default: return '';
     }
-  } else {
-    // Rückwärts
+  } else if (direction === 'Rückwärts') {
     switch (key) {
       case 'ust': return `Bruttoverkaufspreis (${f(v.brutto)}) ÷ (100 + ${fp(p.ust_p)}) × ${fp(p.ust_p)}`;
       case 'nvp': return `Bruttoverkaufspreis (${f(v.brutto)}) – Umsatzsteuer (${f(v.ust)})`;
@@ -251,5 +329,32 @@ export const getCalculationExplanation = (
       case 'lep': return `Zieleinkaufspreis (${f(v.zep)}) + Liefererrabatt (${f(v.l_rabatt)})`;
       default: return '';
     }
+  } else if (direction === 'Differenz') {
+    // Differenzkalkulation
+    switch (key) {
+      // Forward part (LEP -> SK)
+      case 'l_rabatt': return `Listeneinkaufspreis (${f(v.lep)}) × ${fp(p.l_rabatt_p)} ÷ 100`;
+      case 'zep': return `Listeneinkaufspreis (${f(v.lep)}) – Liefererrabatt (${f(v.l_rabatt)})`;
+      case 'l_skonto': return `Zieleinkaufspreis (${f(v.zep)}) × ${fp(p.l_skonto_p)} ÷ 100`;
+      case 'bep': return `Zieleinkaufspreis (${f(v.zep)}) – Liefererskonto (${f(v.l_skonto)})`;
+      case 'bezugskosten': return `Gegebener Wert`;
+      case 'bp': return `Bareinkaufspreis (${f(v.bep)}) + Bezugskosten (${f(v.bezugskosten)})`;
+      case 'hkz': return `Bezugspreis (${f(v.bp)}) × ${fp(p.hkz_p)} ÷ 100`;
+      case 'sk': return `Bezugspreis (${f(v.bp)}) + Handlungskostenzuschlag (${f(v.hkz)})`;
+      
+      // Backward part (Brutto -> BVP)
+      case 'ust': return `Bruttoverkaufspreis (${f(v.brutto)}) ÷ (100 + ${fp(p.ust_p)}) × ${fp(p.ust_p)}`;
+      case 'nvp': return `Bruttoverkaufspreis (${f(v.brutto)}) – Umsatzsteuer (${f(v.ust)})`;
+      case 'k_rabatt': return `Nettoverkaufspreis (${f(v.nvp)}) × ${fp(p.k_rabatt_p)} ÷ 100`;
+      case 'zvp': return `Nettoverkaufspreis (${f(v.nvp)}) – Kundenrabatt (${f(v.k_rabatt)})`;
+      case 'k_skonto': return `Zielverkaufspreis (${f(v.zvp)}) × ${fp(p.k_skonto_p)} ÷ 100`;
+      case 'bvp': return `Zielverkaufspreis (${f(v.zvp)}) – Kundenskonto (${f(v.k_skonto)})`;
+      
+      // The difference
+      case 'gewinn': return `Barverkaufspreis (${f(v.bvp)}) – Selbstkosten (${f(v.sk)})`;
+      
+      default: return '';
+    }
   }
+  return '';
 };
