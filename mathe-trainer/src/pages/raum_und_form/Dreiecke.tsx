@@ -425,6 +425,7 @@ function drawTriangle(api: any, sketch: TriangleSketch, showHeight: boolean) {
       api.setColor("h_temp", 239, 123, 16);
       api.setLineThickness("h_temp", 5);
       api.setLabelVisible("h_temp", false);
+      api.evalCommand("SetVisibleInView(H,1,false)");
       api.evalCommand(`hLabel=Text("${sketch.heightLabel}", Midpoint(${V3},H)+(0.35,0.15))`);
       api.setColor("hLabel", 239, 123, 16);
       api.setLabelVisible("hLabel", true);
@@ -445,6 +446,13 @@ function drawTriangle(api: any, sketch: TriangleSketch, showHeight: boolean) {
     api.evalCommand(`o1=0.6*UnitVector(PerpendicularVector(Vector(${V2},${V3})))`);
     api.evalCommand(`o2=0.6*UnitVector(PerpendicularVector(Vector(${V1},${V3})))`);
     api.evalCommand(`o3=0.6*UnitVector(PerpendicularVector(Vector(${V1},${V2})))`);
+
+    api.evalCommand("SetVisibleInView(m1,1,false)");
+    api.evalCommand("SetVisibleInView(m2,1,false)");
+    api.evalCommand("SetVisibleInView(m3,1,false)");
+    api.evalCommand("SetVisibleInView(o1,1,false)");
+    api.evalCommand("SetVisibleInView(o2,1,false)");
+    api.evalCommand("SetVisibleInView(o3,1,false)");
 
     api.evalCommand(`t1=Text("${s1}", m1+o1)`);
     api.evalCommand(`t2=Text("${s2}", m2+o2)`);
