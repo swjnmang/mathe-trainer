@@ -1,21 +1,21 @@
 export type GeometrySketch =
-  | { type: 'rectangle'; a: number; b: number; unit: string }
-  | { type: 'triangle'; base: number; height: number; unit: string }
-  | { type: 'circle'; radius: number; unit: string }
-  | { type: 'trapezoid'; a: number; c: number; h: number; unit: string }
-  | { type: 'rightTriangle'; a: number; b: number; c?: number; unit: string }
-  | { type: 'sphere'; radius: number; unit: string }
-  | { type: 'cone'; radius: number; height: number; unit: string }
-  | { type: 'pyramid'; baseA: number; baseB: number; height: number; unit: string }
-  | { type: 'cylinder'; radius: number; height: number; unit: string }
-  | { type: 'prismRect'; length: number; width: number; height: number; unit: string }
-  | { type: 'prismTri'; base: number; heightTriangle: number; prismHeight: number; unit: string }
-  | { type: 'prismTrap'; baseA: number; baseC: number; heightTrap: number; prismHeight: number; unit: string }
-  | { type: 'prismPent'; side: number; apothem: number; prismHeight: number; unit: string }
-  | { type: 'netPrism'; length: number; width: number; height: number; unit: string }
-  | { type: 'netCylinder'; radius: number; height: number; unit: string }
-  | { type: 'compositeL'; width: number; height: number; cutWidth: number; cutHeight: number; unit: string }
-  | { type: 'compositeRectSemi'; width: number; height: number; radius: number; unit: string };
+  | { type: 'rectangle'; a: number | null; b: number | null; unit: string }
+  | { type: 'triangle'; base: number | null; height: number | null; unit: string }
+  | { type: 'circle'; radius: number | null; unit: string }
+  | { type: 'trapezoid'; a: number | null; c: number | null; h: number | null; unit: string }
+  | { type: 'rightTriangle'; a: number | null; b: number | null; c: number | null; unit: string }
+  | { type: 'sphere'; radius: number | null; unit: string }
+  | { type: 'cone'; radius: number | null; height: number | null; unit: string }
+  | { type: 'pyramid'; baseA: number | null; baseB: number | null; height: number | null; unit: string }
+  | { type: 'cylinder'; radius: number | null; height: number | null; unit: string }
+  | { type: 'prismRect'; length: number | null; width: number | null; height: number | null; unit: string }
+  | { type: 'prismTri'; base: number | null; heightTriangle: number | null; prismHeight: number | null; unit: string }
+  | { type: 'prismTrap'; baseA: number | null; baseC: number | null; heightTrap: number | null; prismHeight: number | null; unit: string }
+  | { type: 'prismPent'; side: number | null; apothem: number | null; prismHeight: number | null; unit: string }
+  | { type: 'netPrism'; length: number | null; width: number | null; height: number | null; unit: string }
+  | { type: 'netCylinder'; radius: number | null; height: number | null; unit: string }
+  | { type: 'compositeL'; width: number | null; height: number | null; cutWidth: number | null; cutHeight: number | null; unit: string }
+  | { type: 'compositeRectSemi'; width: number | null; height: number | null; radius: number | null; unit: string };
 
 export interface GeometryTask {
   id: string;
@@ -366,7 +366,7 @@ export const generatePythagorasTask: GeometryGenerator = () => {
         type: 'rightTriangle',
         a,
         b,
-        c,
+        c: null,
         unit: 'cm'
       }
     };
@@ -400,7 +400,7 @@ export const generatePythagorasTask: GeometryGenerator = () => {
     sketch: {
       type: 'rightTriangle',
       a,
-      b,
+      b: null,
       c,
       unit: 'cm'
     }

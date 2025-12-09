@@ -1,67 +1,28 @@
 ﻿import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
-import { Ruler, Triangle, Circle, Cone, Pyramid, Cylinder, Boxes, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Ruler, Triangle, Expand, Circle, Box, Cone, Pyramid, Cylinder } from "lucide-react";
 
-type Item = { title: string; desc: string; href: string; tag: string; icon: LucideIcon };
+type Item = { title: string; desc: string; href: string; icon: LucideIcon };
+type SectionData = { title: string; items: Item[] };
 
-const surfaceItems: Item[] = [
+const sections: SectionData[] = [
   {
-    title: "Flächengeometrie",
-    desc: "Rechtecke, Dreiecke, Trapeze und Kreise in ruhigem Layout  mit klaren Skizzen und Einheiten.",
-    href: "flaechengeometrie",
-    tag: "Flächen",
-    icon: Ruler
-  },
-  {
-    title: "Satz des Pythagoras",
-    desc: "Hypotenuse oder Kathete finden  rechtwinklige Dreiecke ohne Ballast.",
-    href: "satz-des-pythagoras",
-    tag: "Dreiecke",
-    icon: Triangle
-  }
-];
-
-const solidItems: Item[] = [
-  {
-    title: "Kugel",
-    desc: "Volumen und Oberfläche für Kugeln, sauber beschriftet.",
-    href: "kugel",
-    tag: "Körper",
-    icon: Circle
-  },
-  {
-    title: "Kegel",
-    desc: "Mantel und Volumen mit klaren Höhen- und Radiusangaben.",
-    href: "kegel",
-    tag: "Körper",
-    icon: Cone
-  },
-  {
-    title: "Pyramide",
-    desc: "Grundfläche, Höhe, Mantel  kompakt dargestellt.",
-    href: "pyramide",
-    tag: "Körper",
-    icon: Pyramid
-  },
-  {
-    title: "Zylinder",
-    desc: "Tank- und Dosenaufgaben mit sauberen Netzen.",
-    href: "zylinder",
-    tag: "Körper",
-    icon: Cylinder
-  },
-  {
-    title: "Prisma",
-    desc: "Quader-, Dreiecks- und Trapezprismen mit eindeutigen Kanten.",
-    href: "prisma",
-    tag: "Körper",
-    icon: Boxes
+    title: "Geometrie – Raum und Form",
+    items: [
+      { icon: Ruler, title: "Flächengeometrie", desc: "Unterthemen öffnen", href: "flaechengeometrie" },
+      { icon: Triangle, title: "Satz des Pythagoras", desc: "Coming Soon", href: "satz-des-pythagoras" },
+      { icon: Expand, title: "Strahlensätze", desc: "Coming Soon", href: "strahlensaetze" },
+      { icon: Circle, title: "Kugel", desc: "Coming Soon", href: "kugel" },
+      { icon: Box, title: "Prisma", desc: "Coming Soon", href: "prisma" },
+      { icon: Cone, title: "Kegel", desc: "Coming Soon", href: "kegel" },
+      { icon: Pyramid, title: "Pyramide", desc: "Coming Soon", href: "pyramide" },
+      { icon: Cylinder, title: "Zylinder", desc: "Coming Soon", href: "zylinder" }
+    ]
   }
 ];
 
 const cardBase =
-  "group rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition-colors p-5 flex flex-col gap-3";
-const tagBase = "inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500";
+  "group rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition-colors p-5 w-full max-w-sm";
 const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-900 text-slate-50 bg-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-800";
 
@@ -76,19 +37,18 @@ export default function RaumUndFormIndex() {
               Zurück zur Hauptübersicht
             </Link>
           </div>
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Raum &amp; Form</p>
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight">Übersicht der Teilgebiete</h1>
-            <p className="text-base md:text-lg text-slate-600 max-w-3xl leading-relaxed">
-              Kompakte Übungskarten mit ruhigem Layout, klaren Skizzen und eindeutigen Einheiten. Wähle ein Teilgebiet und starte direkt.
-            </p>
+          <div className="space-y-2 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold leading-tight">Geometrie – Raum und Form</h1>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
-        <Section title="Flächen & Dreiecke" items={surfaceItems} />
-        <Section title="Körpergeometrie" items={solidItems} />
+        {sections.map(section => (
+          <div key={section.title}>
+            <Section title={section.title} items={section.items} />
+          </div>
+        ))}
       </main>
     </div>
   );
@@ -97,20 +57,15 @@ export default function RaumUndFormIndex() {
 function Section({ title, items }: { title: string; items: Item[] }) {
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-        <p className="text-sm text-slate-500">Direkter Einstieg in die Aufgabengeneratoren</p>
+      <div className="flex items-center justify-center">
+        <h2 className="text-xl font-bold text-slate-900 text-center">{title}</h2>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 justify-items-center">
         {items.map(item => {
           const Icon = item.icon;
           return (
             <div key={item.href} className={cardBase}>
-              <span className={tagBase}>
-                <span className="h-2 w-2 rounded-full bg-slate-400" aria-hidden="true" />
-                {item.tag}
-              </span>
-              <div className="flex items-start gap-3">
+              <div className="flex flex-col items-center text-center gap-3">
                 <div className="rounded-xl bg-slate-100 text-slate-700 p-2">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
@@ -118,12 +73,12 @@ function Section({ title, items }: { title: string; items: Item[] }) {
                   <h3 className="text-lg font-semibold leading-tight">{item.title}</h3>
                   <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
                 </div>
-              </div>
-              <div className="pt-1">
-                <Link to={`/raum-und-form/${item.href}`} className={buttonBase}>
-                  Jetzt öffnen
-                  <span aria-hidden="true"></span>
-                </Link>
+                <div className="pt-1">
+                  <Link to={`/raum-und-form/${item.href}`} className={buttonBase}>
+                    Jetzt öffnen
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
               </div>
             </div>
           );

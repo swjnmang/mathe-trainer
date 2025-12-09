@@ -93,11 +93,18 @@ import Wahrscheinlichkeiten from './pages/daten_und_zufall/Wahrscheinlichkeiten'
 import RaumUndFormIndex from './pages/RaumUndFormIndex';
 import Flaechengeometrie from './pages/raum_und_form/Flaechengeometrie';
 import SatzDesPythagoras from './pages/raum_und_form/SatzDesPythagoras';
+import Strahlensaetze from './pages/raum_und_form/Strahlensaetze';
 import Kugel from './pages/raum_und_form/Kugel';
 import Kegel from './pages/raum_und_form/Kegel';
 import Pyramide from './pages/raum_und_form/Pyramide';
 import Zylinder from './pages/raum_und_form/Zylinder';
 import Prisma from './pages/raum_und_form/Prisma';
+import Dreiecke from './pages/raum_und_form/Dreiecke';
+import Trapez from './pages/raum_und_form/Trapez';
+import Rechteck from './pages/raum_und_form/Rechteck';
+import Parallelogramm from './pages/raum_und_form/Parallelogramm';
+import Raute from './pages/raum_und_form/Raute';
+import Kreis from './pages/raum_und_form/Kreis';
 // ... other imports will be added as files are created
 
 export default function App() {
@@ -214,11 +221,18 @@ export default function App() {
           <Route path="/raum-und-form" element={<RaumUndFormIndex />} />
           <Route path="/raum-und-form/flaechengeometrie" element={<Flaechengeometrie />} />
           <Route path="/raum-und-form/satz-des-pythagoras" element={<SatzDesPythagoras />} />
+          <Route path="/raum-und-form/strahlensaetze" element={<Strahlensaetze />} />
           <Route path="/raum-und-form/kugel" element={<Kugel />} />
           <Route path="/raum-und-form/kegel" element={<Kegel />} />
           <Route path="/raum-und-form/pyramide" element={<Pyramide />} />
           <Route path="/raum-und-form/zylinder" element={<Zylinder />} />
           <Route path="/raum-und-form/prisma" element={<Prisma />} />
+          <Route path="/raum-und-form/flaechengeometrie/dreiecke" element={<Dreiecke />} />
+          <Route path="/raum-und-form/flaechengeometrie/trapez" element={<Trapez />} />
+          <Route path="/raum-und-form/flaechengeometrie/rechteck" element={<Rechteck />} />
+          <Route path="/raum-und-form/flaechengeometrie/parallelogramm" element={<Parallelogramm />} />
+          <Route path="/raum-und-form/flaechengeometrie/raute" element={<Raute />} />
+          <Route path="/raum-und-form/flaechengeometrie/kreis" element={<Kreis />} />
 
           <Route path="/impressum" element={<Impressum />} />
 
