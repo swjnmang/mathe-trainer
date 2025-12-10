@@ -85,15 +85,8 @@ export default function GemischteFlaechenaufgaben() {
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Flächengeometrie</p>
             <h1 className="text-3xl font-bold">Gemischte Übungsaufgaben</h1>
-            <p className="text-slate-600 max-w-3xl">
-              30 statische Aufgaben zu Rechtecken, Parallelogrammen, Rauten, Trapezen, Dreiecken, Kreisen und
-              zusammengesetzten Flächen. Skizze ansehen, Ergebnis eintragen, prüfen und bei Bedarf als PDF sichern.
-            </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold" onClick={() => window.print()}>
-              Alle Aufgaben als PDF
-            </button>
             <span className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm font-semibold">Aufgabe {task.id} / {tasks.length}</span>
           </div>
         </div>
@@ -179,7 +172,7 @@ export default function GemischteFlaechenaufgaben() {
 function Sketch({ shape }: { shape: Shape }) {
   return (
     <svg viewBox="0 0 260 220" className="w-full" role="img" aria-label="Skizze">
-      <rect x="0" y="0" width="260" height="220" rx="16" fill="#f8fafc" />
+      <rect x="0" y="0" width="260" height="220" fill="#f8fafc" />
       {drawShape(shape)}
     </svg>
   );
@@ -193,11 +186,11 @@ function drawShape(shape: Shape) {
     case "rectangle": {
       const w = 140;
       const h = 90;
-      return <rect x={(260 - w) / 2} y={(220 - h) / 2} width={w} height={h} fill={fill} stroke={stroke} strokeWidth={3} rx={6} />;
+      return <rect x={(260 - w) / 2} y={(220 - h) / 2} width={w} height={h} fill={fill} stroke={stroke} strokeWidth={3} />;
     }
     case "square": {
       const s = 110;
-      return <rect x={(260 - s) / 2} y={(220 - s) / 2} width={s} height={s} fill={fill} stroke={stroke} strokeWidth={3} rx={6} />;
+      return <rect x={(260 - s) / 2} y={(220 - s) / 2} width={s} height={s} fill={fill} stroke={stroke} strokeWidth={3} />;
     }
     case "triangle": {
       const points = "60,170 200,170 130,60";
@@ -221,15 +214,15 @@ function drawShape(shape: Shape) {
     case "lshape": {
       return (
         <g fill={fill} stroke={stroke} strokeWidth={3}>
-          <rect x={50} y={90} width={120} height={90} />
-          <rect x={50} y={40} width={60} height={50} />
+          <rect x={50} y={90} width={120} height={90} rx={0} ry={0} />
+          <rect x={50} y={40} width={60} height={50} rx={0} ry={0} />
         </g>
       );
     }
     case "rect_plus_triangle": {
       return (
         <g fill={fill} stroke={stroke} strokeWidth={3}>
-          <rect x={60} y={110} width={140} height={70} />
+          <rect x={60} y={110} width={140} height={70} rx={0} ry={0} />
           <polygon points="60,110 200,110 130,60" />
         </g>
       );
@@ -237,7 +230,7 @@ function drawShape(shape: Shape) {
     case "semi_circle_rect": {
       return (
         <g fill={fill} stroke={stroke} strokeWidth={3}>
-          <rect x={60} y={110} width={140} height={70} />
+          <rect x={60} y={110} width={140} height={70} rx={0} ry={0} />
           <path d="M60 110 A70 70 0 0 1 200 110" />
         </g>
       );
