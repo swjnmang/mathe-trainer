@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
+import type { LucideIcon } from "lucide-react";
+import { Circle, Diamond, Layers, Ruler, Shapes, Shuffle, Square, Triangle } from "lucide-react";
 
-const topics = [
-  { href: "/raum-und-form/flaechengeometrie/dreiecke", label: "Dreiecke" },
-  { href: "/raum-und-form/flaechengeometrie/formen-erkennen", label: "Formen erkennen" },
-  { href: "/raum-und-form/flaechengeometrie/trapez", label: "Trapez" },
-  { href: "/raum-und-form/flaechengeometrie/rechteck", label: "Rechteck" },
-  { href: "/raum-und-form/flaechengeometrie/parallelogramm", label: "Parallelogramm" },
-  { href: "/raum-und-form/flaechengeometrie/raute", label: "Raute" },
-  { href: "/raum-und-form/flaechengeometrie/kreis", label: "Kreis" },
-  { href: "/raum-und-form/flaechengeometrie/gemischte-aufgaben", label: "Gemischte Übungsaufgaben" }
+const topics: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/raum-und-form/flaechengeometrie/dreiecke", label: "Dreiecke", icon: Triangle },
+  { href: "/raum-und-form/flaechengeometrie/formen-erkennen", label: "Formen erkennen", icon: Shapes },
+  { href: "/raum-und-form/flaechengeometrie/trapez", label: "Trapez", icon: Ruler },
+  { href: "/raum-und-form/flaechengeometrie/rechteck", label: "Rechteck", icon: Square },
+  { href: "/raum-und-form/flaechengeometrie/parallelogramm", label: "Parallelogramm", icon: Layers },
+  { href: "/raum-und-form/flaechengeometrie/raute", label: "Raute", icon: Diamond },
+  { href: "/raum-und-form/flaechengeometrie/kreis", label: "Kreis", icon: Circle },
+  { href: "/raum-und-form/flaechengeometrie/gemischte-aufgaben", label: "Gemischte Übungsaufgaben", icon: Shuffle }
 ];
 
 export default function Flaechengeometrie() {
@@ -22,13 +24,14 @@ export default function Flaechengeometrie() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-          {topics.map(topic => (
+          {topics.map(({ href, label, icon: Icon }) => (
             <Link
-              key={topic.href}
-              to={topic.href}
-              className="rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition p-4 text-center text-slate-900 font-semibold"
+              key={href}
+              to={href}
+              className="rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm transition p-4 text-center text-slate-900 font-semibold flex flex-col items-center gap-2"
             >
-              {topic.label}
+              <Icon className="h-6 w-6 text-slate-500" aria-hidden="true" />
+              <span>{label}</span>
             </Link>
           ))}
         </div>

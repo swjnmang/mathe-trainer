@@ -10,7 +10,17 @@ type Shape =
   | { kind: "circle"; r: number; unit: Unit }
   | { kind: "lshape"; w1: number; h1: number; w2: number; h2: number; unit: Unit }
   | { kind: "rect_plus_triangle"; w: number; h: number; b: number; tHeight: number; unit: Unit }
-  | { kind: "semi_circle_rect"; w: number; h: number; r: number; unit: Unit };
+  | { kind: "semi_circle_rect"; w: number; h: number; r: number; unit: Unit }
+  | { kind: "rect_cut_circle"; w: number; h: number; r: number; unit: Unit }
+  | { kind: "rect_cut_rect"; w: number; h: number; cutW: number; cutH: number; unit: Unit }
+  | { kind: "rect_plus_circle"; w: number; h: number; r: number; unit: Unit }
+  | { kind: "rect_frame"; outerW: number; outerH: number; innerW: number; innerH: number; unit: Unit }
+  | { kind: "ring"; outerR: number; innerR: number; unit: Unit }
+  | { kind: "stadium"; w: number; h: number; r: number; unit: Unit }
+  | { kind: "tshape"; stemW: number; stemH: number; topW: number; topH: number; unit: Unit }
+  | { kind: "rect_cut_corner"; w: number; h: number; cutW: number; cutH: number; unit: Unit }
+  | { kind: "rect_cut_two_circles"; w: number; h: number; r1: number; r2: number; unit: Unit }
+  | { kind: "rect_plus_sector"; w: number; h: number; r: number; angle: number; unit: Unit };
 
 type Unit = "cm" | "m";
 
@@ -29,21 +39,21 @@ const buttonClass =
   "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-900 text-slate-50 bg-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-800";
 
 export default function GemischteFlaechenaufgaben() {
-  const tasks = useMemo(() => buildTasks(), []);
+  const tasks = useMemo(() => shuffle(buildTasks()), []);
   const [index, setIndex] = useState(0);
   const task = tasks[index];
 
   const [areaInput, setAreaInput] = useState("");
   const [perimeterInput, setPerimeterInput] = useState("");
-  const [areaUnit, setAreaUnit] = useState(getAreaUnit(task.shape));
-  const [perimeterUnit, setPerimeterUnit] = useState(getLengthUnit(task.shape));
+  const [areaUnit, setAreaUnit] = useState("-");
+  const [perimeterUnit, setPerimeterUnit] = useState("-");
   const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     setAreaInput("");
     setPerimeterInput("");
-    setAreaUnit(getAreaUnit(task.shape));
-    setPerimeterUnit(getLengthUnit(task.shape));
+    setAreaUnit("-");
+    setPerimeterUnit("-");
     setFeedback(null);
   }, [task]);
 
@@ -85,6 +95,7 @@ export default function GemischteFlaechenaufgaben() {
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Flächengeometrie</p>
             <h1 className="text-3xl font-bold">Gemischte Übungsaufgaben</h1>
+            <p className="text-sm text-slate-600">Wähle die korrekte Einheit und runde jede Lösung auf 2 Nachkommastellen.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <span className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm font-semibold">Aufgabe {task.id} / {tasks.length}</span>
@@ -121,11 +132,13 @@ export default function GemischteFlaechenaufgaben() {
                       value={areaUnit}
                       onChange={e => setAreaUnit(e.target.value)}
                     >
+                      <option value="-">-</option>
                       {areaOptions.map(opt => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
                     </select>
                   </div>
+                  <p className="text-xs text-slate-500">Runde auf 2 Nachkommastellen und wähle die passende Einheit.</p>
                 </label>
               )}
 
@@ -145,6 +158,7 @@ export default function GemischteFlaechenaufgaben() {
                       value={perimeterUnit}
                       onChange={e => setPerimeterUnit(e.target.value)}
                     >
+                      <option value="-">-</option>
                       {perimeterOptions.map(opt => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
@@ -235,48 +249,127 @@ function drawShape(shape: Shape) {
         </g>
       );
     }
+    case "rect_cut_circle": {
+      return (
+        <g stroke={stroke} strokeWidth={3}>
+          <rect x={50} y={70} width={160} height={100} fill={fill} />
+          <circle cx={130} cy={120} r={35} fill="#f8fafc" />
+        </g>
+      );
+    }
+    case "rect_cut_rect": {
+      return (
+        <g stroke={stroke} strokeWidth={3}>
+          <rect x={50} y={70} width={160} height={100} fill={fill} />
+          <rect x={100} y={100} width={60} height={50} fill="#f8fafc" />
+        </g>
+      );
+    }
+    case "rect_plus_circle": {
+      return (
+        <g stroke={stroke} strokeWidth={3}>
+          <rect x={60} y={110} width={110} height={70} fill={fill} />
+          <circle cx={200} cy={145} r={30} fill={fill} />
+        </g>
+      );
+    }
+    case "rect_frame": {
+      return (
+        <g stroke={stroke} strokeWidth={3}>
+          <rect x={40} y={60} width={180} height={120} fill={fill} />
+          <rect x={80} y={90} width={100} height={70} fill="#f8fafc" />
+        </g>
+      );
+    }
+    case "ring": {
+      return (
+        <g stroke={stroke} strokeWidth={3} fill={fill}>
+          <circle cx={130} cy={120} r={70} />
+          <circle cx={130} cy={120} r={40} fill="#f8fafc" />
+        </g>
+      );
+    }
+    case "stadium": {
+      return (
+        <g stroke={stroke} strokeWidth={3} fill={fill}>
+          <rect x={60} y={90} width={120} height={60} />
+          <path d="M60 90 a30 30 0 0 0 0 60" />
+          <path d="M180 150 a30 30 0 0 0 0 -60" />
+        </g>
+      );
+    }
+    case "tshape": {
+      return (
+        <g stroke={stroke} strokeWidth={3} fill={fill}>
+          <rect x={110} y={70} width={40} height={110} />
+          <rect x={80} y={70} width={100} height={35} />
+        </g>
+      );
+    }
+    case "rect_cut_corner": {
+      return (
+        <g stroke={stroke} strokeWidth={3}>
+          <rect x={60} y={70} width={140} height={100} fill={fill} />
+          <polygon points="200,170 200,140 170,170" fill="#f8fafc" />
+        </g>
+      );
+    }
+    case "rect_cut_two_circles": {
+      return (
+        <g stroke={stroke} strokeWidth={3}>
+          <rect x={50} y={70} width={160} height={100} fill={fill} />
+          <circle cx={95} cy={120} r={22} fill="#f8fafc" />
+          <circle cx={165} cy={120} r={18} fill="#f8fafc" />
+        </g>
+      );
+    }
+    case "rect_plus_sector": {
+      return (
+        <g stroke={stroke} strokeWidth={3}>
+          <rect x={70} y={90} width={120} height={80} fill={fill} />
+          <path d="M190 90 A50 50 0 0 1 220 140 L190 140 Z" fill={fill} />
+        </g>
+      );
+    }
     default:
       return null;
   }
 }
 
 function buildTasks(): Task[] {
+  const roundingNote = " Wähle die passende Einheit und runde auf zwei Nachkommastellen.";
   const defs: Omit<Task, "id" | "area" | "perimeter">[] = [
-    { title: "Rechteckige Terrasse", ask: "both", shape: { kind: "rectangle", w: 8, h: 5, unit: "m" }, question: "Eine Terrasse ist 8 m lang und 5 m breit. Berechne Fläche A und Umfang U." },
-    { title: "Gartenbeet", ask: "both", shape: { kind: "rectangle", w: 6, h: 2.5, unit: "m" }, question: "Ein rechteckiges Beet misst 6 m × 2,5 m. Bestimme Fläche und Umfang." },
-    { title: "Quadratische Fliese", ask: "area", shape: { kind: "square", a: 12, unit: "cm" }, question: "Eine quadratische Fliese hat Seitenlänge 12 cm. Berechne den Flächeninhalt." },
-    { title: "Quadratischer Platz", ask: "both", shape: { kind: "square", a: 15, unit: "m" }, question: "Ein quadratischer Platz hat Seitenlänge 15 m. Berechne Fläche und Umfang." },
-    { title: "Dreieckige Wiese", ask: "both", shape: { kind: "triangle", b: 18, h: 10, sides: [18, 15, 13], unit: "m" }, question: "Eine Wiese ist dreieckig: Grundseite 18 m, Höhe dazu 10 m, weitere Seiten 15 m und 13 m. Berechne Fläche und Umfang." },
-    { title: "Dachfläche", ask: "area", shape: { kind: "triangle", b: 9, h: 6, sides: [9, 7, 7], unit: "m" }, question: "Eine dachförmige Dreiecksfläche hat Grundseite 9 m und Höhe 6 m. Bestimme den Flächeninhalt." },
-    { title: "Trapezförmiges Feld", ask: "both", shape: { kind: "trapezoid", a: 14, b: 9, h: 6, legs: [6.5, 6.5], unit: "m" }, question: "Ein Feld ist trapezförmig mit Grundseiten 14 m und 9 m, Höhe 6 m, Schenkel je 6,5 m. Berechne Fläche und Umfang." },
-    { title: "Trapezplatte", ask: "area", shape: { kind: "trapezoid", a: 18, b: 10, h: 7, legs: [7.5, 7.5], unit: "cm" }, question: "Eine Metallplatte ist trapezförmig: Grundseiten 18 cm und 10 cm, Höhe 7 cm. Bestimme den Flächeninhalt." },
-    { title: "Parallelogramm-Fahne", ask: "both", shape: { kind: "parallelogram", b: 11, h: 7.5, side: 9, unit: "cm" }, question: "Eine Fahne ist ein Parallelogramm mit Grundseite 11 cm, Höhe 7,5 cm und zweiter Seite 9 cm. Berechne Fläche und Umfang." },
-    { title: "Parallelogramm-Grundriss", ask: "area", shape: { kind: "parallelogram", b: 16, h: 9, side: 12, unit: "m" }, question: "Grundriss eines Anbaus als Parallelogramm: Grundseite 16 m, Höhe 9 m. Bestimme den Flächeninhalt." },
-    { title: "Raute-Parkett", ask: "both", shape: { kind: "rhombus", d1: 12, d2: 18, side: 10, unit: "cm" }, question: "Ein Parkettteil ist eine Raute mit Diagonalen 12 cm und 18 cm, Seitenlänge 10 cm. Berechne Fläche und Umfang." },
-    { title: "Rauten-Schild", ask: "area", shape: { kind: "rhombus", d1: 14, d2: 20, side: 12, unit: "cm" }, question: "Ein Schild hat die Form einer Raute mit Diagonalen 14 cm und 20 cm. Bestimme den Flächeninhalt." },
-    { title: "Kreisrunde Spielfläche", ask: "both", shape: { kind: "circle", r: 7.5, unit: "m" }, question: "Eine runde Spielfläche hat Radius 7,5 m. Berechne Fläche und Umfang." },
-    { title: "Springbrunnen", ask: "area", shape: { kind: "circle", r: 4.2, unit: "m" }, question: "Eine runde Brunnenfläche hat Radius 4,2 m. Bestimme den Flächeninhalt." },
-    { title: "Kreisverkehr", ask: "perimeter", shape: { kind: "circle", r: 18, unit: "m" }, question: "Ein Kreisverkehr hat Radius 18 m. Berechne den Umfang der Fahrbahnbegrenzung." },
-    { title: "Rundes Beet", ask: "both", shape: { kind: "circle", r: 3.6, unit: "m" }, question: "Ein rundes Blumenbeet hat Radius 3,6 m. Berechne Fläche und Umfang." },
-    { title: "L-förmige Terrasse", ask: "area", shape: { kind: "lshape", w1: 9, h1: 6, w2: 4, h2: 3, unit: "m" }, question: "Eine Terrasse ist L-förmig. Großer Teil 9 m × 6 m, angesetzter Teil 4 m × 3 m. Berechne die Gesamtfläche." },
-    { title: "L-förmiger Weg", ask: "area", shape: { kind: "lshape", w1: 7, h1: 5, w2: 3, h2: 2, unit: "m" }, question: "Ein Weg verläuft L-förmig mit Teilflächen 7 m × 5 m und 3 m × 2 m. Bestimme den Flächeninhalt." },
-    { title: "Lagerfläche L-Form", ask: "area", shape: { kind: "lshape", w1: 12, h1: 8, w2: 4, h2: 4, unit: "m" }, question: "Eine Lagerfläche ist L-förmig (12 m × 8 m plus 4 m × 4 m angesetzt). Berechne die Fläche." },
-    { title: "Dach mit Dreiecksgiebel", ask: "area", shape: { kind: "rect_plus_triangle", w: 10, h: 6, b: 10, tHeight: 3.5, unit: "m" }, question: "Ein Hausdach besteht aus einem Rechteck 10 m × 6 m mit aufgesetztem gleichschenkligem Dreieck (Grundseite 10 m, Höhe 3,5 m). Berechne die gesamte Fläche." },
-    { title: "Werbeschild", ask: "area", shape: { kind: "rect_plus_triangle", w: 6, h: 3, b: 6, tHeight: 2.5, unit: "m" }, question: "Ein Werbeschild besteht aus einem Rechteck 6 m × 3 m und einem darüber liegenden Dreieck (Grundseite 6 m, Höhe 2,5 m). Bestimme die Fläche." },
-    { title: "Zeltplane", ask: "area", shape: { kind: "rect_plus_triangle", w: 8, h: 4, b: 8, tHeight: 3, unit: "m" }, question: "Eine Plane setzt sich aus einem Rechteck 8 m × 4 m und einem Dreieck (Grundseite 8 m, Höhe 3 m) zusammen. Berechne die Fläche." },
-    { title: "Halbrunder Vorbau", ask: "area", shape: { kind: "semi_circle_rect", w: 8, h: 5, r: 4, unit: "m" }, question: "Ein Vorbau besteht aus einem Rechteck 8 m × 5 m mit einem halbrunden Abschluss (Radius 4 m). Berechne die Gesamtfläche." },
-    { title: "Halbrundes Fenster", ask: "area", shape: { kind: "semi_circle_rect", w: 2.4, h: 1.6, r: 1.2, unit: "m" }, question: "Ein Fenster besteht aus einem Rechteck 2,4 m × 1,6 m mit einem halbrunden Aufsatz (Radius 1,2 m). Bestimme die Fläche." },
-    { title: "Rechteck plus Kreisausschnitt", ask: "area", shape: { kind: "rect_plus_triangle", w: 9, h: 5, b: 0, tHeight: 0, unit: "m" }, question: "Eine Platte ist 9 m × 5 m, zusätzlich soll ein kleiner dreieckiger Giebel entfallen (hier als Platzhalter: Fläche nur des Rechtecks berechnen)." },
-    { title: "Parallelogramm-Boden", ask: "both", shape: { kind: "parallelogram", b: 13, h: 8, side: 10, unit: "m" }, question: "Ein Boden ist als Parallelogramm ausgeführt: Grundseite 13 m, Höhe 8 m, zweite Seite 10 m. Berechne Fläche und Umfang." },
-    { title: "Trapezsteg", ask: "perimeter", shape: { kind: "trapezoid", a: 12, b: 6, h: 4, legs: [5, 5], unit: "m" }, question: "Ein Steg ist trapezförmig mit Grundseiten 12 m und 6 m, Schenkellängen je 5 m. Berechne den Umfang." },
-    { title: "Dreiecksgarten", ask: "perimeter", shape: { kind: "triangle", b: 10, h: 0, sides: [10, 9, 7], unit: "m" }, question: "Ein dreieckiger Garten hat Seiten 10 m, 9 m und 7 m. Berechne den Umfang." },
-    { title: "Quadrat-Rand", ask: "perimeter", shape: { kind: "square", a: 22, unit: "m" }, question: "Ein quadratischer Innenhof hat Seitenlänge 22 m. Berechne den Umfang." },
-    { title: "Kreispfad", ask: "perimeter", shape: { kind: "circle", r: 5.5, unit: "m" }, question: "Ein kreisförmiger Pfad hat Radius 5,5 m. Berechne den Umfang." }
+    { title: "Holzplatte mit Kreisausschnitt", ask: "area", shape: { kind: "rect_cut_circle", w: 240, h: 160, r: 20, unit: "cm" }, question: "Eine rechteckige Holzplatte ist 240 cm × 160 cm groß. Mittig wird ein Kreis mit Radius 20 cm ausgeschnitten. Berechne die verbleibende Fläche." },
+    { title: "Bühnenboden mit rundem Loch", ask: "area", shape: { kind: "rect_cut_circle", w: 9, h: 6, r: 1.5, unit: "m" }, question: "Ein Bühnenboden misst 9 m × 6 m. Ein rundes Loch mit Radius 1,5 m wird entfernt. Wie groß ist die Restfläche?" },
+    { title: "Deckplatte mit Fenster", ask: "area", shape: { kind: "rect_cut_rect", w: 180, h: 120, cutW: 50, cutH: 35, unit: "cm" }, question: "Eine Platte ist 180 cm × 120 cm groß. Ein rechteckiges Fenster von 50 cm × 35 cm wird ausgeschnitten. Berechne die resultierende Fläche." },
+    { title: "Grundplatte mit Technikschacht", ask: "area", shape: { kind: "rect_cut_rect", w: 12, h: 8, cutW: 3, cutH: 2.5, unit: "m" }, question: "Eine Grundplatte misst 12 m × 8 m. Ein Schacht von 3 m × 2,5 m wird herausgetrennt. Bestimme die verbleibende Fläche." },
+    { title: "L-förmige Terrasse", ask: "area", shape: { kind: "lshape", w1: 9, h1: 6, w2: 4, h2: 3, unit: "m" }, question: "Eine Terrasse ist L-förmig (9 m × 6 m plus 4 m × 3 m angesetzt). Berechne die Gesamtfläche." },
+    { title: "Lagerfläche in L-Form", ask: "area", shape: { kind: "lshape", w1: 11, h1: 7, w2: 3.5, h2: 3, unit: "m" }, question: "Ein Lagerbereich hat zwei rechteckige Teile: 11 m × 7 m und 3,5 m × 3 m als L-Form. Wie groß ist die Fläche?" },
+    { title: "Dach mit Dreiecksgiebel", ask: "area", shape: { kind: "rect_plus_triangle", w: 10, h: 6, b: 10, tHeight: 3.5, unit: "m" }, question: "Ein Dach besteht aus einem Rechteck 10 m × 6 m mit aufgesetztem Dreieck (Grundseite 10 m, Höhe 3,5 m). Berechne die Gesamtfläche." },
+    { title: "Werbebanner mit Spitze", ask: "area", shape: { kind: "rect_plus_triangle", w: 6, h: 3, b: 6, tHeight: 2.5, unit: "m" }, question: "Ein Banner besteht aus einem Rechteck 6 m × 3 m und einem Dreieck (Grundseite 6 m, Höhe 2,5 m) obenauf. Bestimme den Flächeninhalt." },
+    { title: "Halbrunder Vorbau", ask: "area", shape: { kind: "semi_circle_rect", w: 8, h: 5, r: 4, unit: "m" }, question: "Ein Vorbau kombiniert ein Rechteck 8 m × 5 m mit einem halbrunden Abschluss (Radius 4 m). Berechne die Gesamtfläche." },
+    { title: "Fenster mit Rundbogen", ask: "area", shape: { kind: "semi_circle_rect", w: 2.4, h: 1.6, r: 1.2, unit: "m" }, question: "Ein Fenster besteht aus einem Rechteck 2,4 m × 1,6 m und einem halbrunden Aufsatz (Radius 1,2 m). Bestimme die Fläche." },
+    { title: "Steg mit Kreisausschnitt", ask: "area", shape: { kind: "rect_cut_circle", w: 12, h: 4, r: 1, unit: "m" }, question: "Ein Steg ist 12 m × 4 m groß. Für eine Leiter wird ein Kreis mit Radius 1 m ausgeschnitten. Wie groß bleibt die Fläche?" },
+    { title: "Plattform mit rechteckigem Ausschnitt", ask: "area", shape: { kind: "rect_cut_rect", w: 320, h: 180, cutW: 80, cutH: 50, unit: "cm" }, question: "Eine Plattform misst 320 cm × 180 cm. Ein Ausschnitt von 80 cm × 50 cm wird entfernt. Berechne die Restfläche." },
+    { title: "Terrasse mit Rundung", ask: "area", shape: { kind: "rect_plus_circle", w: 7, h: 5, r: 2, unit: "m" }, question: "Eine Terrasse besteht aus einem Rechteck 7 m × 5 m und einem angesetzten Kreis (Radius 2 m). Wie groß ist die Gesamtfläche?" },
+    { title: "Gartenfläche mit Halbkreis", ask: "area", shape: { kind: "semi_circle_rect", w: 10, h: 6, r: 5, unit: "m" }, question: "Eine Gartenfläche setzt sich aus 10 m × 6 m Rechteck und einem Halbkreis (Radius 5 m) an der Breitseite zusammen. Berechne die Fläche." },
+    { title: "Rahmen aus Brettern", ask: "area", shape: { kind: "rect_frame", outerW: 12, outerH: 9, innerW: 8, innerH: 5, unit: "m" }, question: "Ein rechteckiger Rahmen hat Außenmaße 12 m × 9 m und eine Öffnung von 8 m × 5 m. Wie groß ist die Holzfläche?" },
+    { title: "Bilderrahmen", ask: "area", shape: { kind: "rect_frame", outerW: 50, outerH: 40, innerW: 36, innerH: 24, unit: "cm" }, question: "Ein Bilderrahmen ist außen 50 cm × 40 cm und hat ein Innenfenster 36 cm × 24 cm. Berechne die Rahmenfläche." },
+    { title: "Laufbahn (Rundrechteck)", ask: "area", shape: { kind: "stadium", w: 40, h: 10, r: 5, unit: "m" }, question: "Eine Trainingsbahn besteht aus einem 40 m langen Rechteck (Breite 10 m) mit halbrunden Enden Radius 5 m. Berechne die Fläche der Bahn." },
+    { title: "Sandkasten-Stadion", ask: "area", shape: { kind: "stadium", w: 6, h: 2, r: 1, unit: "m" }, question: "Ein Sandkasten hat ein Mittelteil 6 m × 2 m und an beiden Enden Halbkreise Radius 1 m. Wie groß ist die Fläche?" },
+    { title: "Zierteich als Ring", ask: "area", shape: { kind: "ring", outerR: 6, innerR: 2.5, unit: "m" }, question: "Ein Teich besteht aus einem äußeren Kreis Radius 6 m; mittig ist eine Insel Kreis Radius 2,5 m. Berechne die Wasserfläche (Ring)." },
+    { title: "Lichtkranz", ask: "area", shape: { kind: "ring", outerR: 120, innerR: 50, unit: "cm" }, question: "Ein runder Lichtkranz hat äußeren Radius 120 cm und inneren Radius 50 cm. Wie groß ist die leuchtende Fläche?" },
+    { title: "T-förmige Bühne", ask: "area", shape: { kind: "tshape", stemW: 4, stemH: 8, topW: 10, topH: 3, unit: "m" }, question: "Eine Bühne ist T-förmig: ein Steg 4 m × 8 m und oben quer 10 m × 3 m. Bestimme die Gesamtfläche." },
+    { title: "T-förmiger Steg", ask: "area", shape: { kind: "tshape", stemW: 2.5, stemH: 6, topW: 6, topH: 2.5, unit: "m" }, question: "Ein Steg ins Wasser ist T-förmig: ein Stegteil 2,5 m × 6 m, am Ende ein Querpodest 6 m × 2,5 m. Wie groß ist die Fläche?" },
+    { title: "Eckige Platte mit Abkappung", ask: "area", shape: { kind: "rect_cut_corner", w: 220, h: 180, cutW: 30, cutH: 30, unit: "cm" }, question: "Eine Platte misst 220 cm × 180 cm. An einer Ecke wird ein rechtwinkliges Dreieck 30 cm × 30 cm abgeschnitten. Wie groß bleibt die Fläche?" },
+    { title: "Bauplatte mit zwei Bohrungen", ask: "area", shape: { kind: "rect_cut_two_circles", w: 300, h: 140, r1: 14, r2: 10, unit: "cm" }, question: "Eine Bauplatte ist 300 cm × 140 cm. Zwei runde Öffnungen Radius 14 cm und 10 cm werden gebohrt. Berechne die Restfläche." },
+    { title: "Werbefläche mit Sektor", ask: "area", shape: { kind: "rect_plus_sector", w: 5, h: 3, r: 2, angle: 90, unit: "m" }, question: "Ein Werbeschild besteht aus einem Rechteck 5 m × 3 m und einem angesetzten Kreissektor (Radius 2 m, 90°). Wie groß ist die Gesamtfläche?" },
+    { title: "Terrassenbogen", ask: "area", shape: { kind: "rect_plus_sector", w: 8, h: 4, r: 3, angle: 120, unit: "m" }, question: "Eine Terrasse wird um einen Kreissektor (Radius 3 m, Winkel 120°) erweitert, der an einer 8 m × 4 m Fläche anliegt. Bestimme die Fläche." }
   ];
 
   return defs.map((def, idx) => {
     const metrics = computeMetrics(def.shape);
-    return { id: idx + 1, area: metrics.area, perimeter: metrics.perimeter, ...def };
+    return { id: idx + 1, area: metrics.area, perimeter: metrics.perimeter, ...def, question: def.question + roundingNote };
   });
 }
 
@@ -331,6 +424,48 @@ function computeMetrics(shape: Shape) {
       const semiArea = 0.5 * Math.PI * shape.r * shape.r;
       return { area: rectArea + semiArea, perimeter: undefined };
     }
+    case "rect_cut_circle": {
+      const area = shape.w * shape.h - Math.PI * shape.r * shape.r;
+      return { area, perimeter: undefined };
+    }
+    case "rect_cut_rect": {
+      const area = shape.w * shape.h - shape.cutW * shape.cutH;
+      return { area, perimeter: undefined };
+    }
+    case "rect_plus_circle": {
+      const area = shape.w * shape.h + Math.PI * shape.r * shape.r;
+      return { area, perimeter: undefined };
+    }
+    case "rect_frame": {
+      const area = shape.outerW * shape.outerH - shape.innerW * shape.innerH;
+      return { area, perimeter: undefined };
+    }
+    case "ring": {
+      const area = Math.PI * (shape.outerR * shape.outerR - shape.innerR * shape.innerR);
+      return { area, perimeter: undefined };
+    }
+    case "stadium": {
+      const rectArea = shape.w * shape.h;
+      const circleArea = Math.PI * shape.r * shape.r; // two semicircles = one circle
+      return { area: rectArea + circleArea, perimeter: undefined };
+    }
+    case "tshape": {
+      const area = shape.stemW * shape.stemH + shape.topW * shape.topH;
+      return { area, perimeter: undefined };
+    }
+    case "rect_cut_corner": {
+      const area = shape.w * shape.h - 0.5 * shape.cutW * shape.cutH;
+      return { area, perimeter: undefined };
+    }
+    case "rect_cut_two_circles": {
+      const area = shape.w * shape.h - Math.PI * (shape.r1 * shape.r1 + shape.r2 * shape.r2);
+      return { area, perimeter: undefined };
+    }
+    case "rect_plus_sector": {
+      const sectorArea = (shape.angle / 360) * Math.PI * shape.r * shape.r;
+      const area = shape.w * shape.h + sectorArea;
+      return { area, perimeter: undefined };
+    }
     default:
       return { area: undefined, perimeter: undefined };
   }
@@ -362,6 +497,20 @@ function parseNumber(value: string) {
 
 function withinTolerance(given: number, target?: number) {
   if (target === undefined) return false;
-  const tol = Math.max(0.05, Math.abs(target) * 0.02);
-  return Math.abs(given - target) <= tol;
+  const expected = roundToTwo(target);
+  const userVal = roundToTwo(given);
+  return Math.abs(userVal - expected) <= 0.01;
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function roundToTwo(val: number) {
+  return Math.round(val * 100) / 100;
 }
