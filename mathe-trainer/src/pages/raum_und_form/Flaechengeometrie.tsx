@@ -7,7 +7,8 @@ const topics = [
   { href: "/raum-und-form/flaechengeometrie/rechteck", label: "Rechteck" },
   { href: "/raum-und-form/flaechengeometrie/parallelogramm", label: "Parallelogramm" },
   { href: "/raum-und-form/flaechengeometrie/raute", label: "Raute" },
-  { href: "/raum-und-form/flaechengeometrie/kreis", label: "Kreis" }
+  { href: "/raum-und-form/flaechengeometrie/kreis", label: "Kreis" },
+  { href: "/raum-und-form/flaechengeometrie/gemischte-aufgaben", label: "Gemischte Übungsaufgaben" }
 ];
 
 export default function Flaechengeometrie() {

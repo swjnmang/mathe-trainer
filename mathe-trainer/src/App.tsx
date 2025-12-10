@@ -106,6 +106,7 @@ import Rechteck from './pages/raum_und_form/Rechteck';
 import Parallelogramm from './pages/raum_und_form/Parallelogramm';
 import Raute from './pages/raum_und_form/Raute';
 import Kreis from './pages/raum_und_form/Kreis';
+import GemischteFlaechenaufgaben from './pages/raum_und_form/GemischteFlaechenaufgaben';
 // ... other imports will be added as files are created
 
 export default function App() {
@@ -245,6 +246,7 @@ export default function App() {
           <Route path="/raum-und-form/flaechengeometrie/parallelogramm" element={<Parallelogramm />} />
           <Route path="/raum-und-form/flaechengeometrie/raute" element={<Raute />} />
           <Route path="/raum-und-form/flaechengeometrie/kreis" element={<Kreis />} />
+          <Route path="/raum-und-form/flaechengeometrie/gemischte-aufgaben" element={<GemischteFlaechenaufgaben />} />
 
           <Route path="/impressum" element={<Impressum />} />
 
