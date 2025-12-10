@@ -210,8 +210,8 @@ function drawCircle(api: any, radius: number) {
     api.setAxesVisible(false, false);
     api.setPointSize(4);
 
-    api.evalCommand("M=(0,0)");
-    api.evalCommand(`p=(${radius.toFixed(2)},0)`);
+    api.evalCommand("M = (0, 0)");
+    api.evalCommand(`p = Point((${radius.toFixed(2)}, 0))`);
     api.evalCommand(`c=Circle(M, ${radius.toFixed(2)})`);
     api.evalCommand("rLine=Segment(M,p)");
 
@@ -226,7 +226,7 @@ function drawCircle(api: any, radius: number) {
     api.setLineThickness("rLine", 4);
     api.setLabelVisible("rLine", false);
 
-    api.evalCommand(`rLabel=Text("r = ${format(radius)} cm", Midpoint(M,p)+(0,0.5))`);
+    api.evalCommand(`rLabel = Text("r = ${format(radius)} cm", Midpoint(M, p) + (0, 0.5))`);
     api.setColor("rLabel", 239, 123, 16);
 
     const pad = radius * 2;
