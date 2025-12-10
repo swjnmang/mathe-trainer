@@ -246,7 +246,7 @@ export default function ZinsenTest() {
                 disabled={currentQuestionIndex === 0}
                 className={`px-6 py-2 rounded font-semibold ${currentQuestionIndex === 0 ? 'bg-gray-100 text-gray-400' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
               >
-                Zurück
+                Vorherige Frage
               </button>
               <button 
                 onClick={nextQuestion}

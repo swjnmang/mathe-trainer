@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import styles from './Funktionsgleichung.module.css'
 
 function randInt(min: number, max: number) {
@@ -78,7 +77,6 @@ export default function Funktionsgleichung(){
 
   return (
     <div className={`prose ${styles.container}`}>
-      <Link to="/lineare_funktionen" className={styles.back}>← Zurück</Link>
 
       <div className={styles.card}>
         <h2>Funktionsgleichung aufstellen</h2>

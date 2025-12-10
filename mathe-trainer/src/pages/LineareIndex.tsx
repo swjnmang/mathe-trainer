@@ -19,18 +19,13 @@ export default function LineareIndex() {
         <h1 className="text-3xl md:text-4xl font-bold mb-2 text-blue-900">Lineare Funktionen</h1>
         <p className="text-lg text-blue-800 mb-1">Wähle eine Aufgabe aus der folgenden Liste aus.</p>
       </header>
-
-      <div className="w-full max-w-7xl mx-auto px-4 mt-4">
-        <Link to="/" className="inline-block text-blue-700 hover:underline mb-4">← Zurück zur Themenübersicht</Link>
-      </div>
-
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {items.map((it) => (
           <div key={it.title} className="bg-white rounded-2xl shadow-md border border-slate-200 flex flex-col items-center p-6 hover:shadow-xl transition-shadow">
             <div className="card-icon text-3xl mb-3 text-blue-700"><i className={it.icon}></i></div>
             <h3 className="text-lg font-semibold mb-1 text-blue-900">{it.title}</h3>
             <p className="text-gray-700 mb-4 text-center">{it.desc}</p>
-            <Link to={`/lineare_funktionen/${it.href}`} className="mt-auto inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors">Jetzt üben</Link>
+              <Link to={`/lineare_funktionen/${it.href}`} className="mt-auto inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors"></Link>
           </div>
         ))}
       </main>

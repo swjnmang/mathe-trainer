@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import styles from './LFCommon.module.css'
 import GeoGebraApplet from '../../components/GeoGebraApplet'
@@ -28,7 +27,6 @@ function createSlopeQuestion(): Question {
   return {
     type: 'slope',
     text: `Berechne die Steigung m der Geraden durch P₁(${x1}|${y1}) und P₂(${x2}|${y2}).`,
-    data: {},
     answer: { m: formatNumber((y2 - y1) / (x2 - x1)) },
     answerFormat: 'single_number',
     inputPrefix: 'm ='
@@ -228,7 +226,6 @@ export default function Test() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-sky-100 py-8 px-2">
         <div className="w-full max-w-2xl bg-white/90 rounded-2xl shadow-md border border-slate-200 p-8 flex flex-col items-center">
-          <Link to="/lineare_funktionen" className="self-start text-blue-700 hover:underline mb-2">← Zurück</Link>
           <h2 className="text-2xl md:text-3xl font-bold mb-2 text-blue-900">Digitale Prüfung: Lineare Funktionen</h2>
           <p className="mb-1 text-blue-800">Dieser Test besteht aus 15 zufälligen Aufgaben zu allen wichtigen Themen der linearen Funktionen.</p>
           <p className="mb-2 text-gray-700"><b>Wichtiger Hinweis:</b> Halte bitte Stift und Papier bereit, um alle Berechnungen schriftlich festzuhalten.</p>
@@ -246,7 +243,6 @@ export default function Test() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-sky-100 py-8 px-2">
         <div className="w-full max-w-2xl bg-white/90 rounded-2xl shadow-md border border-slate-200 p-8 flex flex-col items-center">
-          <Link to="/lineare_funktionen" className="self-start text-blue-700 hover:underline mb-2">← Zurück</Link>
           <h2 className="text-2xl md:text-3xl font-bold mb-2 text-blue-900">Dein Ergebnis</h2>
           <div className="score text-3xl font-bold my-2">{correctCount} / {TOTAL_QUESTIONS}</div>
           <div className="grade text-xl mb-2">Note: {getGrade(correctCount)}</div>
@@ -313,7 +309,6 @@ export default function Test() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-sky-100 py-8 px-2">
       <div className="w-full max-w-2xl bg-white/90 rounded-2xl shadow-md border border-slate-200 p-8 flex flex-col items-center">
-        <Link to="/lineare_funktionen" className="self-start text-blue-700 hover:underline mb-2">← Zurück</Link>
         <h2 className="text-2xl md:text-3xl font-bold mb-2 text-blue-900">Aufgabe {current + 1}</h2>
         <div className="w-full bg-gray-200 rounded mb-4"><div className="bg-blue-600 h-2 rounded" style={{ width: `${((current + 1) / TOTAL_QUESTIONS) * 100}%` }} /></div>
         <div className="bg-gray-100 border rounded-md p-6 mb-4 text-center min-h-[80px] w-full">

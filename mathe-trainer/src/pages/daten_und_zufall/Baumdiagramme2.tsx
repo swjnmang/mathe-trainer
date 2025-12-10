@@ -276,11 +276,6 @@ const Baumdiagramme2: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <Link to="/daten-und-zufall" className="flex items-center text-blue-600 hover:text-blue-800 mb-4">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Zurück zur Übersicht
-      </Link>
-
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">Interaktives Baumdiagramm-Training</h2>

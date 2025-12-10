@@ -7,7 +7,6 @@ export default function ZinsrechnungMenu() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <div className="flex-1 flex flex-col items-center justify-center w-full px-4 py-8">
         <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-2xl p-8">
-          <button type="button" onClick={() => navigate(-1)} className="text-blue-600 hover:underline mb-6 block">&larr; Zurück</button>
           <h1 className="text-3xl font-bold text-blue-900 mb-8 text-center">Zinsrechnung</h1>
           
           <div className="grid gap-4">

@@ -100,8 +100,6 @@ export default function QuadratischeFunktionenMenu() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-gray-100">
       <div className="flex-1 flex flex-col items-center w-full px-4 py-8">
         <div className="w-full max-w-6xl">
-          <a href="/" className="text-blue-600 hover:underline mb-6 block font-medium">&larr; Zurück zur Hauptübersicht</a>
-          
           <header className="mb-10 text-center">
             <h1 className="text-4xl font-bold text-slate-900 mb-4">Quadratische Funktionen</h1>
             <p className="text-xl text-slate-600">Wähle eine Aufgabe aus der folgenden Liste aus.</p>

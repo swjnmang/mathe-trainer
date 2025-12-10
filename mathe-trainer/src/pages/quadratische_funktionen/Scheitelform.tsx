@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { InlineMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
@@ -143,8 +142,6 @@ const Scheitelform = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Link to="/quadratische_funktionen" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Übersicht</Link>
-            
             <h1 className="text-3xl font-bold mb-6">Scheitelform aus Graph ablesen</h1>
             
             <div className="mb-6">

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 const ScheitelInAllgForm = () => {
     const [scheitelformWerte, setScheitelformWerte] = useState<{a: number, xs: number, ys: number} | null>(null);
@@ -63,8 +62,6 @@ const ScheitelInAllgForm = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Link to="/quadratische_funktionen" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Übersicht</Link>
-            
             <div className="bg-white p-8 rounded-xl shadow-lg max-w-2xl w-full mx-auto">
                 <h1 className="text-2xl font-bold text-gray-800 mb-2">Aufgabengenerator</h1>
                 <p className="text-gray-600 mb-6">Übe die Umformung von der Scheitelform zur allgemeinen Form.</p>

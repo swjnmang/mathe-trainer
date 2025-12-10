@@ -46,8 +46,6 @@ export default function Nullstellen() {
 
   return (
     <div className={`prose ${styles.container}`}>
-      <Link to="/lineare_funktionen" className={styles.back}>← Zurück</Link>
-
       <div className={styles.card}>
         <h2>Nullstellen berechnen</h2>
         <p>Gegeben ist die Gerade y = {m}x {t >= 0 ? '+ ' + t : '- ' + Math.abs(t)}. Bestimme die Nullstelle (x-Wert), also die Lösung von y = 0.</p>

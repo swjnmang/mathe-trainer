@@ -84,8 +84,6 @@ export default function Zeichnen(){
 
   return (
     <div className={`prose ${styles.container}`}>
-      <Link to="/lineare_funktionen" className={styles.back}>← Zurück</Link>
-
       <div className={styles.card}>
         <h2 className={styles.title}>Lineare Funktionen zeichnen</h2>
 

@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 type ExperimentType = 'coin-four' | 'dice-double' | 'mini-wheel' | 'urn-double' | 'card-single';
 
@@ -1058,10 +1057,6 @@ const Wahrscheinlichkeiten: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl">
-            <Link to="/daten-und-zufall" className="text-blue-600 hover:text-blue-800 font-semibold mb-4 inline-flex items-center">
-                ← Zurück zur Übersicht
-            </Link>
-
             <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-blue-900 mb-3">Wahrscheinlichkeiten berechnen</h1>

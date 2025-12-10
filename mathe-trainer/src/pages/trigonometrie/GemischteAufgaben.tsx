@@ -321,10 +321,6 @@ const GemischteAufgaben: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl">
-            <Link to="/trigonometrie" className="text-teal-600 hover:text-teal-700 font-bold mb-4 inline-block">
-                ← Zurück zur Übersicht
-            </Link>
-
             <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
                 <div className="space-y-3">
                     <h1 className="text-3xl font-bold text-teal-800">Gemischte Anwendungsaufgaben</h1>

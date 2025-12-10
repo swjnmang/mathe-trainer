@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 const ScheitelpunktAblesen = () => {
     const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
@@ -164,8 +163,6 @@ const ScheitelpunktAblesen = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Link to="/quadratische_funktionen" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Übersicht</Link>
-            
             <h1 className="text-3xl font-bold mb-6">Scheitelpunkt bestimmen</h1>
             
             <div className="mb-6">

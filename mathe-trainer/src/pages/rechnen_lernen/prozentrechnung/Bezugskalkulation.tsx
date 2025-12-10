@@ -173,7 +173,6 @@ export default function Bezugskalkulation() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <div className="flex-1 flex flex-col items-center px-3 py-10">
         <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-4xl p-6 sm:p-10">
-          <a href="/rechnen_lernen/prozentrechnung" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Prozent-Übersicht</a>
           <h1 className="text-3xl font-bold text-blue-900 mb-2">Bezugskalkulation</h1>
           <p className="text-slate-600 mb-6">Trainiere die komplette Bezugskalkulation mit zufälligen Aufgaben und erhalte sofortiges Feedback zu jedem Zwischenschritt.</p>
 

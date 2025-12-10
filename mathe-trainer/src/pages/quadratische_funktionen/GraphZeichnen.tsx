@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
 
 const GraphZeichnen = () => {
@@ -70,8 +69,6 @@ const GraphZeichnen = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Link to="/quadratische_funktionen" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Übersicht</Link>
-            
             <h1 className="text-3xl font-bold mb-6">Parabeln zeichnen (Allgemeine Form)</h1>
             
             <div className="bg-white p-6 rounded-lg shadow-md mb-6">

@@ -262,8 +262,8 @@ export default function Gemischt() {
             .fraction sup {font-size:0.65em; top:-0.2em; position:relative; line-height:1;}
             .fraction span {line-height:1.15;}
           `}</style>
-          <a href="/rechnen_lernen/potenzen" className="text-blue-600 hover:underline mb-4 self-start">&larr; Zurück zur Potenz-Übersicht</a>
           <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 text-center">Potenzterme zusammenfassen · Gemischt</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 text-center">Potenzterme zusammenfassen · Gemischt</h1>
 
           <div className="flex gap-2 mb-6">
             <button onClick={() => setLevel(1)} className={`px-4 py-2 rounded font-bold transition ${level === 1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}>Leicht</button>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, PieChart, BarChart as BarChartIcon, BarChart2, RefreshCw, CheckCircle, HelpCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { PieChart, BarChart as BarChartIcon, BarChart2, RefreshCw, CheckCircle, HelpCircle } from 'lucide-react';
 import { PieChart as RePieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type DiagramType = 'pie' | 'bar' | 'column';
@@ -447,11 +446,6 @@ const DiagrammeErstellen: React.FC = () => {
   if (!currentScenario) {
     return (
       <div className="container mx-auto p-4 space-y-6">
-        <Link to="/daten-und-zufall" className="flex items-center text-blue-600 hover:text-blue-800 mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Zurück zur Übersicht
-        </Link>
-        
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <h2 className="text-3xl font-bold text-gray-800 mb-8">Diagramme erstellen</h2>
           <p className="text-gray-600 mb-8 text-lg">Wähle einen Diagrammtyp, den du üben möchtest:</p>
@@ -494,8 +488,7 @@ const DiagrammeErstellen: React.FC = () => {
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex justify-between items-center">
         <button onClick={() => setCurrentScenario(null)} className="flex items-center text-blue-600 hover:text-blue-800">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Zurück zur Auswahl
+          Auswahl ändern
         </button>
       </div>
 

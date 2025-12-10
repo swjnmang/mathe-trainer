@@ -37,10 +37,6 @@ const TrigonometrieIndex: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <Link to="/" className="text-teal-600 hover:text-teal-700 font-bold mb-4 inline-block">
-                ← Zurück zur Startseite
-            </Link>
-            
             <h1 className="text-4xl font-bold text-teal-800 text-center mb-12">
                 Trigonometrie
             </h1>

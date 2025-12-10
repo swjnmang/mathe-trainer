@@ -43,10 +43,6 @@ export default function FinanzmatheIndex() {
             <p className="text-gray-600">Querschnitt mit Zinsen, Zinseszins, Sparplänen und Darlehen.</p>
           </Link>
         </div>
-
-        <div className="mt-8 text-center">
-          <Link to="/" className="text-blue-600 hover:underline">Zurück zur Startseite</Link>
-        </div>
       </div>
     </div>
   );

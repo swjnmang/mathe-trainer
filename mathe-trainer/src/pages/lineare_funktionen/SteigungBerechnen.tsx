@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import styles from './SteigungBerechnen.module.css'
-import { Link } from 'react-router-dom'
 
 function randomInt(max: number, min = 0) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -66,7 +65,6 @@ export default function SteigungBerechnen() {
 
   return (
     <div className={`prose ${styles.container}`}>
-      <Link to="/lineare_funktionen">← Zurück</Link>
       <div className={styles.card}>
         <div className={styles.streak}>🔥 {streak}</div>
         <h2>Steigung aus zwei Punkten berechnen</h2>

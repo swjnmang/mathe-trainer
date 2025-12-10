@@ -16,14 +16,13 @@ export default function QuadratischeIndex() {
       </header>
 
       <div className="w-full max-w-7xl mx-auto px-4 mt-4">
-        <a href="/index.html" className="inline-block text-blue-700 hover:underline mb-4">← Zurück zur Themenübersicht</a>
       </div>
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {items.map((it) => (
           <div key={it.href} className="bg-white rounded-2xl shadow-md border border-slate-200 flex flex-col items-center p-6 hover:shadow-xl transition-shadow">
             <h3 className="text-lg font-semibold mb-1 text-blue-900">{it.title}</h3>
-            <a href={`/quadratische_funktionen/${it.href}`} className="mt-auto inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors">Jetzt üben</a>
+            <a href={`/quadratische_funktionen/${it.href}`} className="mt-auto inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors"></a>
           </div>
         ))}
       </main>

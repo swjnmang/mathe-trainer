@@ -292,10 +292,6 @@ const SpielNullstellen = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl">
-            <Link to="/quadratische_funktionen" className="text-teal-600 hover:text-teal-700 font-bold mb-4 inline-block">
-                ← Zurück zur Übersicht
-            </Link>
-            
             <div className="bg-white rounded-xl shadow-lg p-6 text-center">
                 <h1 className="text-3xl font-bold text-slate-700 mb-2">Nullstellen-Fänger</h1>
                 <p className="text-slate-500 mb-4">Berechne zuerst die Nullstellen schriftlich! Platziere dann die Eimer an den richtigen Positionen.</p>

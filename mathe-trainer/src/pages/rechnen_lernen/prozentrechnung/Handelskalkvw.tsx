@@ -256,9 +256,8 @@ export default function Handelskalkvw() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <div className="flex-1 flex flex-col items-center px-3 py-10">
-        <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-5xl p-6 sm:p-10">
-          <a href="/rechnen_lernen/prozentrechnung" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Prozent-Übersicht</a>
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">Handelskalkulation (Vorwärts)</h1>
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-4xl p-6 sm:p-10">
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">Handelskalkulation (Verkaufspreise)</h1>
           <p className="text-slate-600 mb-6">Führe die vollständige Vorwärtskalkulation durch: vom Listeneinkaufspreis bis zum Bruttoverkaufspreis.</p>
 
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 whitespace-pre-line text-slate-800 text-sm sm:text-base mb-6">

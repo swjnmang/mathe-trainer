@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import styles from './LFCommon.module.css'
 
@@ -156,7 +155,6 @@ export default function PunktGerade() {
 
   return (
     <div className={`prose ${styles.container}`}>
-      <Link to="/lineare_funktionen" className={styles.back}>← Zurück</Link>
       <div className={styles.card}>
         <h2 className={styles.title}>Punktprobe bei Geraden</h2>
         <div className={styles.content}>

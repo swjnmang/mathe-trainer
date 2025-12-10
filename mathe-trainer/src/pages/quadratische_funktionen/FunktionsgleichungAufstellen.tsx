@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 const FunktionsgleichungAufstellen = () => {
     const [taskType, setTaskType] = useState<'vertex' | 'points_and_factor'>('vertex');
@@ -249,8 +248,6 @@ const FunktionsgleichungAufstellen = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Link to="/quadratische_funktionen" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Übersicht</Link>
-            
             <h1 className="text-3xl font-bold mb-6">Funktionsgleichung aufstellen</h1>
             
             <div className="bg-white p-6 rounded-lg shadow-md mb-6 max-w-3xl mx-auto">

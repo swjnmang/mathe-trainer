@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
@@ -207,10 +206,6 @@ const Schnittpunkte2 = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl">
-            <Link to="/quadratische_funktionen" className="text-teal-600 hover:text-teal-700 font-bold mb-4 inline-block">
-                ← Zurück zur Übersicht
-            </Link>
-            
             <div className="bg-white rounded-xl shadow-lg p-6">
                 <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
                     Aufgabengenerator: Schnittpunkt Gerade & Parabel

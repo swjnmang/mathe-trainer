@@ -273,9 +273,8 @@ export default function Multiplizierendividieren() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <div className="flex-1 flex flex-col items-center justify-center w-full px-2 py-8 sm:px-8">
-        <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-4xl min-h-[400px] flex flex-col items-center p-6 sm:p-12 md:p-16 lg:p-20 xl:p-24">
-          <a href="/rechnen_lernen/brueche" className="text-blue-600 hover:underline mb-4 self-start">&larr; Zurück zur Bruch-Übersicht</a>
-          <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 text-center">Brüche multiplizieren und dividieren</h1>
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-4xl min-h-[420px] flex flex-col items-center p-6 sm:p-12 md:p-16 lg:p-20 xl:p-24">
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 text-center">Brüche multiplizieren & dividieren</h1>
 
           <div className="flex gap-2 mb-6">
             <button onClick={() => setDifficulty('easy')} className={`px-4 py-2 rounded font-bold transition ${difficulty === 'easy' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}>Leicht</button>

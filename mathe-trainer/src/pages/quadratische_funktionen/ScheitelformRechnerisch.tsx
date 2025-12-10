@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import GeoGebraApplet from '../../components/GeoGebraApplet';
 
 const ScheitelformRechnerisch = () => {
@@ -120,8 +119,6 @@ const ScheitelformRechnerisch = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Link to="/quadratische_funktionen" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Übersicht</Link>
-            
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Funktionsgleichung in Scheitelform bestimmen</h1>
                 <div className="bg-white px-4 py-2 rounded shadow text-orange-500 font-bold">

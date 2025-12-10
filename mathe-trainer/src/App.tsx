@@ -26,7 +26,7 @@ import Handelskalkdif from './pages/rechnen_lernen/prozentrechnung/Handelskalkdi
 import GeneratorLineare from './pages/rechnen_lernen/gleichungen/Generator_lineare';
 import Quadratisch from './pages/rechnen_lernen/gleichungen/Quadratisch';
 import Abschlusstest from './pages/rechnen_lernen/gleichungen/Abschlusstest';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import LineareIndex from './pages/LineareIndex'
 import QuadratischeIndex from './pages/QuadratischeIndex'
@@ -110,6 +110,8 @@ import Kreis from './pages/raum_und_form/Kreis';
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const hideHeader = location.pathname === '/';
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -121,23 +123,25 @@ export default function App() {
 
   return (
     <div className="app-root">
-      <header className="app-header">
-        <div className="app-shell flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <button onClick={handleBack} className="ghost-link text-sm sm:text-base">
-              ← Zurück
-            </button>
-            <div className="hidden sm:block w-px h-6 bg-slate-200" aria-hidden />
-            <span className="text-lg sm:text-xl font-bold text-slate-800">Mathe-Trainer</span>
+      {!hideHeader && (
+        <header className="app-header">
+          <div className="app-shell flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <button onClick={handleBack} className="ghost-link text-sm sm:text-base">
+                ← Zurück
+              </button>
+              <div className="hidden sm:block w-px h-6 bg-slate-200" aria-hidden />
+              <span className="text-lg sm:text-xl font-bold text-slate-800">Mathe-Trainer</span>
+            </div>
+            <a
+              href="https://swjnmang.github.io/wss-digital/"
+              className="ghost-link text-xs sm:text-sm"
+            >
+              WSS-Digital
+            </a>
           </div>
-          <a
-            href="https://swjnmang.github.io/wss-digital/"
-            className="ghost-link text-xs sm:text-sm"
-          >
-            WSS-Digital
-          </a>
-        </div>
-      </header>
+        </header>
+      )}
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -216,7 +220,7 @@ export default function App() {
           <Route path="/trigonometrie/kosinussatz" element={<Kosinussatz />} />
           <Route path="/trigonometrie/flaechensatz" element={<Flaechensatz />} />
           <Route path="/trigonometrie/gemischte-aufgaben" element={<GemischteAufgaben />} />
-          
+
           {/* Daten und Zufall */}
           <Route path="/daten-und-zufall" element={<DatenUndZufallIndex />} />
           <Route path="/daten-und-zufall/statistische-kennwerte" element={<StatistischeKennwerte />} />

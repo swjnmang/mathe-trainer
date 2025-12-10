@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import styles from './LFCommon.module.css'
 
@@ -232,7 +231,6 @@ export default function SpielMuenzen() {
 
   return (
     <div className={`prose ${styles.container}`}> 
-      <Link to="/lineare_funktionen" className={styles.back}>← Zurück</Link>
       <div className={styles.card}>
         <h2 className={styles.title}>Münzen-Sammler</h2>
         <div className={styles.content}>

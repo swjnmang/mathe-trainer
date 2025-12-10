@@ -168,7 +168,6 @@ export default function Schnittpunkt() {
 
   return (
     <div className={`prose ${styles.container}`}>
-      <Link to="/lineare_funktionen" className={styles.back}>← Zurück</Link>
       <div className={styles.card}>
         <h2 className={styles.title}>Schnittpunkt zweier Geraden berechnen</h2>
         <div className={styles.content}>

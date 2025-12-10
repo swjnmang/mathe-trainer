@@ -240,8 +240,8 @@ export default function Kuerzenerweitern() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-sky-100">
       <div className="flex-1 flex flex-col items-center justify-center w-full px-2 py-8 sm:px-8">
         <div className="bg-white rounded-2xl shadow-md border border-slate-200 w-full max-w-4xl min-h-[400px] flex flex-col items-center p-6 sm:p-12 md:p-16 lg:p-20 xl:p-24">
-          <a href="/rechnen_lernen/brueche" className="text-blue-600 hover:underline mb-4 self-start">&larr; Zurück zur Bruch-Übersicht</a>
           <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 text-center">Brüche kürzen und erweitern</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2 text-center">Brüche kürzen & erweitern</h1>
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 w-full max-w-2xl">
             <h3 className="font-semibold text-blue-800 mb-1">Anleitung:</h3>
             <ol className="list-decimal list-inside text-gray-700 text-sm md:text-base">

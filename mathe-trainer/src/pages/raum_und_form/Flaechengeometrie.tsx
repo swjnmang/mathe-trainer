@@ -32,11 +32,6 @@ export default function Flaechengeometrie() {
           ))}
         </div>
 
-        <div className="text-center pt-6">
-          <Link to="/raum-und-form" className="text-sm font-semibold text-slate-900 hover:underline">
-            Zurück zur Übersicht
-          </Link>
-        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 ﻿import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
-import { ArrowLeft, Ruler, Triangle, Expand, Circle, Box, Cone, Pyramid, Cylinder } from "lucide-react";
+import { Ruler, Triangle, Expand, Circle, Box, Cone, Pyramid, Cylinder } from "lucide-react";
 
 type Item = { title: string; desc: string; href: string; icon: LucideIcon };
 type SectionData = { title: string; items: Item[] };
@@ -31,12 +31,6 @@ export default function RaumUndFormIndex() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white/90">
         <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-4">
-          <div className="flex items-center gap-3 text-sm text-slate-500">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            <Link to="/" className="hover:text-slate-800 font-semibold">
-              Zurück zur Hauptübersicht
-            </Link>
-          </div>
           <div className="space-y-2 text-center">
             <h1 className="text-3xl md:text-4xl font-bold leading-tight">Geometrie – Raum und Form</h1>
           </div>
@@ -64,7 +58,7 @@ function Section({ title, items }: { title: string; items: Item[] }) {
         {items.map(item => {
           const Icon = item.icon;
           return (
-            <div key={item.href} className={cardBase}>
+            <Link key={item.href} to={`/raum-und-form/${item.href}`} className={`${cardBase} no-underline`}>
               <div className="flex flex-col items-center text-center gap-3">
                 <div className="rounded-xl bg-slate-100 text-slate-700 p-2">
                   <Icon className="h-5 w-5" aria-hidden="true" />
@@ -73,14 +67,8 @@ function Section({ title, items }: { title: string; items: Item[] }) {
                   <h3 className="text-lg font-semibold leading-tight">{item.title}</h3>
                   <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
                 </div>
-                <div className="pt-1">
-                  <Link to={`/raum-und-form/${item.href}`} className={buttonBase}>
-                    Jetzt öffnen
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

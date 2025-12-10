@@ -142,13 +142,6 @@ const StatistischeKennwerte: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <Link to="/daten-und-zufall" className="flex items-center text-blue-600 hover:text-blue-800">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Zurück zur Übersicht
-        </Link>
-      </div>
-
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
         <div className="p-6 border-b border-gray-200 flex items-center gap-2">
           <Calculator className="w-6 h-6 text-blue-600" />

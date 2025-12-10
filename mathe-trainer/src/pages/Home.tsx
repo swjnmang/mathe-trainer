@@ -5,37 +5,34 @@ import { Link } from 'react-router-dom'
 export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--bg-color)] flex flex-col text-slate-900">
-      <section className="w-full bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white pb-14 pt-16 px-4">
-        <div className="w-full max-w-[1440px] mx-auto px-4 text-center space-y-3">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white">
-            Mathe-Trainer <span className="text-[var(--accent)]">Digital</span>
+      <header className="w-full text-white py-14 text-center shadow-md relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-700" />
+        <div className="relative max-w-4xl mx-auto px-4 space-y-3">
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white">
+            Mathe-Trainer <span className="text-[var(--accent)] relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-1 after:bg-blue-600/35">Digital</span>
           </h1>
-          <p className="text-base sm:text-lg text-slate-200 max-w-3xl mx-auto">
-            Wähle einen Bereich, um zu starten – übe Funktionen, Finanzmathematik, Trigonometrie, Daten & Zufall und mehr.
+          <p className="text-lg text-slate-200 max-w-2xl mx-auto">
+            Wähle einen Bereich, um zu starten – übe Funktionen, Finanzmathematik, Trigonometrie, Daten &amp; Zufall und mehr.
           </p>
         </div>
-      </section>
+      </header>
 
-      <main className="flex-1 w-full pt-8 pb-12">
-        <div className="app-shell">
-          <div className="grid gap-6 sm:gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {pages.map((p) => (
-              <div
-                key={p.id}
-                className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-7 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 transition-transform"
-              >
-                <div className="text-4xl mb-4 text-[var(--accent)]"><i className={p.icon}></i></div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{p.title}</h3>
-                <p className="text-slate-600 mb-5 leading-relaxed">{p.description}</p>
-                <Link
-                  to={p.reactPath ? p.reactPath : p.path.replace('.html', '')}
-                  className="btn-pill btn-blue text-sm w-full justify-center"
-                >
-                  Jetzt üben
-                </Link>
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 py-12 flex items-center justify-center">
+        <div className="w-full max-w-6xl mx-auto grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-8">
+          {pages.map((p) => (
+            <Link
+              key={p.id}
+              to={p.reactPath ? p.reactPath : p.path.replace('.html', '')}
+              className="bg-white rounded-2xl p-8 text-center text-slate-900 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col items-center h-full border border-slate-100"
+            >
+              <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-2xl text-[var(--accent)] mb-5">
+                <i className={p.icon}></i>
               </div>
-            ))}
-          </div>
+              <h3 className="text-2xl font-semibold mb-2 text-slate-800">{p.title}</h3>
+              <p className="text-slate-500 leading-relaxed mb-5 text-sm sm:text-base">{p.description}</p>
+              <div className="mt-auto" aria-hidden="true" />
+            </Link>
+          ))}
         </div>
       </main>
 

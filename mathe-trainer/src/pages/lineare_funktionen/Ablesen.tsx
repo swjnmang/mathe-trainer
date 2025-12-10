@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import styles from './Ablesen.module.css'
 
 declare global {
@@ -269,8 +268,6 @@ export default function Ablesen() {
 
   return (
     <div className={`prose ${styles.container}`}>
-      <Link to="/lineare_funktionen" className={styles.back}>← Zurück</Link>
-
       <div className={styles.card}>
         <h2>Funktionsgleichung ablesen</h2>
         <p>Ableseaufgabe: Lies Steigung m und y-Achsenabschnitt t aus dem Graphen ab.</p>

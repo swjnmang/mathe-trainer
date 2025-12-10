@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 const Scheitelpunkt = () => {
     const [difficulty, setDifficulty] = useState<number>(1);
@@ -136,8 +135,6 @@ const Scheitelpunkt = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <Link to="/quadratische_funktionen" className="text-blue-600 hover:underline mb-4 inline-block">&larr; Zurück zur Übersicht</Link>
-            
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Scheitelpunkt-Trainer</h1>
                 <div className="bg-white px-4 py-2 rounded shadow text-blue-600 font-bold">
