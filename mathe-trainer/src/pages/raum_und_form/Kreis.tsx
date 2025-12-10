@@ -1,123 +1,138 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useState } from "react";
+
+type TaskType = "fromRadius" | "fromArea" | "fromCircumference";
+type TaskKey = "radius" | "area" | "circumference";
 
 type CircleTask = {
+  type: TaskType;
   radius: number;
+  area: number;
+  circumference: number;
 };
 
-const cardClass = "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6 text-center";
+type Field = { key: TaskKey; label: string; unit: string };
+
+const cardClass = "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6";
 const buttonClass =
   "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-900 text-slate-50 bg-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-800";
 
 export default function Kreis() {
   const [task, setTask] = useState<CircleTask>(() => makeTask());
-  const [areaInput, setAreaInput] = useState("");
-  const [perimeterInput, setPerimeterInput] = useState("");
-  const [areaUnit, setAreaUnit] = useState("cm²");
-  const [perimeterUnit, setPerimeterUnit] = useState("cm");
+  const [inputs, setInputs] = useState<Record<TaskKey, string>>({ radius: "", area: "", circumference: "" });
+  const [units, setUnits] = useState<Record<TaskKey, string>>({ radius: "cm", area: "cm²", circumference: "cm" });
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  useEffect(() => {
-    setAreaInput("");
-    setPerimeterInput("");
-    setAreaUnit("cm²");
-    setPerimeterUnit("cm");
-    setFeedback(null);
-  }, [task]);
+  const askFields = getAskFields(task.type);
+  const given = getGivenInfo(task);
+  const prompt = getTaskPrompt(task);
 
-  const area = Math.PI * task.radius * task.radius;
-  const circumference = 2 * Math.PI * task.radius;
+  const handleNewTask = () => {
+    setTask(makeTask());
+    setInputs({ radius: "", area: "", circumference: "" });
+    setUnits({ radius: "cm", area: "cm²", circumference: "cm" });
+    setFeedback(null);
+  };
+
+  const handleChange = (key: TaskKey, value: string) => {
+    setInputs(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleUnitChange = (key: TaskKey, value: string) => {
+    setUnits(prev => ({ ...prev, [key]: value }));
+  };
 
   const handleCheck = () => {
-    const areaVal = parseFloat(areaInput.replace(",", "."));
-    const perVal = parseFloat(perimeterInput.replace(",", "."));
-    if (Number.isNaN(areaVal) || Number.isNaN(perVal)) {
-      setFeedback("Bitte beide Werte eingeben.");
+    const mistakes: string[] = [];
+
+    for (const field of askFields) {
+      const raw = inputs[field.key];
+      const val = parseNumber(raw);
+      if (Number.isNaN(val)) {
+        mistakes.push(`${field.label} fehlt`);
+        continue;
+      }
+      const target = task[field.key];
+      const expectedUnit = getExpectedUnit(field.key);
+      if (units[field.key] !== expectedUnit) {
+        mistakes.push(`Einheit bei ${field.label}`);
+      }
+      if (!withinTolerance(val, target)) {
+        mistakes.push(`${field.label} passt nicht`);
+      }
+    }
+
+    if (mistakes.length === 0) {
+      setFeedback("Stark – alle gesuchten Größen stimmen.");
+      setTimeout(handleNewTask, 900);
       return;
     }
-    const correctAreaUnit = areaUnit === "cm²";
-    const correctPerUnit = perimeterUnit === "cm";
-    const areaOk = withinTolerance(areaVal, area);
-    const perOk = withinTolerance(perVal, circumference);
-    const allOk = areaOk && perOk && correctAreaUnit && correctPerUnit;
-    setFeedback(
-      allOk
-        ? "Richtig – Fläche und Umfang passen."
-        : "Prüfe Werte und Einheiten (cm² für Fläche, cm für Umfang)."
-    );
-    if (allOk) setTimeout(() => setTask(makeTask()), 900);
+
+    setFeedback(`Bitte prüfen: ${mistakes.join(", ")}`);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-6 text-center">
-        <div className="space-y-2">
+      <div className="max-w-5xl mx-auto px-4 py-10 space-y-6">
+        <div className="space-y-2 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Flächengeometrie</p>
           <h1 className="text-3xl font-bold">Kreis</h1>
           <p className="text-slate-600 max-w-3xl mx-auto">
-            Gegeben ist ein Kreis mit Radius r = {format(task.radius)} cm. Berechne Flächeninhalt A und Umfang U.
+            Löse abwechselnd Aufgaben zu Umfang U, Flächeninhalt A und Radius r. Je nach Vorgabe sind zwei Größen zu
+            berechnen.
           </p>
         </div>
 
         <div className={cardClass}>
-          <div className="flex items-center justify-center gap-3 flex-wrap text-center">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
-              <h2 className="text-xl font-bold">Fläche und Umfang berechnen</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aktuelle Aufgabe</p>
+              <h2 className="text-xl font-bold">Gegeben: {given.label}</h2>
+              <p className="text-slate-600">{prompt}</p>
+              <p className="text-slate-600">Nutze die Formeln U = 2 · π · r und A = π · r².</p>
             </div>
-            <div className="flex gap-2 flex-wrap justify-center">
-              <button className={buttonClass} onClick={() => setTask(makeTask())}>Neue Aufgabe</button>
+            <div className="flex flex-wrap gap-3">
             </div>
           </div>
 
-          <CircleSketch radius={task.radius} />
-
-          <div className="grid gap-3 sm:grid-cols-2 justify-items-center text-center">
-            <div className="space-y-2 w-full">
-              <label className="text-sm font-semibold text-slate-700">Flächeninhalt A</label>
-              <div className="flex gap-2">
-                <input
-                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                  value={areaInput}
-                  onChange={e => setAreaInput(e.target.value)}
-                  inputMode="decimal"
-                />
-                <select
-                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                  value={areaUnit}
-                  onChange={e => setAreaUnit(e.target.value)}
-                >
-                  <option value="cm²">cm²</option>
-                  <option value="mm²">mm²</option>
-                </select>
-              </div>
+          <div className="grid gap-6 md:grid-cols-[1.1fr,1fr]">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <CircleSketch radius={task.radius} />
+              <p className="mt-3 text-sm text-slate-600 text-center">Skizze (Maßstab vereinfacht)</p>
             </div>
-            <div className="space-y-2 w-full">
-              <label className="text-sm font-semibold text-slate-700">Umfang U</label>
-              <div className="flex gap-2">
-                <input
-                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                  value={perimeterInput}
-                  onChange={e => setPerimeterInput(e.target.value)}
-                  inputMode="decimal"
-                />
-                <select
-                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                  value={perimeterUnit}
-                  onChange={e => setPerimeterUnit(e.target.value)}
-                >
-                  <option value="cm">cm</option>
-                  <option value="mm">mm</option>
-                </select>
+
+            <div className="space-y-4">
+              {askFields.map(field => (
+                <label key={field.key} className="block space-y-1">
+                  <span className="text-sm font-semibold text-slate-700">{field.label}</span>
+                  <div className="flex gap-2">
+                    <input
+                      className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                      value={inputs[field.key]}
+                      onChange={e => handleChange(field.key, e.target.value)}
+                      placeholder="Zahl eingeben"
+                      inputMode="decimal"
+                    />
+                    <select
+                      className="min-w-[92px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+                      value={units[field.key]}
+                      onChange={e => handleUnitChange(field.key, e.target.value)}
+                    >
+                      {unitOptions(field.key).map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                </label>
+              ))}
+
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <button className={buttonClass} onClick={handleCheck}>Prüfen</button>
+                <button className={buttonClass} onClick={handleNewTask}>Neue Aufgabe</button>
+                {feedback && <span className="text-sm font-semibold text-slate-800">{feedback}</span>}
               </div>
             </div>
           </div>
 
-          <div className="flex gap-3 flex-wrap items-center justify-center">
-            <button className={buttonClass} onClick={handleCheck}>
-              Prüfen
-            </button>
-            {feedback && <span className="text-sm font-semibold text-slate-800">{feedback}</span>}
-          </div>
         </div>
       </div>
     </div>
@@ -125,132 +140,102 @@ export default function Kreis() {
 }
 
 function CircleSketch({ radius }: { radius: number }) {
-  const containerId = useId().replace(/[:]/g, "");
-  const [scriptReady, setScriptReady] = useState(false);
-  const [appletReady, setAppletReady] = useState(false);
-  const apiRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if ((window as any).GGBApplet) {
-      setScriptReady(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://www.geogebra.org/apps/deployggb.js";
-    script.async = true;
-    script.onload = () => setScriptReady(true);
-    script.onerror = () => setScriptReady(false);
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!scriptReady) return;
-    const params = {
-      id: containerId,
-      appName: "classic",
-      width: 640,
-      height: 380,
-      showToolBar: false,
-      showMenuBar: false,
-      showAlgebraInput: false,
-      showResetIcon: false,
-      showZoomButtons: false,
-      allowStyleBar: false,
-      enableShiftDragZoom: false,
-      perspective: "G",
-      showGrid: false,
-      showAxes: false,
-      language: "de",
-      appletOnLoad: () => {
-        const api = (window as any)[containerId] || (window as any).ggbApplet;
-        apiRef.current = api;
-        setAppletReady(true);
-      }
-    } as any;
-
-    const applet = new (window as any).GGBApplet(params, true);
-    const inject = () => applet.inject(containerId);
-    if (document.readyState === "complete") {
-      inject();
-    } else {
-      window.addEventListener("load", inject, { once: true });
-    }
-
-    return () => {
-      try {
-        applet.remove?.();
-      } catch (err) {
-        console.warn("GeoGebra cleanup failed", err);
-      }
-    };
-  }, [scriptReady, containerId]);
-
-  useEffect(() => {
-    if (!appletReady || !apiRef.current) return;
-    drawCircle(apiRef.current, radius);
-  }, [appletReady, radius]);
-
+  const r = 70;
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-2 mx-auto flex justify-center">
-      {!scriptReady && <div className="h-64 w-full animate-pulse rounded-xl bg-slate-100" />}
-      <div id={containerId} className="w-full" />
-    </div>
+    <svg viewBox="0 0 220 200" className="w-full" role="img" aria-label="Kreisskizze">
+      <defs>
+        <linearGradient id="circleShade" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#e2e8f0" />
+          <stop offset="100%" stopColor="#cbd5e1" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="220" height="200" rx="16" fill="#f8fafc" />
+      <circle cx="110" cy="100" r={r} fill="url(#circleShade)" stroke="#0f172a" strokeWidth="3" />
+      <line x1="110" y1="100" x2={110 + r} y2="100" stroke="#ef7b10" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="110" cy="100" r="5" fill="#0f172a" />
+      <circle cx={110 + r} cy="100" r="5" fill="#0f172a" />
+    </svg>
   );
 }
 
-function drawCircle(api: any, radius: number) {
-  if (!api) return;
-  try {
-    api.reset();
-    api.setGridVisible(false);
-    api.setAxesVisible(false, false);
-    api.setPointSize(4);
-
-    api.evalCommand("M = (0, 0)");
-    api.evalCommand(`p = Point((${radius.toFixed(2)}, 0))`);
-    api.evalCommand(`c=Circle(M, ${radius.toFixed(2)})`);
-    api.evalCommand("rLine=Segment(M,p)");
-
-    api.setColor("c", 15, 118, 178);
-    api.setFilling("c", 0.15);
-    api.setLineThickness("c", 4);
-    api.setLabelVisible("c", false);
-    api.setPointStyle("M", 0);
-    api.setLabelVisible("M", true);
-    api.setLabelVisible("p", false);
-    api.setColor("rLine", 239, 123, 16);
-    api.setLineThickness("rLine", 4);
-    api.setLabelVisible("rLine", false);
-
-    api.evalCommand(`rLabel = Text("r = ${format(radius)} cm", Midpoint(M, p) + (0, 0.5))`);
-    api.setColor("rLabel", 239, 123, 16);
-
-    const pad = radius * 2;
-    api.setCoordSystem(-pad, pad, -pad, pad);
-  } catch (err) {
-    console.warn("GeoGebra draw failed", err);
-  }
+function makeTask(): CircleTask {
+  const type: TaskType = randomChoice(["fromRadius", "fromArea", "fromCircumference"]);
+  const radius = randomBetween(3, 12);
+  const area = Math.PI * radius * radius;
+  const circumference = 2 * Math.PI * radius;
+  return { type, radius, area, circumference };
 }
 
-function makeTask(): CircleTask {
-  return {
-    radius: randomBetween(4, 9)
-  };
+function getAskFields(type: TaskType): Field[] {
+  if (type === "fromRadius") return [areaField(), circumferenceField()];
+  if (type === "fromArea") return [radiusField(), circumferenceField()];
+  return [radiusField(), areaField()];
+}
+
+function getGivenInfo(task: CircleTask) {
+  if (task.type === "fromRadius") {
+    return { label: "Radius r", value: `${formatNumber(task.radius, 1)}`, unit: "cm" };
+  }
+  if (task.type === "fromArea") {
+    return { label: "Flächeninhalt A", value: `${formatNumber(task.area, 1)}`, unit: "cm²" };
+  }
+  return { label: "Umfang U", value: `${formatNumber(task.circumference, 1)}`, unit: "cm" };
+}
+
+function radiusField(): Field {
+  return { key: "radius", label: "Radius r", unit: "cm" };
+}
+
+function areaField(): Field {
+  return { key: "area", label: "Flächeninhalt A", unit: "cm²" };
+}
+
+function circumferenceField(): Field {
+  return { key: "circumference", label: "Umfang U", unit: "cm" };
+}
+
+function getExpectedUnit(key: TaskKey) {
+  if (key === "area") return "cm²";
+  return "cm";
+}
+
+function unitOptions(key: TaskKey) {
+  if (key === "area") return ["cm²", "cm", "mm²", "m²"];
+  if (key === "circumference") return ["cm", "mm", "m", "cm²"];
+  return ["cm", "mm", "m", "cm²"];
+}
+
+function getTaskPrompt(task: CircleTask) {
+  const r = formatNumber(task.radius, 1);
+  const a = formatNumber(task.area, 1);
+  const u = formatNumber(task.circumference, 1);
+
+  if (task.type === "fromRadius") {
+    return `Ein Kreis hat den Radius r = ${r} cm. Berechne seinen Umfang U und den Flächeninhalt A.`;
+  }
+  if (task.type === "fromArea") {
+    return `Der Flächeninhalt eines Kreises beträgt A = ${a} cm². Berechne Radius r und Umfang U.`;
+  }
+  return `Der Umfang eines Kreises beträgt U = ${u} cm. Berechne Radius r und Flächeninhalt A.`;
+}
+
+function parseNumber(value: string) {
+  return parseFloat(value.replace(",", "."));
+}
+
+function withinTolerance(given: number, target: number) {
+  const tol = Math.max(0.05, Math.abs(target) * 0.02);
+  return Math.abs(given - target) <= tol;
+}
+
+function formatNumber(value: number, digits: number) {
+  return value.toFixed(digits).replace(/\.0+$/, ".0");
 }
 
 function randomBetween(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
-function format(value: number) {
-  return value.toFixed(1);
-}
-
-function withinTolerance(given: number, target: number) {
-  const tol = Math.max(0.05, target * 0.02);
-  return Math.abs(given - target) <= tol;
+function randomChoice<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
