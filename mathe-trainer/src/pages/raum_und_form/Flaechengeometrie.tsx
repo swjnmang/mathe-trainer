@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
-import { Circle, Diamond, Layers, Ruler, Shapes, Shuffle, Square, Triangle } from "lucide-react";
+import { Circle, Diamond, Layers, Ruler, Shuffle, Square, Triangle } from "lucide-react";
 
 const topics: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/raum-und-form/flaechengeometrie/dreiecke", label: "Dreiecke", icon: Triangle },
-  { href: "/raum-und-form/flaechengeometrie/formen-erkennen", label: "Formen erkennen", icon: Shapes },
   { href: "/raum-und-form/flaechengeometrie/trapez", label: "Trapez", icon: Ruler },
   { href: "/raum-und-form/flaechengeometrie/rechteck", label: "Rechteck", icon: Square },
   { href: "/raum-und-form/flaechengeometrie/parallelogramm", label: "Parallelogramm", icon: Layers },

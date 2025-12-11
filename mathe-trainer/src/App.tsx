@@ -100,7 +100,6 @@ import Pyramide from './pages/raum_und_form/Pyramide';
 import Zylinder from './pages/raum_und_form/Zylinder';
 import Prisma from './pages/raum_und_form/Prisma';
 import Dreiecke from './pages/raum_und_form/Dreiecke';
-import FormenErkennen from './pages/raum_und_form/FormenErkennen';
 import Trapez from './pages/raum_und_form/Trapez';
 import Rechteck from './pages/raum_und_form/Rechteck';
 import Parallelogramm from './pages/raum_und_form/Parallelogramm';
@@ -240,7 +239,6 @@ export default function App() {
           <Route path="/raum-und-form/zylinder" element={<Zylinder />} />
           <Route path="/raum-und-form/prisma" element={<Prisma />} />
           <Route path="/raum-und-form/flaechengeometrie/dreiecke" element={<Dreiecke />} />
-          <Route path="/raum-und-form/flaechengeometrie/formen-erkennen" element={<FormenErkennen />} />
           <Route path="/raum-und-form/flaechengeometrie/trapez" element={<Trapez />} />
           <Route path="/raum-und-form/flaechengeometrie/rechteck" element={<Rechteck />} />
           <Route path="/raum-und-form/flaechengeometrie/parallelogramm" element={<Parallelogramm />} />
