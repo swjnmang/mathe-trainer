@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { InlineMath } from "react-katex";
 
 type RayTask = {
-  type: "ray1_segment" | "ray1_ratio" | "ray2_segment" | "ray2_ratio" | "similarity" | "parallel_segment" | "diagonal_segment";
+  type: "ray1_segment" | "ray2_segment" | "parallel_segment" | "similarity_segment";
   scenario: number;
   p: number;
   q: number;
@@ -280,66 +280,56 @@ function generateTask(): RayTask {
       solution: selectedType.solution
     };
   } else {
-    // 4. DIAGONALEN MIT STRAHLENSÄTZEN - QR und PS berechenbar via ähnliche Dreiecke
-    // Ähnliche Dreiecke: OQR ~ OPS
-    // Verhältnis: OQ/OP = OR/OS = QR/PS (Strahlensatz!)
-    
-    const angle = 60 * (Math.PI / 180);
-    
-    // Koordinaten
-    const pX = p, pY = 0;         // P auf ray1
-    const qX = q, qY = 0;         // Q auf ray1
-    const rX = r * Math.cos(angle), rY = r * Math.sin(angle);       // R auf ray2
-    const sX = os * Math.cos(angle), sY = os * Math.sin(angle);     // S auf ray2
-    
-    // Diagonalen (für Berechnung)
-    const qr = Math.sqrt((rX - qX) ** 2 + (rY - qY) ** 2);  // Von Q zu R
-    const ps = Math.sqrt((sX - pX) ** 2 + (sY - pY) ** 2);  // Von P zu S
-    
-    // Verhältnis aus Strahlensatz
-    const ratio = q / p;  // = OQ/OP, sollte auch = OR/OS = QR/PS sein
-    
-    const diagonalTypes = [
+    // 4. VERBINDENDE STRECKEN PR und QS - ähnliche Dreiecke OPR und OQS
+    // O, P, R liegen im "nahen" Dreieck, O, Q, S im "fernen" Dreieck.
+    // Beide Dreiecke teilen den Winkel bei O, und die anliegenden Seiten stehen
+    // im gleichen Verhältnis (OP/OQ = OR/OS, siehe Strahlensatz 1 oben) - damit
+    // sind sie nach SAS ähnlich, unabhängig vom tatsächlichen Winkel bei O:
+    // OP/OQ = OR/OS = PR/QS.
+    // PR selbst ist geometrisch frei wählbar (hängt vom Winkel bei O ab); wir
+    // wählen einen Wert, der die Dreiecksungleichung in Dreieck OPR erfüllt.
+    const minPr = Math.abs(p - r) + 0.5;
+    const maxPr = p + r - 0.5;
+    const pr = randomBetween(minPr, maxPr);
+    const qs = pr * (q / p);
+
+    const similarityTypes = [
       {
-        name: "QR_berechnen",
-        expectedAnswer: qr,
-        description: `Gegeben sind: $\\overline{OP} = ${p.toFixed(1)}$ cm, $\\overline{OQ} = ${q.toFixed(1)}$ cm, $\\overline{OR} = ${r.toFixed(1)}$ cm, $\\overline{OS} = ${os.toFixed(1)}$ cm, $\\overline{PS} = ${ps.toFixed(2)}$ cm. Zwei ähnliche Dreiecke OPS und OQR entstehen durch zwei Strahlen mit gemeinsamen Startpunkt O. Berechne mit Strahlensätzen die Länge der Strecke $\\overline{QR}$.`,
-        hint: "Die Dreiecke OQR und OPS sind ähnlich! Nutze den Strahlensatz: $\\frac{\\overline{OQ}}{\\overline{OP}} = \\frac{\\overline{QR}}{\\overline{PS}}$. Stelle nach $\\overline{QR}$ um!",
+        name: "QS_berechnen",
+        expectedAnswer: qs,
+        description: `Gegeben sind: $\\overline{OP} = ${p.toFixed(1)}$ cm, $\\overline{OQ} = ${q.toFixed(1)}$ cm, $\\overline{OR} = ${r.toFixed(1)}$ cm, $\\overline{OS} = ${os.toFixed(1)}$ cm, $\\overline{PR} = ${pr.toFixed(2)}$ cm. Die Strecken $\\overline{PR}$ (nahe Punkte) und $\\overline{QS}$ (ferne Punkte) verbinden die beiden Strahlen und sind parallel zueinander. Die Dreiecke $OPR$ und $OQS$ sind ähnlich. Berechne die Länge der Strecke $\\overline{QS}$.`,
+        hint: "Die Dreiecke OPR und OQS sind ähnlich (gemeinsamer Winkel bei O, anliegende Seiten im gleichen Verhältnis): $\\frac{\\overline{OP}}{\\overline{OQ}} = \\frac{\\overline{OR}}{\\overline{OS}} = \\frac{\\overline{PR}}{\\overline{QS}}$. Stelle nach $\\overline{QS}$ um!",
         solution: [
-          "Mit ähnlichen Dreiecken OQR ~ OPS gilt der Strahlensatz:",
-          `$\\frac{\\overline{OQ}}{\\overline{OP}} = \\frac{\\overline{QR}}{\\overline{PS}}$`,
+          "Die Dreiecke OPR und OQS sind ähnlich, da sie den Winkel bei O gemeinsam haben und die anliegenden Seiten im gleichen Verhältnis stehen:",
+          `Probe: $\\frac{\\overline{OP}}{\\overline{OQ}} = \\frac{${p.toFixed(1)}}{${q.toFixed(1)}} = ${(p / q).toFixed(3)}$ und $\\frac{\\overline{OR}}{\\overline{OS}} = \\frac{${r.toFixed(1)}}{${os.toFixed(1)}} = ${(r / os).toFixed(3)}$ ✓`,
           "",
-          `$\\frac{${q.toFixed(1)}}{${p.toFixed(1)}} = \\frac{\\overline{QR}}{${ps.toFixed(2)}}$`,
-          "",
-          `$\\overline{QR} = ${ps.toFixed(2)} \\times \\frac{${q.toFixed(1)}}{${p.toFixed(1)}}$`,
-          `$\\overline{QR} = ${qr.toFixed(2)}$ cm`,
-          "",
-          `Probe: $\\frac{\\overline{OR}}{\\overline{OS}} = \\frac{${r.toFixed(1)}}{${os.toFixed(2)}} = ${(r/os).toFixed(3)}$ und $\\frac{\\overline{OQ}}{\\overline{OP}} = \\frac{${q.toFixed(1)}}{${p.toFixed(1)}} = ${(q/p).toFixed(3)}$ ✓`
+          `$\\frac{\\overline{PR}}{\\overline{QS}} = \\frac{\\overline{OP}}{\\overline{OQ}}$`,
+          `$\\frac{${pr.toFixed(2)}}{\\overline{QS}} = \\frac{${p.toFixed(1)}}{${q.toFixed(1)}}$`,
+          `$\\overline{QS} = ${pr.toFixed(2)} \\times \\frac{${q.toFixed(1)}}{${p.toFixed(1)}}$`,
+          `$\\overline{QS} = ${qs.toFixed(2)}$ cm`
         ]
       },
       {
-        name: "PS_berechnen",
-        expectedAnswer: ps,
-        description: `Gegeben sind: $\\overline{OP} = ${p.toFixed(1)}$ cm, $\\overline{OQ} = ${q.toFixed(1)}$ cm, $\\overline{OR} = ${r.toFixed(1)}$ cm, $\\overline{OS} = ${os.toFixed(1)}$ cm, $\\overline{QR} = ${qr.toFixed(2)}$ cm. Zwei ähnliche Dreiecke OPS und OQR entstehen durch zwei Strahlen mit gemeinsamen Startpunkt O. Berechne mit Strahlensätzen die Länge der Strecke $\\overline{PS}$.`,
-        hint: "Die Dreiecke OQR und OPS sind ähnlich! Nutze den Strahlensatz: $\\frac{\\overline{OP}}{\\overline{OQ}} = \\frac{\\overline{PS}}{\\overline{QR}}$. Stelle nach $\\overline{PS}$ um!",
+        name: "PR_berechnen",
+        expectedAnswer: pr,
+        description: `Gegeben sind: $\\overline{OP} = ${p.toFixed(1)}$ cm, $\\overline{OQ} = ${q.toFixed(1)}$ cm, $\\overline{OR} = ${r.toFixed(1)}$ cm, $\\overline{OS} = ${os.toFixed(1)}$ cm, $\\overline{QS} = ${qs.toFixed(2)}$ cm. Die Strecken $\\overline{PR}$ (nahe Punkte) und $\\overline{QS}$ (ferne Punkte) verbinden die beiden Strahlen und sind parallel zueinander. Die Dreiecke $OPR$ und $OQS$ sind ähnlich. Berechne die Länge der Strecke $\\overline{PR}$.`,
+        hint: "Die Dreiecke OPR und OQS sind ähnlich (gemeinsamer Winkel bei O, anliegende Seiten im gleichen Verhältnis): $\\frac{\\overline{OP}}{\\overline{OQ}} = \\frac{\\overline{OR}}{\\overline{OS}} = \\frac{\\overline{PR}}{\\overline{QS}}$. Stelle nach $\\overline{PR}$ um!",
         solution: [
-          "Mit ähnlichen Dreiecken OPS ~ OQR gilt der Strahlensatz:",
-          `$\\frac{\\overline{OP}}{\\overline{OQ}} = \\frac{\\overline{PS}}{\\overline{QR}}$`,
+          "Die Dreiecke OPR und OQS sind ähnlich, da sie den Winkel bei O gemeinsam haben und die anliegenden Seiten im gleichen Verhältnis stehen:",
+          `Probe: $\\frac{\\overline{OP}}{\\overline{OQ}} = \\frac{${p.toFixed(1)}}{${q.toFixed(1)}} = ${(p / q).toFixed(3)}$ und $\\frac{\\overline{OR}}{\\overline{OS}} = \\frac{${r.toFixed(1)}}{${os.toFixed(1)}} = ${(r / os).toFixed(3)}$ ✓`,
           "",
-          `$\\frac{${p.toFixed(1)}}{${q.toFixed(1)}} = \\frac{\\overline{PS}}{${qr.toFixed(2)}}$`,
-          "",
-          `$\\overline{PS} = ${qr.toFixed(2)} \\times \\frac{${p.toFixed(1)}}{${q.toFixed(1)}}$`,
-          `$\\overline{PS} = ${ps.toFixed(2)}$ cm`,
-          "",
-          `Probe: $\\frac{\\overline{OR}}{\\overline{OS}} = \\frac{${r.toFixed(1)}}{${os.toFixed(2)}} = ${(r/os).toFixed(3)}$ und $\\frac{\\overline{OP}}{\\overline{OQ}} = \\frac{${p.toFixed(1)}}{${q.toFixed(1)}} = ${(p/q).toFixed(3)}$ ✓`
+          `$\\frac{\\overline{PR}}{\\overline{QS}} = \\frac{\\overline{OP}}{\\overline{OQ}}$`,
+          `$\\frac{\\overline{PR}}{${qs.toFixed(2)}} = \\frac{${p.toFixed(1)}}{${q.toFixed(1)}}$`,
+          `$\\overline{PR} = ${qs.toFixed(2)} \\times \\frac{${p.toFixed(1)}}{${q.toFixed(1)}}$`,
+          `$\\overline{PR} = ${pr.toFixed(2)}$ cm`
         ]
       }
     ];
-    
-    const selectedType = diagonalTypes[Math.floor(Math.random() * diagonalTypes.length)];
-    
+
+    const selectedType = similarityTypes[Math.floor(Math.random() * similarityTypes.length)];
+
     return {
-      type: "diagonal_segment",
+      type: "similarity_segment",
       scenario: Math.floor(Math.random() * 4),
       p,
       q,
@@ -655,7 +645,8 @@ function drawRays(api: any, task: RayTask) {
     const p = task.p / 2.5;
     const q = task.q / 2.5;
     const r = task.r / 2.5;
-    const s = (p * r) / q;
+    // Strahlensatz 1: OP/OQ = OR/OS => OS = OQ*OR/OP (identische Formel wie in generateTask)
+    const s = (q * r) / p;
 
     // Punkte auf den Strahlen
     const x_p = originX + p * Math.cos(rad1);
@@ -679,18 +670,40 @@ function drawRays(api: any, task: RayTask) {
       api.setLabelVisible(pt, true);
     });
 
-    // Parallele Geraden - GRÜN und DICK (für beide Strahlensatz-Typen)
-    // Gerade 1 durch Q und R
-    api.evalCommand(`g1 = Line(Q, R)`);
+    // Parallele Strecken - GRÜN und DICK: nahe Punkte P-R, ferne Punkte Q-S.
+    // Das sind die einzigen beiden Paarungen, die (bei OS = OQ*OR/OP) tatsächlich
+    // parallel zueinander sind und die ähnlichen Dreiecke OPR/OQS aufspannen.
+    api.evalCommand(`g1 = Segment(P, R)`);
     api.setColor("g1", 34, 139, 34);
     api.setLineThickness("g1", 3);
     api.setLabelVisible("g1", false);
 
-    // Gerade 2 durch P und S (parallel zu g1)
-    api.evalCommand(`g2 = Line(P, S)`);
+    api.evalCommand(`g2 = Segment(Q, S)`);
     api.setColor("g2", 34, 139, 34);
     api.setLineThickness("g2", 3);
     api.setLabelVisible("g2", false);
+
+    // Die beiden ähnlichen Dreiecke leicht einfärben, damit sichtbar wird,
+    // dass OPR (klein) und OQS (groß) zueinander ähnlich sind. Polygon() legt
+    // dabei automatisch eigene Kanten-Objekte an (überlagern Strahlen/g1/g2) -
+    // die werden ausgeblendet, nur die Füllung soll sichtbar bleiben.
+    const hidePolygonEdges = (labels: string) => {
+      labels
+        .split(",")
+        .map((lbl) => lbl.trim())
+        .filter(Boolean)
+        .slice(1)
+        .forEach((edge) => api.setVisible(edge, false));
+    };
+    hidePolygonEdges(api.evalCommandGetLabels(`triSmall = Polygon(O, P, R)`) ?? "");
+    api.setColor("triSmall", 59, 130, 246);
+    api.setFilling("triSmall", 0.12);
+    api.setLabelVisible("triSmall", false);
+
+    hidePolygonEdges(api.evalCommandGetLabels(`triBig = Polygon(O, Q, S)`) ?? "");
+    api.setColor("triBig", 59, 130, 246);
+    api.setFilling("triBig", 0.05);
+    api.setLabelVisible("triBig", false);
 
     api.setCoordSystem(-1, 11, -4, 6);
   } catch (err) {
