@@ -496,7 +496,7 @@ export default function Strahlensaetze() {
                   : "bg-yellow-50 text-yellow-900 border border-yellow-200"
               }`}
             >
-              {feedback}
+              {renderMixedMath(feedback)}
             </div>
           )}
 
