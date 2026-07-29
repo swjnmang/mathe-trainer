@@ -68,6 +68,14 @@ body {
   }
 }
 
+.subtitle-name {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--blue);
+  letter-spacing: 0.02em;
+}
+
 .subtitle {
   margin: 0;
   color: #5a6072;
