@@ -154,7 +154,10 @@ import KegelOberflaeche from './pages/raum_und_form/kegel/Oberflaeche';
 import KegelVolumen from './pages/raum_und_form/kegel/Volumen';
 import KegelGemischt from './pages/raum_und_form/kegel/Gemischt';
 import KegelAnwendungsaufgaben from './pages/raum_und_form/kegel/Anwendungsaufgaben';
-import Pyramide from './pages/raum_und_form/Pyramide';
+import PyramideIndex from './pages/raum_und_form/pyramide/PyramideIndex';
+import PyramideOberflaeche from './pages/raum_und_form/pyramide/Oberflaeche';
+import PyramideVolumen from './pages/raum_und_form/pyramide/Volumen';
+import PyramideGemischt from './pages/raum_und_form/pyramide/Gemischt';
 import ZylinderIndex from './pages/raum_und_form/zylinder/ZylinderIndex';
 import ZylinderOberflaeche from './pages/raum_und_form/zylinder/Oberflaeche';
 import ZylinderVolumen from './pages/raum_und_form/zylinder/Volumen';
@@ -403,7 +406,10 @@ export default function App() {
           <Route path="/raum-und-form/kegel/volumen" element={<KegelVolumen />} />
           <Route path="/raum-und-form/kegel/gemischt" element={<KegelGemischt />} />
           <Route path="/raum-und-form/kegel/anwendungsaufgaben" element={<KegelAnwendungsaufgaben />} />
-          <Route path="/raum-und-form/pyramide" element={<Pyramide />} />
+          <Route path="/raum-und-form/pyramide" element={<PyramideIndex />} />
+          <Route path="/raum-und-form/pyramide/oberflaeche" element={<PyramideOberflaeche />} />
+          <Route path="/raum-und-form/pyramide/volumen" element={<PyramideVolumen />} />
+          <Route path="/raum-und-form/pyramide/gemischt" element={<PyramideGemischt />} />
           <Route path="/raum-und-form/zylinder" element={<ZylinderIndex />} />
           <Route path="/raum-und-form/zylinder/oberflaeche" element={<ZylinderOberflaeche />} />
           <Route path="/raum-und-form/zylinder/volumen" element={<ZylinderVolumen />} />
