@@ -145,7 +145,11 @@ import Flaechengeometrie from './pages/raum_und_form/Flaechengeometrie';
 import SatzDesPythagoras from './pages/raum_und_form/SatzDesPythagoras';
 import Strahlensaetze from './pages/raum_und_form/Strahlensaetze';
 import Kugel from './pages/raum_und_form/Kugel';
-import Kegel from './pages/raum_und_form/Kegel';
+import KegelIndex from './pages/raum_und_form/kegel/KegelIndex';
+import KegelOberflaeche from './pages/raum_und_form/kegel/Oberflaeche';
+import KegelVolumen from './pages/raum_und_form/kegel/Volumen';
+import KegelGemischt from './pages/raum_und_form/kegel/Gemischt';
+import KegelAnwendungsaufgaben from './pages/raum_und_form/kegel/Anwendungsaufgaben';
 import Pyramide from './pages/raum_und_form/Pyramide';
 import ZylinderIndex from './pages/raum_und_form/zylinder/ZylinderIndex';
 import ZylinderOberflaeche from './pages/raum_und_form/zylinder/Oberflaeche';
@@ -386,7 +390,11 @@ export default function App() {
           <Route path="/raum-und-form/satz-des-pythagoras/gemischt" element={<GemischtPythagoras />} />
           <Route path="/raum-und-form/strahlensaetze" element={<Strahlensaetze />} />
           <Route path="/raum-und-form/kugel" element={<Kugel />} />
-          <Route path="/raum-und-form/kegel" element={<Kegel />} />
+          <Route path="/raum-und-form/kegel" element={<KegelIndex />} />
+          <Route path="/raum-und-form/kegel/oberflaeche" element={<KegelOberflaeche />} />
+          <Route path="/raum-und-form/kegel/volumen" element={<KegelVolumen />} />
+          <Route path="/raum-und-form/kegel/gemischt" element={<KegelGemischt />} />
+          <Route path="/raum-und-form/kegel/anwendungsaufgaben" element={<KegelAnwendungsaufgaben />} />
           <Route path="/raum-und-form/pyramide" element={<Pyramide />} />
           <Route path="/raum-und-form/zylinder" element={<ZylinderIndex />} />
           <Route path="/raum-und-form/zylinder/oberflaeche" element={<ZylinderOberflaeche />} />
