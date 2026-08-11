@@ -147,7 +147,10 @@ import Strahlensaetze from './pages/raum_und_form/Strahlensaetze';
 import Kugel from './pages/raum_und_form/Kugel';
 import Kegel from './pages/raum_und_form/Kegel';
 import Pyramide from './pages/raum_und_form/Pyramide';
-import Zylinder from './pages/raum_und_form/Zylinder';
+import ZylinderIndex from './pages/raum_und_form/zylinder/ZylinderIndex';
+import ZylinderOberflaeche from './pages/raum_und_form/zylinder/Oberflaeche';
+import ZylinderVolumen from './pages/raum_und_form/zylinder/Volumen';
+import ZylinderGemischt from './pages/raum_und_form/zylinder/Gemischt';
 import Prisma from './pages/raum_und_form/Prisma';
 import Dreiecke from './pages/raum_und_form/Dreiecke';
 import Trapez from './pages/raum_und_form/Trapez';
@@ -385,7 +388,10 @@ export default function App() {
           <Route path="/raum-und-form/kugel" element={<Kugel />} />
           <Route path="/raum-und-form/kegel" element={<Kegel />} />
           <Route path="/raum-und-form/pyramide" element={<Pyramide />} />
-          <Route path="/raum-und-form/zylinder" element={<Zylinder />} />
+          <Route path="/raum-und-form/zylinder" element={<ZylinderIndex />} />
+          <Route path="/raum-und-form/zylinder/oberflaeche" element={<ZylinderOberflaeche />} />
+          <Route path="/raum-und-form/zylinder/volumen" element={<ZylinderVolumen />} />
+          <Route path="/raum-und-form/zylinder/gemischt" element={<ZylinderGemischt />} />
           <Route path="/raum-und-form/prisma" element={<Prisma />} />
           <Route path="/raum-und-form/flaechengeometrie/dreiecke" element={<Dreiecke />} />
           <Route path="/raum-und-form/flaechengeometrie/trapez" element={<Trapez />} />
