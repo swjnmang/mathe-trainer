@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import TaskLayout, { infoBoxClass } from "../../components/raum-und-form/TaskLayout";
 
 type TrapezTask = {
   baseA: number;
@@ -51,28 +52,28 @@ export default function Trapez() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-6 text-center">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Flächengeometrie</p>
-          <h1 className="text-3xl font-bold">Trapez</h1>
-          <p className="text-slate-600 max-w-3xl mx-auto">
-            Gegeben ist ein gleichschenkliges Trapez mit Grundseiten a = {format(task.baseA)} cm und c = {format(task.baseC)} cm, Schenkellänge s = {format(task.leg)} cm und Höhe h = {format(task.height)} cm. Berechne Flächeninhalt A und Umfang U.
-          </p>
+    <TaskLayout
+      breadcrumbs={[{ label: "Raum & Form", href: "/raum-und-form" }, { label: "Flächengeometrie", href: "/raum-und-form/flaechengeometrie" }, { label: "Trapez" }]}
+      title="Trapez"
+      description="Berechne Flächeninhalt und Umfang eines Trapezes."
+      backHref="/raum-und-form/flaechengeometrie"
+    >
+      <div className={cardClass}>
+        <div className="flex items-center justify-center gap-3 flex-wrap text-center">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
+            <h2 className="text-xl font-bold">Fläche und Umfang berechnen</h2>
+          </div>
+          <div className="flex gap-2 flex-wrap justify-center">
+            <button className={buttonClass} onClick={() => setTask(makeTask())}>Neue Aufgabe</button>
+          </div>
         </div>
 
-        <div className={cardClass}>
-          <div className="flex items-center justify-center gap-3 flex-wrap text-center">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
-              <h2 className="text-xl font-bold">Fläche und Umfang berechnen</h2>
-            </div>
-            <div className="flex gap-2 flex-wrap justify-center">
-              <button className={buttonClass} onClick={() => setTask(makeTask())}>Neue Aufgabe</button>
-            </div>
-          </div>
+        <div className={infoBoxClass}>
+          Gegeben ist ein gleichschenkliges Trapez mit Grundseiten a = {format(task.baseA)} cm und c = {format(task.baseC)} cm, Schenkellänge s = {format(task.leg)} cm und Höhe h = {format(task.height)} cm. Berechne Flächeninhalt A und Umfang U.
+        </div>
 
-          <TrapezSketch a={task.baseA} c={task.baseC} leg={task.leg} height={task.height} />
+        <TrapezSketch a={task.baseA} c={task.baseC} leg={task.leg} height={task.height} />
 
           <div className="grid gap-3 sm:grid-cols-2 justify-items-center text-center">
             <div className="space-y-2 w-full">
@@ -121,9 +122,8 @@ export default function Trapez() {
             </button>
             {feedback && <span className="text-sm font-semibold text-slate-800">{feedback}</span>}
           </div>
-        </div>
       </div>
-    </div>
+    </TaskLayout>
   );
 }
 

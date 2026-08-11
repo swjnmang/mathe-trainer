@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import TaskLayout from '../../../components/raum-und-form/TaskLayout';
 
 interface Triangle {
   type: 'rechtwinklig';
@@ -213,17 +214,13 @@ export default function KathetenHypotenuse() {
   if (!triangle) return <div>Lade...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-slate-900">Katheten und Hypotenuse erkennen</h1>
-          <p className="text-slate-600">
-            Identifiziere die <strong>Hypotenuse</strong> (die längste Seite gegenüber dem rechten Winkel)
-            und die beiden <strong>Katheten</strong> (die beiden Seiten, die den rechten Winkel bilden).
-          </p>
-        </div>
-
+    <TaskLayout
+      breadcrumbs={[{ label: "Raum & Form", href: "/raum-und-form" }, { label: "Satz des Pythagoras", href: "/raum-und-form/satz-des-pythagoras" }, { label: "Katheten und Hypotenuse" }]}
+      title="Katheten und Hypotenuse erkennen"
+      description="Identifiziere die Hypotenuse (die längste Seite gegenüber dem rechten Winkel) und die beiden Katheten (die beiden Seiten, die den rechten Winkel bilden)."
+      backHref="/raum-und-form/satz-des-pythagoras"
+    >
+      <div className="space-y-6">
         {/* Statistik */}
         <div className="flex justify-center gap-4 text-sm">
           <span className="text-slate-600">
@@ -347,6 +344,6 @@ export default function KathetenHypotenuse() {
           )}
         </div>
       </div>
-    </div>
+    </TaskLayout>
   );
 }

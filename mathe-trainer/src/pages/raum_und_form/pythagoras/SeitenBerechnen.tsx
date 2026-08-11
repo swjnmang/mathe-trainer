@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
+import TaskLayout from '../../../components/raum-und-form/TaskLayout';
 
 interface Task {
   type: 'hypotenuse' | 'kathete';
@@ -359,16 +360,13 @@ export default function SeitenBerechnen() {
   if (!task) return <div>Lade...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-slate-900">Seiten berechnen</h1>
-          <p className="text-slate-600">
-            Berechne die fehlende Seite mit dem Satz des Pythagoras: <InlineMath math="a^2 + b^2 = c^2" />
-          </p>
-        </div>
-
+    <TaskLayout
+      breadcrumbs={[{ label: "Raum & Form", href: "/raum-und-form" }, { label: "Satz des Pythagoras", href: "/raum-und-form/satz-des-pythagoras" }, { label: "Seiten berechnen" }]}
+      title="Seiten berechnen"
+      description="Berechne die fehlende Seite mit dem Satz des Pythagoras: a² + b² = c²"
+      backHref="/raum-und-form/satz-des-pythagoras"
+    >
+      <div className="space-y-6">
         {/* Statistik */}
         <div className="flex justify-center gap-4 text-sm">
           <span className="text-slate-600">
@@ -451,6 +449,6 @@ export default function SeitenBerechnen() {
           {showSolution && renderSolution()}
         </div>
       </div>
-    </div>
+    </TaskLayout>
   );
 }

@@ -165,6 +165,7 @@ import DieLeinwand from './pages/raum_und_form/DieLeinwand';
 import KathetenHypotenuse from './pages/raum_und_form/pythagoras/KathetenHypotenuse';
 import SeitenBerechnen from './pages/raum_und_form/pythagoras/SeitenBerechnen';
 import AnwendungsaufgabenPythagoras from './pages/raum_und_form/pythagoras/Anwendungsaufgaben';
+import GemischtPythagoras from './pages/raum_und_form/pythagoras/Gemischt';
 // Anwendungsaufgaben Raum und Form
 import AnwendungsaufgabenRaumIndex from './pages/raum_und_form/anwendungsaufgaben/index';
 import PoolAufgabe from './pages/raum_und_form/anwendungsaufgaben/PoolAufgabe';
@@ -379,6 +380,7 @@ export default function App() {
           <Route path="/raum-und-form/satz-des-pythagoras/katheten-hypotenuse" element={<KathetenHypotenuse />} />
           <Route path="/raum-und-form/satz-des-pythagoras/berechnen" element={<SeitenBerechnen />} />
           <Route path="/raum-und-form/satz-des-pythagoras/anwendung" element={<AnwendungsaufgabenPythagoras />} />
+          <Route path="/raum-und-form/satz-des-pythagoras/gemischt" element={<GemischtPythagoras />} />
           <Route path="/raum-und-form/strahlensaetze" element={<Strahlensaetze />} />
           <Route path="/raum-und-form/kugel" element={<Kugel />} />
           <Route path="/raum-und-form/kegel" element={<Kegel />} />

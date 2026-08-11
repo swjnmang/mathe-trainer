@@ -1,4 +1,5 @@
 import { useState } from "react";
+import TaskLayout from "../../components/raum-und-form/TaskLayout";
 
 type TaskType = "fromRadius" | "fromArea" | "fromCircumference";
 type TaskKey = "radius" | "area" | "circumference";
@@ -71,18 +72,13 @@ export default function Kreis() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-6">
-        <div className="space-y-2 text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Flächengeometrie</p>
-          <h1 className="text-3xl font-bold">Kreis</h1>
-          <p className="text-slate-600 max-w-3xl mx-auto">
-            Löse abwechselnd Aufgaben zu Umfang U, Flächeninhalt A und Radius r. Je nach Vorgabe sind zwei Größen zu
-            berechnen.
-          </p>
-        </div>
-
-        <div className={cardClass}>
+    <TaskLayout
+      breadcrumbs={[{ label: "Raum & Form", href: "/raum-und-form" }, { label: "Flächengeometrie", href: "/raum-und-form/flaechengeometrie" }, { label: "Kreis" }]}
+      title="Kreis"
+      description="Löse abwechselnd Aufgaben zu Umfang U, Flächeninhalt A und Radius r. Je nach Vorgabe sind zwei Größen zu berechnen."
+      backHref="/raum-und-form/flaechengeometrie"
+    >
+      <div className={cardClass}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aktuelle Aufgabe</p>
@@ -133,9 +129,8 @@ export default function Kreis() {
             </div>
           </div>
 
-        </div>
       </div>
-    </div>
+    </TaskLayout>
   );
 }
 

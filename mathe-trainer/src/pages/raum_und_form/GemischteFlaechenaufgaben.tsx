@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import TaskLayout from "../../components/raum-und-form/TaskLayout";
 
 type Shape =
   | { kind: "rectangle"; w: number; h: number; unit: Unit }
@@ -89,22 +90,15 @@ export default function GemischteFlaechenaufgaben() {
   const perimeterOptions = lengthUnitChoices(task.shape);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Flächengeometrie</p>
-            <h1 className="text-3xl font-bold">Gemischte Übungsaufgaben</h1>
-            <p className="text-sm text-slate-600">Wähle die korrekte Einheit und runde jede Lösung auf 2 Nachkommastellen.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm font-semibold">Aufgabe {task.id} / {tasks.length}</span>
-          </div>
-        </div>
-
-        <div className={cardClass + " space-y-6"} id="print-area">
+    <TaskLayout
+      breadcrumbs={[{ label: "Raum & Form", href: "/raum-und-form" }, { label: "Flächengeometrie", href: "/raum-und-form/flaechengeometrie" }, { label: "Gemischte Übungsaufgaben" }]}
+      title="Gemischte Übungsaufgaben"
+      description="Wähle die korrekte Einheit und runde jede Lösung auf 2 Nachkommastellen."
+      backHref="/raum-und-form/flaechengeometrie"
+    >
+      <div className={cardClass + " space-y-6"} id="print-area">
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe {task.id}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe {task.id} / {tasks.length}</p>
             <h2 className="text-xl font-bold">{task.title}</h2>
             <p className="text-slate-700 leading-relaxed">{task.question}</p>
           </div>
@@ -170,16 +164,15 @@ export default function GemischteFlaechenaufgaben() {
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button className={buttonClass} onClick={handleCheck}>Prüfen</button>
                 <div className="flex gap-2">
-                  <button className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold" onClick={goPrev}>Zurück</button>
-                  <button className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold" onClick={goNext}>Weiter</button>
+                  <button className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold" onClick={goPrev}>Vorherige Aufgabe</button>
+                  <button className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold" onClick={goNext}>Nächste Aufgabe</button>
                 </div>
                 {feedback && <span className="text-sm font-semibold text-slate-800">{feedback}</span>}
               </div>
             </div>
           </div>
-        </div>
       </div>
-    </div>
+    </TaskLayout>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import TaskLayout from "../../components/raum-und-form/TaskLayout";
 
 declare global {
   interface Window {
@@ -98,15 +99,13 @@ export default function Dreiecke() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-6 text-center">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Flächengeometrie</p>
-          <h1 className="text-3xl font-bold">Dreiecke</h1>
-          <p className="text-slate-600">Eine Aufgabe pro Seite: Entweder Typ erkennen oder Fläche/Umfang berechnen.</p>
-        </div>
-
-        <div className={cardClass}>
+    <TaskLayout
+      breadcrumbs={[{ label: "Raum & Form", href: "/raum-und-form" }, { label: "Flächengeometrie", href: "/raum-und-form/flaechengeometrie" }, { label: "Dreiecke" }]}
+      title="Dreiecke"
+      description="Eine Aufgabe pro Seite: Entweder Typ erkennen oder Fläche/Umfang berechnen."
+      backHref="/raum-und-form/flaechengeometrie"
+    >
+      <div className={cardClass}>
           <div className="flex items-center justify-center gap-3 flex-wrap text-center">
             <div className="space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -201,9 +200,8 @@ export default function Dreiecke() {
             </button>
             {feedback && <span className="text-sm font-semibold text-slate-800">{feedback}</span>}
           </div>
-        </div>
       </div>
-    </div>
+    </TaskLayout>
   );
 }
 
