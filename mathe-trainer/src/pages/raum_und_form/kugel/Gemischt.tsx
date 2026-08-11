@@ -8,60 +8,10 @@ import TaskLayout, {
   SolutionBox,
 } from "../../../components/raum-und-form/TaskLayout";
 import KugelSketch from "./KugelSketch";
-
-type Ask = "oberflaeche" | "volumen";
-
-type Task = {
-  id: number;
-  radius: number;
-  ask: Ask;
-  askLabel: string;
-  unit: string;
-  target: number;
-  question: string;
-  steps: string[];
-};
-
-const round1 = (v: number) => Math.round(v * 10) / 10;
-const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
-
-const askMeta: Record<Ask, { label: string; unit: string; question: string; formula: string }> = {
-  oberflaeche: { label: "Oberfläche O", unit: "cm²", question: "Berechne die Oberfläche O.", formula: "O = 4 · π · r²" },
-  volumen: { label: "Volumen V", unit: "cm³", question: "Berechne das Volumen V.", formula: "V = ⁴⁄₃ · π · r³" },
-};
-
-function computeTarget(ask: Ask, radius: number) {
-  return ask === "oberflaeche" ? 4 * Math.PI * radius ** 2 : (4 / 3) * Math.PI * radius ** 3;
-}
-
-function makeTask(id: number): Task {
-  const radius = round1(randomBetween(2, 8));
-  const ask: Ask = Math.random() < 0.5 ? "oberflaeche" : "volumen";
-  const target = computeTarget(ask, radius);
-  const meta = askMeta[ask];
-  return {
-    id,
-    radius,
-    ask,
-    askLabel: meta.label,
-    unit: meta.unit,
-    target,
-    question: `Gegeben ist eine Kugel mit Radius r = ${radius} cm. ${meta.question}`,
-    steps: [meta.formula, `${meta.label} ≈ ${target.toFixed(2)} ${meta.unit}`],
-  };
-}
-
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
+import { generateTask, GEMISCHT_ASKS, type Task } from "./taskGenerators";
 
 function buildQueue(): Task[] {
-  return shuffle(Array.from({ length: 8 }, (_, i) => makeTask(i))).map((t, idx) => ({ ...t, id: idx + 1 }));
+  return Array.from({ length: 8 }, () => generateTask(GEMISCHT_ASKS));
 }
 
 export default function KugelGemischt() {
@@ -90,7 +40,7 @@ export default function KugelGemischt() {
       setFeedback("Bitte einen Wert eingeben.");
       return;
     }
-    const correct = Math.abs(val - task.target) <= Math.max(0.5, task.target * 0.02);
+    const correct = Math.abs(val - task.target) <= task.tolerance;
     setFeedback(correct ? `Richtig! ${task.askLabel} ≈ ${task.target.toFixed(2)} ${task.unit}` : "Noch nicht ganz richtig.");
     if (!correct) setShowSolution(true);
   };
@@ -103,7 +53,7 @@ export default function KugelGemischt() {
         { label: "Gemischte Übungsaufgaben" },
       ]}
       title="Gemischte Übungsaufgaben"
-      description="Oberfläche und Volumen einer Kugel gemischt üben."
+      description="Oberfläche, Volumen und ihre Umkehrungen sowie Skalierungsaufgaben gemischt üben."
       backHref="/raum-und-form/kugel"
       onReset={() => {
         setQueue(buildQueue());
@@ -118,11 +68,11 @@ export default function KugelGemischt() {
 
         <div className={infoBoxClass}>{task.question}</div>
 
-        <KugelSketch radius={task.radius} unit="cm" />
+        <KugelSketch radius={task.radius} unit="cm" radiusKnown={task.radiusKnown} />
 
         <div className="space-y-2">
           <label className="text-sm font-semibold text-slate-700">
-            {task.askLabel} ({task.unit})
+            {task.askLabel} {task.unit && `(${task.unit})`}
           </label>
           <div className="flex gap-2">
             <input

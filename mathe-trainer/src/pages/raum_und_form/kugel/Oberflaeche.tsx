@@ -4,27 +4,22 @@ import TaskLayout, {
   primaryButtonClass,
   infoBoxClass,
   FeedbackBanner,
+  SolutionBox,
 } from "../../../components/raum-und-form/TaskLayout";
 import KugelSketch from "./KugelSketch";
-
-const round1 = (v: number) => Math.round(v * 10) / 10;
-const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
-
-function makeTask() {
-  return round1(randomBetween(2, 8));
-}
+import { generateTask, OBERFLAECHE_ASKS, type Task } from "./taskGenerators";
 
 export default function KugelOberflaeche() {
-  const [radius, setRadius] = useState<number>(() => makeTask());
+  const [task, setTask] = useState<Task>(() => generateTask(OBERFLAECHE_ASKS));
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
     setInput("");
     setFeedback(null);
-  }, [radius]);
-
-  const oberflaeche = 4 * Math.PI * radius ** 2;
+    setShowSolution(false);
+  }, [task]);
 
   const handleCheck = () => {
     const val = parseFloat(input.replace(",", "."));
@@ -32,9 +27,13 @@ export default function KugelOberflaeche() {
       setFeedback("Bitte einen Wert eingeben.");
       return;
     }
-    const correct = Math.abs(val - oberflaeche) <= Math.max(0.5, oberflaeche * 0.02);
-    setFeedback(correct ? "Richtig – die Oberfläche stimmt." : "Prüfe deine Rechnung. Nutze O = 4 · π · r².");
-    if (correct) setTimeout(() => setRadius(makeTask()), 900);
+    const correct = Math.abs(val - task.target) <= task.tolerance;
+    setFeedback(correct ? "Richtig – das stimmt." : "Noch nicht ganz richtig.");
+    if (correct) {
+      setTimeout(() => setTask(generateTask(OBERFLAECHE_ASKS)), 900);
+    } else {
+      setShowSolution(true);
+    }
   };
 
   return (
@@ -45,7 +44,7 @@ export default function KugelOberflaeche() {
         { label: "Oberfläche" },
       ]}
       title="Oberfläche berechnen"
-      description="Berechne die Oberfläche einer Kugel."
+      description="Berechne die Oberfläche einer Kugel – auch aus der Oberfläche zurück auf den Radius."
       backHref="/raum-und-form/kugel"
     >
       <div className={taskCardClass}>
@@ -54,19 +53,19 @@ export default function KugelOberflaeche() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
             <h2 className="text-lg font-bold">Oberfläche berechnen</h2>
           </div>
-          <button className={primaryButtonClass} onClick={() => setRadius(makeTask())}>
+          <button className={primaryButtonClass} onClick={() => setTask(generateTask(OBERFLAECHE_ASKS))}>
             Neue Aufgabe
           </button>
         </div>
 
-        <div className={infoBoxClass}>
-          Gegeben ist eine Kugel mit Radius r = {radius} cm. Berechne die Oberfläche O.
-        </div>
+        <div className={infoBoxClass}>{task.question}</div>
 
-        <KugelSketch radius={radius} unit="cm" />
+        <KugelSketch radius={task.radius} unit="cm" radiusKnown={task.radiusKnown} />
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700">Oberfläche O (cm²)</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {task.askLabel} {task.unit && `(${task.unit})`}
+          </label>
           <div className="flex gap-2">
             <input
               className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
@@ -82,6 +81,16 @@ export default function KugelOberflaeche() {
         </div>
 
         {feedback && <FeedbackBanner correct={feedback.startsWith("Richtig")}>{feedback}</FeedbackBanner>}
+
+        {showSolution && (
+          <SolutionBox>
+            {task.steps.map((line, idx) => (
+              <div key={idx} className="font-mono text-sm">
+                {line}
+              </div>
+            ))}
+          </SolutionBox>
+        )}
       </div>
     </TaskLayout>
   );

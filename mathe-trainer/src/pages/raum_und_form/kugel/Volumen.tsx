@@ -4,27 +4,22 @@ import TaskLayout, {
   primaryButtonClass,
   infoBoxClass,
   FeedbackBanner,
+  SolutionBox,
 } from "../../../components/raum-und-form/TaskLayout";
 import KugelSketch from "./KugelSketch";
-
-const round1 = (v: number) => Math.round(v * 10) / 10;
-const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
-
-function makeTask() {
-  return round1(randomBetween(2, 8));
-}
+import { generateTask, VOLUMEN_ASKS, type Task } from "./taskGenerators";
 
 export default function KugelVolumen() {
-  const [radius, setRadius] = useState<number>(() => makeTask());
+  const [task, setTask] = useState<Task>(() => generateTask(VOLUMEN_ASKS));
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
     setInput("");
     setFeedback(null);
-  }, [radius]);
-
-  const volumen = (4 / 3) * Math.PI * radius ** 3;
+    setShowSolution(false);
+  }, [task]);
 
   const handleCheck = () => {
     const val = parseFloat(input.replace(",", "."));
@@ -32,9 +27,13 @@ export default function KugelVolumen() {
       setFeedback("Bitte einen Wert eingeben.");
       return;
     }
-    const correct = Math.abs(val - volumen) <= Math.max(0.5, volumen * 0.02);
-    setFeedback(correct ? "Richtig – das Volumen stimmt." : "Prüfe deine Rechnung. Nutze V = ⁴⁄₃ · π · r³.");
-    if (correct) setTimeout(() => setRadius(makeTask()), 900);
+    const correct = Math.abs(val - task.target) <= task.tolerance;
+    setFeedback(correct ? "Richtig – das stimmt." : "Noch nicht ganz richtig.");
+    if (correct) {
+      setTimeout(() => setTask(generateTask(VOLUMEN_ASKS)), 900);
+    } else {
+      setShowSolution(true);
+    }
   };
 
   return (
@@ -45,7 +44,7 @@ export default function KugelVolumen() {
         { label: "Volumen" },
       ]}
       title="Volumen berechnen"
-      description="Berechne das Volumen einer Kugel."
+      description="Berechne das Volumen einer Kugel – auch aus dem Volumen zurück auf den Radius."
       backHref="/raum-und-form/kugel"
     >
       <div className={taskCardClass}>
@@ -54,19 +53,19 @@ export default function KugelVolumen() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
             <h2 className="text-lg font-bold">Volumen berechnen</h2>
           </div>
-          <button className={primaryButtonClass} onClick={() => setRadius(makeTask())}>
+          <button className={primaryButtonClass} onClick={() => setTask(generateTask(VOLUMEN_ASKS))}>
             Neue Aufgabe
           </button>
         </div>
 
-        <div className={infoBoxClass}>
-          Gegeben ist eine Kugel mit Radius r = {radius} cm. Berechne das Volumen V.
-        </div>
+        <div className={infoBoxClass}>{task.question}</div>
 
-        <KugelSketch radius={radius} unit="cm" />
+        <KugelSketch radius={task.radius} unit="cm" radiusKnown={task.radiusKnown} />
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700">Volumen V (cm³)</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {task.askLabel} {task.unit && `(${task.unit})`}
+          </label>
           <div className="flex gap-2">
             <input
               className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
@@ -82,6 +81,16 @@ export default function KugelVolumen() {
         </div>
 
         {feedback && <FeedbackBanner correct={feedback.startsWith("Richtig")}>{feedback}</FeedbackBanner>}
+
+        {showSolution && (
+          <SolutionBox>
+            {task.steps.map((line, idx) => (
+              <div key={idx} className="font-mono text-sm">
+                {line}
+              </div>
+            ))}
+          </SolutionBox>
+        )}
       </div>
     </TaskLayout>
   );

@@ -23,25 +23,26 @@ export default function TopicIndexLayout({
   return (
     <div className="min-h-screen bg-[var(--bg-color)] text-slate-900">
       <header className="w-full bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-x-3 gap-y-1">
           <Link
             to={backHref}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[var(--accent)] transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-[var(--accent)] transition-colors shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
-            {backLabel}
+            <span className="hidden sm:inline">{backLabel}</span>
           </Link>
-          <div className="space-y-2">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">{eyebrow}</p>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">{title}</h1>
-            {description && (
-              <p className="text-slate-600 max-w-2xl text-base sm:text-lg">{description}</p>
-            )}
-          </div>
+          <span className="hidden sm:block h-5 w-px bg-slate-200 shrink-0" aria-hidden="true" />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--accent)] shrink-0">
+            {eyebrow}
+          </p>
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 shrink-0">{title}</h1>
+          {description && (
+            <p className="text-sm text-slate-500 truncate hidden md:block">{description}</p>
+          )}
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">{children}</main>
     </div>
   );
 }
