@@ -162,7 +162,11 @@ import ZylinderIndex from './pages/raum_und_form/zylinder/ZylinderIndex';
 import ZylinderOberflaeche from './pages/raum_und_form/zylinder/Oberflaeche';
 import ZylinderVolumen from './pages/raum_und_form/zylinder/Volumen';
 import ZylinderGemischt from './pages/raum_und_form/zylinder/Gemischt';
-import Prisma from './pages/raum_und_form/Prisma';
+import PrismaIndex from './pages/raum_und_form/prisma/PrismaIndex';
+import PrismaOberflaeche from './pages/raum_und_form/prisma/Oberflaeche';
+import PrismaVolumen from './pages/raum_und_form/prisma/Volumen';
+import PrismaGemischt from './pages/raum_und_form/prisma/Gemischt';
+import PrismaAnwendungsaufgaben from './pages/raum_und_form/prisma/Anwendungsaufgaben';
 import Dreiecke from './pages/raum_und_form/Dreiecke';
 import Trapez from './pages/raum_und_form/Trapez';
 import Rechteck from './pages/raum_und_form/Rechteck';
@@ -414,7 +418,11 @@ export default function App() {
           <Route path="/raum-und-form/zylinder/oberflaeche" element={<ZylinderOberflaeche />} />
           <Route path="/raum-und-form/zylinder/volumen" element={<ZylinderVolumen />} />
           <Route path="/raum-und-form/zylinder/gemischt" element={<ZylinderGemischt />} />
-          <Route path="/raum-und-form/prisma" element={<Prisma />} />
+          <Route path="/raum-und-form/prisma" element={<PrismaIndex />} />
+          <Route path="/raum-und-form/prisma/oberflaeche" element={<PrismaOberflaeche />} />
+          <Route path="/raum-und-form/prisma/volumen" element={<PrismaVolumen />} />
+          <Route path="/raum-und-form/prisma/gemischt" element={<PrismaGemischt />} />
+          <Route path="/raum-und-form/prisma/anwendungsaufgaben" element={<PrismaAnwendungsaufgaben />} />
           <Route path="/raum-und-form/flaechengeometrie/dreiecke" element={<Dreiecke />} />
           <Route path="/raum-und-form/flaechengeometrie/trapez" element={<Trapez />} />
           <Route path="/raum-und-form/flaechengeometrie/rechteck" element={<Rechteck />} />
