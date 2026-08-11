@@ -4,48 +4,36 @@ import TaskLayout, {
   primaryButtonClass,
   infoBoxClass,
   FeedbackBanner,
+  SolutionBox,
 } from "../../../components/raum-und-form/TaskLayout";
 import ZylinderSketch from "./ZylinderSketch";
-
-type Task = { radius: number; height: number };
-
-const round1 = (v: number) => Math.round(v * 10) / 10;
-const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
-
-function makeTask(): Task {
-  return { radius: round1(randomBetween(2, 6)), height: round1(randomBetween(5, 14)) };
-}
-
-function withinTolerance(given: number, target: number) {
-  return Math.abs(given - target) <= Math.max(0.05, target * 0.02);
-}
+import { generateTask, OBERFLAECHE_ASKS, type Task } from "./taskGenerators";
 
 export default function ZylinderOberflaeche() {
-  const [task, setTask] = useState<Task>(() => makeTask());
-  const [mantelInput, setMantelInput] = useState("");
-  const [oberflaecheInput, setOberflaecheInput] = useState("");
+  const [task, setTask] = useState<Task>(() => generateTask(OBERFLAECHE_ASKS));
+  const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-    setMantelInput("");
-    setOberflaecheInput("");
+    setInput("");
     setFeedback(null);
+    setShowSolution(false);
   }, [task]);
 
-  const grundflaeche = Math.PI * task.radius ** 2;
-  const mantelflaeche = 2 * Math.PI * task.radius * task.height;
-  const oberflaeche = 2 * grundflaeche + mantelflaeche;
-
   const handleCheck = () => {
-    const mantelVal = parseFloat(mantelInput.replace(",", "."));
-    const oberflaecheVal = parseFloat(oberflaecheInput.replace(",", "."));
-    if (Number.isNaN(mantelVal) || Number.isNaN(oberflaecheVal)) {
-      setFeedback("Bitte beide Werte eingeben.");
+    const val = parseFloat(input.replace(",", "."));
+    if (Number.isNaN(val)) {
+      setFeedback("Bitte einen Wert eingeben.");
       return;
     }
-    const allOk = withinTolerance(mantelVal, mantelflaeche) && withinTolerance(oberflaecheVal, oberflaeche);
-    setFeedback(allOk ? "Richtig – Mantel- und Gesamtoberfläche passen." : "Prüfe deine Rechnung. Nutze M = 2·π·r·h und O = 2·π·r² + M.");
-    if (allOk) setTimeout(() => setTask(makeTask()), 900);
+    const correct = Math.abs(val - task.target) <= task.tolerance;
+    setFeedback(correct ? "Richtig – das stimmt." : "Noch nicht ganz richtig.");
+    if (correct) {
+      setTimeout(() => setTask(generateTask(OBERFLAECHE_ASKS)), 900);
+    } else {
+      setShowSolution(true);
+    }
   };
 
   return (
@@ -56,55 +44,59 @@ export default function ZylinderOberflaeche() {
         { label: "Oberfläche" },
       ]}
       title="Oberfläche berechnen"
-      description="Berechne die Mantelfläche und die Gesamtoberfläche eines Zylinders."
+      description="Grundfläche, Mantelfläche und Gesamtoberfläche – auch als Umkehraufgabe."
       backHref="/raum-und-form/zylinder"
     >
       <div className={taskCardClass}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
-            <h2 className="text-lg font-bold">Mantel- und Gesamtoberfläche</h2>
+            <h2 className="text-lg font-bold">Oberfläche berechnen</h2>
           </div>
-          <button className={primaryButtonClass} onClick={() => setTask(makeTask())}>
+          <button className={primaryButtonClass} onClick={() => setTask(generateTask(OBERFLAECHE_ASKS))}>
             Neue Aufgabe
           </button>
         </div>
 
-        <div className={infoBoxClass}>
-          Gegeben ist ein Zylinder mit Radius r = {task.radius} cm und Höhe h = {task.height} cm. Berechne die
-          Mantelfläche M und die Gesamtoberfläche O.
-        </div>
+        <div className={infoBoxClass}>{task.question}</div>
 
-        <ZylinderSketch radius={task.radius} height={task.height} unit="cm" />
+        <ZylinderSketch
+          radius={task.radius}
+          height={task.height}
+          unit="cm"
+          radiusKnown={task.radiusKnown}
+          heightKnown={task.heightKnown}
+        />
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Mantelfläche M (cm²)</label>
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-slate-700">
+            {task.askLabel} {task.unit && `(${task.unit})`}
+          </label>
+          <div className="flex gap-2">
             <input
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-              value={mantelInput}
-              onChange={(e) => setMantelInput(e.target.value)}
+              className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               inputMode="decimal"
               placeholder="Zahl eingeben"
             />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Gesamtoberfläche O (cm²)</label>
-            <input
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-              value={oberflaecheInput}
-              onChange={(e) => setOberflaecheInput(e.target.value)}
-              inputMode="decimal"
-              placeholder="Zahl eingeben"
-            />
+            <button className={primaryButtonClass} onClick={handleCheck}>
+              Prüfen
+            </button>
           </div>
         </div>
-
-        <button className={primaryButtonClass} onClick={handleCheck}>
-          Prüfen
-        </button>
 
         {feedback && <FeedbackBanner correct={feedback.startsWith("Richtig")}>{feedback}</FeedbackBanner>}
+
+        {showSolution && (
+          <SolutionBox>
+            {task.steps.map((line, idx) => (
+              <div key={idx} className="font-mono text-sm">
+                {line}
+              </div>
+            ))}
+          </SolutionBox>
+        )}
       </div>
     </TaskLayout>
   );

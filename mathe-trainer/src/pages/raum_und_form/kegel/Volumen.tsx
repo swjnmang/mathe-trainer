@@ -4,29 +4,22 @@ import TaskLayout, {
   primaryButtonClass,
   infoBoxClass,
   FeedbackBanner,
+  SolutionBox,
 } from "../../../components/raum-und-form/TaskLayout";
 import KegelSketch from "./KegelSketch";
-
-type Task = { radius: number; height: number };
-
-const round1 = (v: number) => Math.round(v * 10) / 10;
-const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
-
-function makeTask(): Task {
-  return { radius: round1(randomBetween(2, 6)), height: round1(randomBetween(4, 10)) };
-}
+import { generateTask, VOLUMEN_ASKS, type Task } from "./taskGenerators";
 
 export default function KegelVolumen() {
-  const [task, setTask] = useState<Task>(() => makeTask());
+  const [task, setTask] = useState<Task>(() => generateTask(VOLUMEN_ASKS));
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
     setInput("");
     setFeedback(null);
+    setShowSolution(false);
   }, [task]);
-
-  const volumen = (1 / 3) * Math.PI * task.radius ** 2 * task.height;
 
   const handleCheck = () => {
     const val = parseFloat(input.replace(",", "."));
@@ -34,9 +27,13 @@ export default function KegelVolumen() {
       setFeedback("Bitte einen Wert eingeben.");
       return;
     }
-    const correct = Math.abs(val - volumen) <= Math.max(0.5, volumen * 0.02);
-    setFeedback(correct ? "Richtig – das Volumen stimmt." : "Prüfe deine Rechnung. Nutze V = ⅓ · π · r² · h.");
-    if (correct) setTimeout(() => setTask(makeTask()), 900);
+    const correct = Math.abs(val - task.target) <= task.tolerance;
+    setFeedback(correct ? "Richtig – das stimmt." : "Noch nicht ganz richtig.");
+    if (correct) {
+      setTimeout(() => setTask(generateTask(VOLUMEN_ASKS)), 900);
+    } else {
+      setShowSolution(true);
+    }
   };
 
   return (
@@ -47,7 +44,7 @@ export default function KegelVolumen() {
         { label: "Volumen" },
       ]}
       title="Volumen berechnen"
-      description="Berechne das Volumen eines Kegels."
+      description="Berechne das Volumen eines Kegels – auch als Umkehraufgabe (Radius oder Höhe gesucht)."
       backHref="/raum-und-form/kegel"
     >
       <div className={taskCardClass}>
@@ -56,20 +53,25 @@ export default function KegelVolumen() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
             <h2 className="text-lg font-bold">Volumen berechnen</h2>
           </div>
-          <button className={primaryButtonClass} onClick={() => setTask(makeTask())}>
+          <button className={primaryButtonClass} onClick={() => setTask(generateTask(VOLUMEN_ASKS))}>
             Neue Aufgabe
           </button>
         </div>
 
-        <div className={infoBoxClass}>
-          Gegeben ist ein Kegel mit Radius r = {task.radius} cm und Höhe h = {task.height} cm. Berechne das Volumen
-          V.
-        </div>
+        <div className={infoBoxClass}>{task.question}</div>
 
-        <KegelSketch radius={task.radius} height={task.height} unit="cm" />
+        <KegelSketch
+          radius={task.radius}
+          height={task.height}
+          unit="cm"
+          radiusKnown={task.radiusKnown}
+          heightKnown={task.heightKnown}
+        />
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700">Volumen V (cm³)</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {task.askLabel} {task.unit && `(${task.unit})`}
+          </label>
           <div className="flex gap-2">
             <input
               className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
@@ -85,6 +87,16 @@ export default function KegelVolumen() {
         </div>
 
         {feedback && <FeedbackBanner correct={feedback.startsWith("Richtig")}>{feedback}</FeedbackBanner>}
+
+        {showSolution && (
+          <SolutionBox>
+            {task.steps.map((line, idx) => (
+              <div key={idx} className="font-mono text-sm">
+                {line}
+              </div>
+            ))}
+          </SolutionBox>
+        )}
       </div>
     </TaskLayout>
   );

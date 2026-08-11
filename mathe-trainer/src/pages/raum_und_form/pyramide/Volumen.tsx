@@ -4,29 +4,22 @@ import TaskLayout, {
   primaryButtonClass,
   infoBoxClass,
   FeedbackBanner,
+  SolutionBox,
 } from "../../../components/raum-und-form/TaskLayout";
 import PyramideSketch from "./PyramideSketch";
-
-type Task = { side: number; height: number };
-
-const round1 = (v: number) => Math.round(v * 10) / 10;
-const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
-
-function makeTask(): Task {
-  return { side: round1(randomBetween(4, 10)), height: round1(randomBetween(5, 12)) };
-}
+import { generateTask, VOLUMEN_ASKS, type Task } from "./taskGenerators";
 
 export default function PyramideVolumen() {
-  const [task, setTask] = useState<Task>(() => makeTask());
+  const [task, setTask] = useState<Task>(() => generateTask(VOLUMEN_ASKS));
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
     setInput("");
     setFeedback(null);
+    setShowSolution(false);
   }, [task]);
-
-  const volumen = (1 / 3) * task.side ** 2 * task.height;
 
   const handleCheck = () => {
     const val = parseFloat(input.replace(",", "."));
@@ -34,9 +27,13 @@ export default function PyramideVolumen() {
       setFeedback("Bitte einen Wert eingeben.");
       return;
     }
-    const correct = Math.abs(val - volumen) <= Math.max(0.5, volumen * 0.02);
-    setFeedback(correct ? "Richtig – das Volumen stimmt." : "Prüfe deine Rechnung. Nutze V = ⅓ · a² · h.");
-    if (correct) setTimeout(() => setTask(makeTask()), 900);
+    const correct = Math.abs(val - task.target) <= task.tolerance;
+    setFeedback(correct ? "Richtig – das stimmt." : "Noch nicht ganz richtig.");
+    if (correct) {
+      setTimeout(() => setTask(generateTask(VOLUMEN_ASKS)), 900);
+    } else {
+      setShowSolution(true);
+    }
   };
 
   return (
@@ -47,7 +44,7 @@ export default function PyramideVolumen() {
         { label: "Volumen" },
       ]}
       title="Volumen berechnen"
-      description="Berechne das Volumen einer quadratischen Pyramide."
+      description="Berechne das Volumen einer quadratischen Pyramide – auch als Umkehraufgabe (Grundkante oder Höhe gesucht)."
       backHref="/raum-und-form/pyramide"
     >
       <div className={taskCardClass}>
@@ -56,20 +53,25 @@ export default function PyramideVolumen() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Aufgabe</p>
             <h2 className="text-lg font-bold">Volumen berechnen</h2>
           </div>
-          <button className={primaryButtonClass} onClick={() => setTask(makeTask())}>
+          <button className={primaryButtonClass} onClick={() => setTask(generateTask(VOLUMEN_ASKS))}>
             Neue Aufgabe
           </button>
         </div>
 
-        <div className={infoBoxClass}>
-          Gegeben ist eine quadratische Pyramide mit Grundkante a = {task.side} cm und Höhe h = {task.height} cm.
-          Berechne das Volumen V.
-        </div>
+        <div className={infoBoxClass}>{task.question}</div>
 
-        <PyramideSketch side={task.side} height={task.height} unit="cm" />
+        <PyramideSketch
+          side={task.side}
+          height={task.height}
+          unit="cm"
+          sideKnown={task.sideKnown}
+          heightKnown={task.heightKnown}
+        />
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700">Volumen V (cm³)</label>
+          <label className="text-sm font-semibold text-slate-700">
+            {task.askLabel} {task.unit && `(${task.unit})`}
+          </label>
           <div className="flex gap-2">
             <input
               className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
@@ -85,6 +87,16 @@ export default function PyramideVolumen() {
         </div>
 
         {feedback && <FeedbackBanner correct={feedback.startsWith("Richtig")}>{feedback}</FeedbackBanner>}
+
+        {showSolution && (
+          <SolutionBox>
+            {task.steps.map((line, idx) => (
+              <div key={idx} className="font-mono text-sm">
+                {line}
+              </div>
+            ))}
+          </SolutionBox>
+        )}
       </div>
     </TaskLayout>
   );
