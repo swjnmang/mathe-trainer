@@ -2,14 +2,14 @@ import { Link } from "react-router-dom";
 import { Ruler, Triangle, Expand, Circle, Box, Cone, Pyramid, Cylinder, BookOpen } from "lucide-react";
 
 const items = [
-  { icon: Ruler, title: "Flächengeometrie", desc: "Unterthemen öffnen", href: "flaechengeometrie" },
+  { icon: Ruler, title: "Flächengeometrie", desc: "Dreiecke, Vierecke und Kreis berechnen", href: "flaechengeometrie" },
   { icon: Triangle, title: "Satz des Pythagoras", desc: "Katheten und Hypotenuse verstehen", href: "satz-des-pythagoras" },
-  { icon: Expand, title: "Strahlensätze", desc: "Coming Soon", href: "strahlensaetze" },
-  { icon: Circle, title: "Kugel", desc: "Coming Soon", href: "kugel" },
-  { icon: Box, title: "Prisma", desc: "Coming Soon", href: "prisma" },
-  { icon: Cone, title: "Kegel", desc: "Coming Soon", href: "kegel" },
-  { icon: Pyramid, title: "Pyramide", desc: "Coming Soon", href: "pyramide" },
-  { icon: Cylinder, title: "Zylinder", desc: "Coming Soon", href: "zylinder" },
+  { icon: Expand, title: "Strahlensätze", desc: "Streckenverhältnisse berechnen", href: "strahlensaetze" },
+  { icon: Circle, title: "Kugel", desc: "Oberfläche und Volumen berechnen", href: "kugel" },
+  { icon: Box, title: "Prisma", desc: "Oberfläche und Volumen berechnen", href: "prisma" },
+  { icon: Cone, title: "Kegel", desc: "Oberfläche und Volumen berechnen", href: "kegel" },
+  { icon: Pyramid, title: "Pyramide", desc: "Oberfläche und Volumen berechnen", href: "pyramide" },
+  { icon: Cylinder, title: "Zylinder", desc: "Oberfläche und Volumen berechnen", href: "zylinder" },
   { icon: BookOpen, title: "Anwendungsaufgaben", desc: "Übungsaufgaben aus dem Alltag", href: "anwendungsaufgaben" },
 ];
 
