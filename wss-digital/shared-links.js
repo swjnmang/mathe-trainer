@@ -16,10 +16,6 @@
       url: 'https://wss-digital-uebungsunternehmen.vercel.app/',
       newTab: false,
     },
-    'kennenlernspiele': {
-      url: 'kennenlernspiele.html',
-      newTab: false,
-    },
   };
 
   const modifierPressed = (event) => event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
