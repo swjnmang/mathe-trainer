@@ -24,6 +24,10 @@
             padding: 0;
         }
 
+        html {
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
@@ -31,6 +35,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-wrap: break-word;
         }
 
         header {
@@ -111,51 +116,6 @@
             margin-top: 0;
         }
 
-        /* --- Übersichtstabelle --- */
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            background-color: var(--card-bg);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 560px;
-        }
-
-        thead {
-            background-color: #eff6ff;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 0.85rem 1rem;
-            font-size: 0.92rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        th {
-            color: var(--primary-dark);
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        td {
-            color: var(--text-main);
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        td.nr {
-            font-weight: 700;
-            color: var(--primary);
-        }
-
         /* --- Accordion / Spielkarten --- */
         .game-list {
             display: flex;
@@ -183,7 +143,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
+            gap: 0.5rem 1rem;
             flex-wrap: wrap;
         }
 
@@ -192,12 +152,19 @@
         }
 
         .summary-title {
+            order: 1;
+            flex: 1 1 auto;
+            min-width: 0;
             display: flex;
             align-items: center;
             gap: 0.75rem;
             font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-main);
+        }
+
+        .summary-title > span:last-child {
+            overflow-wrap: anywhere;
         }
 
         .summary-number {
@@ -215,6 +182,8 @@
         }
 
         .summary-meta {
+            order: 3;
+            flex-basis: 100%;
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
@@ -231,6 +200,7 @@
         }
 
         .chevron {
+            order: 2;
             flex-shrink: 0;
             width: 20px;
             height: 20px;
@@ -494,16 +464,31 @@
         }
 
         @media (max-width: 640px) {
+            header { padding: 2rem 1rem; }
             h1 { font-size: 1.6rem; }
             .subtitle { font-size: 0.95rem; }
-            main { padding: 2rem 1rem 3rem; }
-            .intro-card, .reflection-card { padding: 1.5rem 1.25rem; }
+            main { padding: 1.5rem 1rem 3rem; }
+            .intro-card, .reflection-card { padding: 1.25rem 1.1rem; }
+            .section-title { font-size: 1.3rem; margin: 2rem 0 1rem; }
             details.game-card summary { padding: 1rem 1.1rem; }
+            .summary-title { font-size: 1rem; gap: 0.6rem; }
+            .summary-number { width: 28px; height: 28px; font-size: 0.85rem; }
+            .badge { font-size: 0.75rem; padding: 0.25rem 0.6rem; }
             .game-card-body { padding: 0 1.1rem 1.5rem; padding-top: 1.1rem; }
+            .game-block h4 { font-size: 0.82rem; }
+            .game-block p, .game-block li { font-size: 0.92rem; }
             .cookie-actions { flex-direction: column; }
             .cookie-button { width: 100%; }
             footer { flex-direction: column; }
             .impressum-panel { right: 1rem; left: 1rem; width: auto; }
+        }
+
+        @media (max-width: 400px) {
+            h1 { font-size: 1.35rem; }
+            .intro-card, .reflection-card { padding: 1rem 0.9rem; }
+            details.game-card summary { padding: 0.9rem 0.9rem; }
+            .game-card-body { padding: 0 0.9rem 1.25rem; padding-top: 1rem; }
+            .summary-title { font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -521,79 +506,6 @@
             <p><strong>Einsatz:</strong> Erste Schultage / Teambuilding zur Klassengemeinschaft – oder jederzeit während des Schuljahres.</p>
             <p><strong>Schwerpunkte:</strong> Kommunikation, Kooperation, Rollenverteilung, gegenseitiges Vertrauen.</p>
             <p>Diese Seite enthält detaillierte Spielanleitungen, Materiallisten und gebrauchsfertige Arbeitsaufträge für die Schülergruppen sowie einen Leitfaden für die abschließende Reflexion im Klassenverband. Klickt auf ein Spiel, um die vollständige Anleitung aufzuklappen.</p>
-        </div>
-
-        <h2 class="section-title">Übersicht der Spiele</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nr.</th>
-                        <th>Spielname</th>
-                        <th>Dauer</th>
-                        <th>Schwerpunkt</th>
-                        <th>Material (pro Gruppe)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="nr">1</td>
-                        <td>Turmbau Challenge</td>
-                        <td>25 Min.</td>
-                        <td>Kreative Problemlösung, Rollenverteilung</td>
-                        <td>Papier, Strohhalme, Tesa, Schere</td>
-                    </tr>
-                    <tr>
-                        <td class="nr">2</td>
-                        <td>Eierwurf (Egg Drop)</td>
-                        <td>35 Min.</td>
-                        <td>Konstruktives Denken, Risikomanagement</td>
-                        <td>1 rohes Ei, Strohhalme, Papier, Müllbeutel, Tesa, Schnur</td>
-                    </tr>
-                    <tr>
-                        <td class="nr">3</td>
-                        <td>Der Gordische Knoten</td>
-                        <td>15 Min.</td>
-                        <td>Körperkontakt, Ausdauer, Absprache</td>
-                        <td>Kein Material</td>
-                    </tr>
-                    <tr>
-                        <td class="nr">4</td>
-                        <td>Die Stumme Aufstellung</td>
-                        <td>15 Min.</td>
-                        <td>Nonverbale Kommunikation, Fokus</td>
-                        <td>Kein Material (evtl. Kreppband)</td>
-                    </tr>
-                    <tr>
-                        <td class="nr">5</td>
-                        <td>Das Säurebecken</td>
-                        <td>30 Min.</td>
-                        <td>Strategische Planung, Hilfsbereitschaft</td>
-                        <td>2–3 Holzbretter / Teppichfliesen / Bierkästen</td>
-                    </tr>
-                    <tr>
-                        <td class="nr">6</td>
-                        <td>Die Spinnennetz-Challenge</td>
-                        <td>30 Min.</td>
-                        <td>Körperliche Kooperation, Vertrauen</td>
-                        <td>Seil / Wollknäuel (Spinnennetz zwischen 2 Bäumen)</td>
-                    </tr>
-                    <tr>
-                        <td class="nr">7</td>
-                        <td>Der Blinde Parcours</td>
-                        <td>20 Min.</td>
-                        <td>Vertrauen, Präzise Sprache</td>
-                        <td>Augenbinden, Hindernisse (Stühle, Hütchen)</td>
-                    </tr>
-                    <tr>
-                        <td class="nr">8</td>
-                        <td>Das Mega-Kugellabyrinth</td>
-                        <td>20 Min.</td>
-                        <td>Prozessfluss, Rhythmus, Koordination</td>
-                        <td>Halbrohre (Isolierrohre/Pappe), 1 Murmel/Tennisball, 1 Eimer</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
 
         <h2 class="section-title">Spielanleitungen &amp; Arbeitsaufträge</h2>
