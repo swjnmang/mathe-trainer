@@ -452,6 +452,32 @@ details.item-card[open] .chevron {
     color: white;
 }
 
+/* --- Download-Button (PDF-Arbeitsblätter) --- */
+.download-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: white;
+    border-radius: 999px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.download-button:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.worksheet-actions {
+    margin: 0.75rem 0 1.25rem;
+}
+
 /* --- Footer --- */
 footer {
     display: flex;
@@ -657,6 +683,7 @@ footer {
 @media print {
     header .back-link,
     .print-button,
+    .worksheet-actions,
     footer,
     .cookie-banner,
     .impressum-panel {
