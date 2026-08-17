@@ -349,46 +349,6 @@ details.item-card[open] .chevron {
     gap: 0.35rem;
 }
 
-/* --- Timeline (Ablaufplan) --- */
-.timeline {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.timeline-item {
-    background-color: var(--card-bg);
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    gap: 1.25rem;
-    align-items: flex-start;
-}
-
-.timeline-time {
-    flex-shrink: 0;
-    min-width: 72px;
-    font-weight: 700;
-    color: var(--primary);
-    font-size: 0.95rem;
-    padding-top: 0.1rem;
-}
-
-.timeline-content h4 {
-    font-size: 1.02rem;
-    font-weight: 600;
-    color: var(--text-main);
-    margin-bottom: 0.3rem;
-}
-
-.timeline-content p {
-    color: var(--text-light);
-    font-size: 0.92rem;
-    line-height: 1.5;
-}
-
 /* --- Bingo-Raster --- */
 .bingo-grid {
     display: grid;
@@ -661,8 +621,6 @@ footer {
     .item-body { padding: 0 1.1rem 1.5rem; padding-top: 1.1rem; }
     .item-block h4 { font-size: 0.82rem; }
     .item-block p, .item-block li { font-size: 0.92rem; }
-    .timeline-item { flex-direction: column; gap: 0.4rem; padding: 1.1rem 1.25rem; }
-    .timeline-time { min-width: 0; }
     .bingo-grid { grid-template-columns: repeat(2, 1fr); }
     .cookie-actions { flex-direction: column; }
     .cookie-button { width: 100%; }
