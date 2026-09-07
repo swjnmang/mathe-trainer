@@ -20,6 +20,10 @@
       url: 'kennenlernspiele.html',
       newTab: false,
     },
+    'my-rallye': {
+      url: 'https://myrallye.vercel.app/',
+      newTab: true,
+    },
   };
 
   const modifierPressed = (event) => event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
