@@ -657,13 +657,45 @@ footer {
     body {
         background: white !important;
     }
-    details.item-card {
-        break-inside: avoid;
-    }
+
+    /* Akkordeon-Karten werden vor dem Drucken per JS aufgeklappt (open=true);
+       diese Regeln sind ein CSS-Fallback, falls das aus irgendeinem Grund
+       nicht greift. */
     details.item-card .item-body {
         display: block !important;
     }
     details.item-card .chevron {
         display: none !important;
+    }
+
+    /* Jede Karte (Spiel/Methode) beginnt eine neue Seite, damit pro Seite
+       immer nur ein Eintrag steht. Der jeweils letzte Eintrag der letzten
+       Liste erzwingt keinen Umbruch mehr, damit am Ende keine leere Seite
+       entsteht. */
+    details.item-card {
+        break-inside: avoid;
+        break-after: page;
+        page-break-after: always;
+    }
+    .card-list:last-of-type details.item-card:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    /* Überschriften nie allein am Seitenende, Panels nicht mitten
+       auseinanderreißen. */
+    .section-title {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+    .panel {
+        break-inside: avoid;
+    }
+
+    /* Utility-Klasse: erzwingt einen Seitenumbruch vor dem Element,
+       z. B. damit der Reflexionsleitfaden auf einer eigenen Seite beginnt. */
+    .print-break-before {
+        break-before: page;
+        page-break-before: always;
     }
 }

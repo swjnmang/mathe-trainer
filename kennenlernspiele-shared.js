@@ -57,4 +57,23 @@
             }
         });
     }
+
+    // Klappt beim Drucken alle Akkordeon-Karten auf, damit der vollständige
+    // Inhalt (nicht nur die Überschrift) im Ausdruck erscheint, und stellt
+    // danach den vorherigen Zustand wieder her.
+    const detailsElements = () => document.querySelectorAll('details.item-card');
+    let previousOpenStates = null;
+
+    window.addEventListener('beforeprint', () => {
+        const items = detailsElements();
+        previousOpenStates = Array.from(items).map((el) => el.open);
+        items.forEach((el) => { el.open = true; });
+    });
+
+    window.addEventListener('afterprint', () => {
+        if (!previousOpenStates) { return; }
+        const items = detailsElements();
+        items.forEach((el, index) => { el.open = previousOpenStates[index]; });
+        previousOpenStates = null;
+    });
 })();
